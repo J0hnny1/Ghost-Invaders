@@ -2,8 +2,11 @@ sourceCompatibility = 1.7
 sourceSets.main.java.srcDirs = [ "src/" ]
 sourceSets.main.resources.srcDirs = ["../core/assets"]
 
+
 project.ext.mainClassName = "com.mygdx.game.desktop.DesktopLauncher"
 project.ext.assetsDir = new File("../core/assets")
+
+
 
 task run(dependsOn: classes, type: JavaExec) {
     main = project.mainClassName
@@ -33,6 +36,13 @@ task dist(type: Jar) {
     with jar
 }
 
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'com.mygdx.game.desktop.DesktopLauncher'
+        )
+    }
+}
 
 dist.dependsOn classes
 
