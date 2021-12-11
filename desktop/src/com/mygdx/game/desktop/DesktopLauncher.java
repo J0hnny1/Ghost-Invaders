@@ -18,9 +18,9 @@ public class DesktopLauncher {
         //config.setFullscreenMode(primaryMode);
         new Lwjgl3Application(new MyGdxGame(), config);
 
-        config.setHdpiMode(HdpiMode.Logical);
+        //config.setHdpiMode(HdpiMode.Logical);
         config.setTitle("Game Demo");
-        config.setWindowedMode(800,400);
+        //config.setWindowedMode(800,400);
         //config.setInitialBackgroundColor(Color.BLUE);
 
 

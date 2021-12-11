@@ -12,6 +12,8 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.math.Rectangle;
 
 
+
+
 public class MyGdxGame extends ApplicationAdapter {
     SpriteBatch batch;
     Texture img;
@@ -27,12 +29,18 @@ public class MyGdxGame extends ApplicationAdapter {
     Texture wall2;
     Texture testTexture;
     Rectangle test;
-    boolean fullscreen = true;
+    boolean fullscreen = false;
     public boolean maybe = true;
     //Graphics.DisplayMode prim = Gdx.graphics.getDisplayMode();
     Texture healthTexture;
     Rectangle healthIcon;
-    Health  health = new Health(4);
+    Health health = new Health(4);
+    float lastDamage;
+    //Graphics.Monitor[] monitors = Gdx.graphics.getMonitors();
+    //aktueller Bildschirm
+    //raphics.Monitor currMonitor = Gdx.graphics.getMonitor();
+    //private Graphics.Monitor monitor;
+    //Graphics.DisplayMode currMode = Gdx.graphics.getDisplayMode(monitor);
 
 
     @Override
@@ -126,14 +134,30 @@ public class MyGdxGame extends ApplicationAdapter {
             //}
         }
 
-        //Aus Fullscreen raus gehen
+        //Fullscreen Toggle
         if (Gdx.input.isKeyPressed(Input.Keys.F)) {
+            if (!fullscreen){
+                Graphics.Monitor currMonitor = Gdx.graphics.getMonitor();
+                Graphics.DisplayMode displayMode = Gdx.graphics.getDisplayMode(currMonitor);
+                fullscreen = true;
+                if(!Gdx.graphics.setFullscreenMode(displayMode)) {
+                    // switching to full-screen mode failed
+                }
+
+            }else {
+                Gdx.graphics.setWindowedMode(800, 600);
+                fullscreen = false;
+            }
+
+        }
+
+
+
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
             if (fullscreen) {
                 Gdx.graphics.setWindowedMode(800, 600);
                 fullscreen = false;
             } //else Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-
-
         }
 
         // Wenn player ausserhalb des Screens im X bereich
@@ -156,13 +180,14 @@ public class MyGdxGame extends ApplicationAdapter {
         //}
 
         if (player.overlaps(enemy)) {
+
             health.damage(1);
 
         }
         //if (player.overlaps(test)) {
         //    System.out.println("Test Comment");
         //    player.y = test.y - 64;
-       //     player.x = test.x + 93;
+        //     player.x = test.x + 93;
         //}
 
 
