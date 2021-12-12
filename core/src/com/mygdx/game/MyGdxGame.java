@@ -7,11 +7,13 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.math.Rectangle;
-
-
+import com.badlogic.gdx.utils.TimeUtils;
+import com.badlogic.gdx.utils.Timer;
 
 
 public class MyGdxGame extends ApplicationAdapter {
@@ -31,16 +33,24 @@ public class MyGdxGame extends ApplicationAdapter {
     Rectangle test;
     boolean fullscreen = false;
     public boolean maybe = true;
-    //Graphics.DisplayMode prim = Gdx.graphics.getDisplayMode();
     Texture healthTexture;
     Rectangle healthIcon;
-    Health health = new Health(4);
-    float lastDamage;
-    //Graphics.Monitor[] monitors = Gdx.graphics.getMonitors();
-    //aktueller Bildschirm
-    //raphics.Monitor currMonitor = Gdx.graphics.getMonitor();
-    //private Graphics.Monitor monitor;
-    //Graphics.DisplayMode currMode = Gdx.graphics.getDisplayMode(monitor);
+    Health health = new Health(4, 420);
+    Texture male17;
+    TextureRegion region;
+    TextureRegion region2;
+    Rectangle sp2;
+    Rectangle sp3;
+    Sprite sprite;
+    TextureRegion[][] regions;
+    int frame;
+    int zeile;
+    //Instant start_time = Instant.now();
+    //Instant stop_time;;
+    long start_time = System.currentTimeMillis();
+    long stop_time;
+    long diff;
+    long diff_s;
 
 
     @Override
@@ -52,7 +62,10 @@ public class MyGdxGame extends ApplicationAdapter {
         testTexture = new Texture("test.png");
         healthTexture = new Texture("health.png");
 
-        wall2 = new Texture("badlogic.jpg");
+        male17 = new Texture("Male 17-1.png");
+        region = new TextureRegion(male17, 0, 32, 32, 32);
+        region2 = new TextureRegion(male17, 0, 0, 32, 32);
+
 
         //sound
         m9 = Gdx.audio.newSound(Gdx.files.internal("barreta_m9-Dion_Stapper-1010051237.mp3"));
@@ -60,12 +73,12 @@ public class MyGdxGame extends ApplicationAdapter {
         //Kamera
         camera = new OrthographicCamera();
         batch = new SpriteBatch();
-        camera.setToOrtho(false, 800, 400);
+        camera.setToOrtho(false, 1280, 720);
 
         //player
         player = new Rectangle();
-        player.x = 800 / 2 - 64 / 2;
-        player.y = 20;
+        player.x = 1280 / 2 - 64 / 2;
+        player.y = 720 / 2;
         player.width = 64;
         player.height = 64;
 
@@ -81,6 +94,11 @@ public class MyGdxGame extends ApplicationAdapter {
         test = new Rectangle(100, 100, 93, 93);
 
         healthIcon = new Rectangle();
+
+        sp2 = new Rectangle(0, 0, 32, 32);
+        sp3 = new Rectangle(96, 0, 96, 96);
+        regions = TextureRegion.split(male17, 32, 32);
+        sprite = new Sprite(regions[0][0]);
 
 
     }
@@ -100,22 +118,25 @@ public class MyGdxGame extends ApplicationAdapter {
         batch.draw(healthTexture, 3, 400 - 32);
         batch.draw(healthTexture, 35, 400 - 32);
         batch.draw(healthTexture, 70, 400 - 32);
+        batch.draw(region, sp2.x, sp2.y, 96, 96);
+        batch.draw(region2, sp3.x, sp3.y, 96, 96);
 
+
+        //setzt Farbe aller geladenen Texturen
         //batch.setColor(1,0,0,1);
 
 
-        //batch.draw(wall2, wall.x, wall.y);
-
-        batch.end(); //Ende Des Draw Prozess
+        //Ende Des Draw Prozess
+        batch.end();
 
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            player.x += 200 * Gdx.graphics.getDeltaTime();
+            player.x += 250 * Gdx.graphics.getDeltaTime();
         }
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            player.x -= 200 * Gdx.graphics.getDeltaTime();
+            player.x -= 250 * Gdx.graphics.getDeltaTime();
         }
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            player.y += 200 * Gdx.graphics.getDeltaTime();
+            player.y += 250 * Gdx.graphics.getDeltaTime();
             //m9.play();
         }
         if (Gdx.input.isKeyPressed(Input.Keys.K)) {
@@ -127,7 +148,7 @@ public class MyGdxGame extends ApplicationAdapter {
             System.out.println("Hp: " + health.getHealth());
         }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            player.y -= 200 * Gdx.graphics.getDeltaTime();
+            player.y -= 250 * Gdx.graphics.getDeltaTime();
             //System.out.println(player.x);
             //if (player.overlaps(badlogic1)) {
             //    System.out.println("Poggers");
@@ -136,37 +157,44 @@ public class MyGdxGame extends ApplicationAdapter {
 
         //Fullscreen Toggle
         if (Gdx.input.isKeyPressed(Input.Keys.F)) {
-            if (!fullscreen){
+            if (!fullscreen) {
                 Graphics.Monitor currMonitor = Gdx.graphics.getMonitor();
                 Graphics.DisplayMode displayMode = Gdx.graphics.getDisplayMode(currMonitor);
                 fullscreen = true;
-                if(!Gdx.graphics.setFullscreenMode(displayMode)) {
+                if (!Gdx.graphics.setFullscreenMode(displayMode)) {
                     // switching to full-screen mode failed
                 }
 
-            }else {
-                Gdx.graphics.setWindowedMode(800, 600);
+            } else {
+                Gdx.graphics.setWindowedMode(1280, 720);
                 fullscreen = false;
             }
 
         }
 
 
-
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-            if (fullscreen) {
-                Gdx.graphics.setWindowedMode(800, 600);
-                fullscreen = false;
-            } //else Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+            //stop_time = Instant.now();
+            //System.out.println(Duration.between(start_time,stop_time));
+            //System.out.println(ChronoUnit.SECONDS.between(start_time, stop_time));
+            //stop_time = System.currentTimeMillis();
+            //diff = stop_time - start_time;
+
+
+            System.out.println("Ms start: " + start_time);
+            System.out.println("Ms stop " + stop_time);
+            System.out.println("Differenz " + diff);
+            System.out.println("Diff S " + diff_s);
+
         }
 
         // Wenn player ausserhalb des Screens im X bereich
         if (player.x < 0) player.x = 0;
-        if (player.x > 800 - 64) player.x = 800 - 64;
+        if (player.x > 1280 - 64) player.x = 1280 - 64;
 
         // Wenn player ausserhalb des Screens im Y bereich
         if (player.y < 0) player.y = 0;
-        if (player.y + 64 > 400) player.y = 400 - 64;
+        if (player.y + 64 > 720) player.y = 720 - 64;
 
 
         //for (int i = 0; i < enemy.x + enemyTexture.getWidth(); i++){
@@ -180,15 +208,20 @@ public class MyGdxGame extends ApplicationAdapter {
         //}
 
         if (player.overlaps(enemy)) {
+            m9.play(0.4f);
+            health.decrease(1);
+        }
 
-            health.damage(1);
+        if (player.overlaps(sp3)) {
+
+            if (System.currentTimeMillis() - start_time > 3000 || System.currentTimeMillis() - start_time == 0) {
+                start_time = System.currentTimeMillis();
+                System.out.println(health.decrease(1));
+                System.out.println("contact sp3");
+            }
+
 
         }
-        //if (player.overlaps(test)) {
-        //    System.out.println("Test Comment");
-        //    player.y = test.y - 64;
-        //     player.x = test.x + 93;
-        //}
 
 
     }
