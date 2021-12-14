@@ -13,15 +13,10 @@ import com.badlogic.gdx.math.Rectangle;
 
 public class MyGdxGame extends ApplicationAdapter {
     SpriteBatch batch;
-    Texture badlogic;
     OrthographicCamera camera;
     Rectangle player;
-    Rectangle badlogic1;
     Texture enemyTexture;
-    Sound m9;
-    Texture testTexture;
-    Rectangle test;
-    public boolean maybe = true;
+
     Texture healthTexture;
     Rectangle healthIcon;
     Health health = new Health(4, 10);
@@ -31,8 +26,7 @@ public class MyGdxGame extends ApplicationAdapter {
     TextureRegion player_walk_right;
     TextureRegion player_walk_back;
     Rectangle enemy01;
-    Sprite sprite;
-    TextureRegion[][] regions;
+
     long start_time = System.currentTimeMillis();
     InputProcessor inputProcessor = new InputProcessor();
     boolean show_player_front = true;
@@ -41,7 +35,6 @@ public class MyGdxGame extends ApplicationAdapter {
     boolean show_player_right;
     Texture enemy09_texture;
     TextureRegion enemy09_front;
-    int count = 32;
     Texture redpotion_texture;
     TextureRegion redpotion;
     Rectangle redpotion_rectangle;
@@ -50,9 +43,7 @@ public class MyGdxGame extends ApplicationAdapter {
     @Override
     public void create() {
         //Texturen
-        badlogic = new Texture("badlogic.jpg");
         enemyTexture = new Texture("shit.png");
-        testTexture = new Texture("test.png");
         healthTexture = new Texture("health.png");
         enemy09_texture = new Texture("Enemy 09-1.png");
         redpotion_texture = new Texture("red potion.png");
@@ -68,9 +59,6 @@ public class MyGdxGame extends ApplicationAdapter {
         redpotion = new TextureRegion(redpotion_texture, 0, 0, 16, 16);
 
 
-        //sound
-        m9 = Gdx.audio.newSound(Gdx.files.internal("barreta_m9-Dion_Stapper-1010051237.mp3"));
-
         //Kamera
         camera = new OrthographicCamera();
         batch = new SpriteBatch();
@@ -84,8 +72,6 @@ public class MyGdxGame extends ApplicationAdapter {
 
         healthIcon = new Rectangle();
 
-        regions = TextureRegion.split(male17, 32, 32);
-        sprite = new Sprite(regions[0][0]);
 
         redpotion_rectangle = new Rectangle(100, 500, 64, 64);
         // Input Prozessor
@@ -116,9 +102,7 @@ public class MyGdxGame extends ApplicationAdapter {
         if (show_player_back) batch.draw(player_walk_back, player.x, player.y, 96, 96);
         if (show_player_front) batch.draw(player_walk_front, player.x, player.y, 96, 96);
 
-        for (int i = 0; i < health.getHealth(); i++) {
-            batch.draw(healthTexture, i * 32, 720 - 32);
-        }
+        drawHealthIcons();
 
         //Ende Des Draw Prozess
         batch.end();
@@ -172,11 +156,6 @@ public class MyGdxGame extends ApplicationAdapter {
         if (player.y + 64 > 720) player.y = 720 - 64;
 
 
-        // if (player.overlaps(enemy01)) {
-        //   m9.play(0.4f);
-        //   health.decrease(1);
-        //}
-
         if (player.overlaps(enemy01)) {
 
             if (System.currentTimeMillis() - start_time > 3000 || System.currentTimeMillis() - start_time == 0) {
@@ -189,8 +168,8 @@ public class MyGdxGame extends ApplicationAdapter {
         }
 
         if (player.overlaps(redpotion_rectangle)) {
-                health.increase(1);
-                System.out.println("Hp increase");
+            health.increase(1);
+            System.out.println("Hp increase");
 
 
         }
@@ -203,13 +182,13 @@ public class MyGdxGame extends ApplicationAdapter {
         batch.dispose();
         male17.dispose();
         healthTexture.dispose();
-        testTexture.dispose();
         enemyTexture.dispose();
 
     }
 
-    public void drawHealthIcon() {
-        int c = health.getHealth();
-
+    public void drawHealthIcons() {
+        for (int i = 0; i < health.getHealth(); i++) {
+            batch.draw(healthTexture, i * 32, 720 - 32);
+        }
     }
 }
