@@ -7,8 +7,11 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.RandomXS128;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.math.Rectangle;
+
+import java.util.Random;
 
 
 public class MyGdxGame extends ApplicationAdapter {
@@ -28,6 +31,7 @@ public class MyGdxGame extends ApplicationAdapter {
     Rectangle enemy01;
 
     long start_time = System.currentTimeMillis();
+    long start_time_2 = System.currentTimeMillis();
     InputProcessor inputProcessor = new InputProcessor();
     boolean show_player_front = true;
     boolean show_player_back;
@@ -38,6 +42,8 @@ public class MyGdxGame extends ApplicationAdapter {
     Texture redpotion_texture;
     TextureRegion redpotion;
     Rectangle redpotion_rectangle;
+    Random random = new Random();
+
 
 
     @Override
@@ -146,6 +152,10 @@ public class MyGdxGame extends ApplicationAdapter {
             System.out.println("Hp: " + health.getHealth());
         }
 
+        if (Gdx.input.isKeyPressed(Input.Keys.P)) {
+
+        }
+        follow();
 
         // Wenn player ausserhalb des Screens im X bereich
         if (player.x < 0) player.x = 0;
@@ -189,6 +199,33 @@ public class MyGdxGame extends ApplicationAdapter {
     public void drawHealthIcons() {
         for (int i = 0; i < health.getHealth(); i++) {
             batch.draw(healthTexture, i * 32, 720 - 32);
+        }
+    }
+
+    public void createEnemys() {
+        //batch.draw(enemy01,random.nextInt(1280),random.nextInt(720));
+    }
+
+    public void follow() {
+        if (enemy01.y != player.y && enemy01.x != player.x) {
+            if (enemy01.x < player.x) {
+                enemy01.x += 150 * Gdx.graphics.getDeltaTime();
+            }
+            if (enemy01.x > player.x) {
+                enemy01.x -= 150 * Gdx.graphics.getDeltaTime();
+            }
+            //start_time_2 = System.currentTimeMillis();
+            if (System.currentTimeMillis() - start_time_2 > 1000) {
+
+                if (enemy01.y > player.y) {
+                    enemy01.y -= 150 * Gdx.graphics.getDeltaTime();
+                }
+                if (enemy01.y < player.y) {
+                    enemy01.y += 150 * Gdx.graphics.getDeltaTime();
+
+                }
+            }
+
         }
     }
 }
