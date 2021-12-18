@@ -1,15 +1,16 @@
 package com.mygdx.game;
 
+import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.Input;
 
 public class InputProcessor implements com.badlogic.gdx.InputProcessor {
     boolean fullscreen = false;
-    //MyGdxGame mydx = new MyGdxGame();
+    Player spieler;
+
 
     /**
-     *
      * @param keycode
      * @return if action is performed
      */
@@ -30,11 +31,8 @@ public class InputProcessor implements com.badlogic.gdx.InputProcessor {
                     fullscreen = false;
                 }
                 break;
-            case Input.Keys.U:
-                //if (mydx.isShow_region()) {
-                //    mydx.isShow_region() = false;
-                //}else mydx.show_region = true;
-                break;
+
+
         }
 
         return true;

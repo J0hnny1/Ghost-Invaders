@@ -9,6 +9,9 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.math.Rectangle;
 
 
+import java.util.Random;
+
+
 public class MyGdxGame extends ApplicationAdapter {
 
     //nur zu Testzwecken
@@ -21,6 +24,8 @@ public class MyGdxGame extends ApplicationAdapter {
     Texture healthTexture;
     long start_time = System.currentTimeMillis();
     long start_time_2 = System.currentTimeMillis();
+    long start_time_3 = System.currentTimeMillis();
+    long start_time_4 = System.currentTimeMillis();
     InputProcessor inputProcessor = new InputProcessor();
     Texture redpotion_texture;
     TextureRegion redpotion;
@@ -28,6 +33,9 @@ public class MyGdxGame extends ApplicationAdapter {
     Enemy gegner;
     boolean zeichneGegner;
     Player spieler;
+    Random random = new Random();
+    Bullet bullet;
+    boolean bullet_draw;
 
 
     @Override
@@ -65,6 +73,7 @@ public class MyGdxGame extends ApplicationAdapter {
         //Erstelle Objekt gegners
         gegner = new Enemy();
 
+        bullet = new Bullet();
 
     }
 
@@ -96,13 +105,16 @@ public class MyGdxGame extends ApplicationAdapter {
         //Draw Hp Bar
         drawHealthIcons();
 
-        //Wenn O gedrückt dann zeichne Gegner
+        //Zeichne Gegner
         if (zeichneGegner) {
             for (int i = 0; i < gegner.getRectangles().length; i++) {
                 batch.draw(gegner.getEnemy_textureRegion(), gegner.getRectangleAnStelle(i).x, gegner.getRectangleAnStelle(i).y, 96, 96);
             }
         }
 
+        if (bullet_draw) {
+            batch.draw(bullet.getBullet_texture(),100,100,64,64);
+        }
 
         //Ende Des Draw Prozess
         batch.end();
@@ -138,22 +150,28 @@ public class MyGdxGame extends ApplicationAdapter {
 
         }
         if (Gdx.input.isKeyPressed(Input.Keys.O)) {
-            gegner.drawEnemys();
+            gegner.createEnemys();
             zeichneGegner = true;
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            bullet_draw = true;
+        }
+        if (zeichneGegner) {
+            follow();
+        }
+        if (zeichneGegner) {
+            for (int i = 0; i < gegner.getRectangles().length; i++) {
+                Rectangle r1 = gegner.getRectangleAnStelle(i);
+                //Rectangle r2 = gegner.getRectangleAnStelle(i + 1);
+                //if (r1.x == r2.x) r1.x = r2.x +96;
+            }
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.K)) {
             follow();
         }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.P)) {
-            for (int i = 0; i < gegner.getRectangles().length; i++) {
-                System.out.println(gegner.getRectangleAnStelle(i).x);
-            }
-        }
-        if (zeichneGegner) {
-            follow();
-        }
+        drawRandomEnemies();
 
 
         // Wenn player ausserhalb des Screens im X bereich
@@ -179,11 +197,19 @@ public class MyGdxGame extends ApplicationAdapter {
         }
 
         if (zeichneGegner) {
-            Rectangle r = gegner.getRectangleAnStelle(1);
-            if (spieler.player_rectangle.overlaps(r)) {
-                System.out.println("Contact with 1");
-                spieler.hp.decrease(1);
+            for (int i = 0; i < 5; i++) {
+                Rectangle r = gegner.getRectangleAnStelle(i);
+                if (spieler.player_rectangle.overlaps(r)) {
+                    System.out.println("Contact with enemy");
+
+                    if (System.currentTimeMillis() - start_time_3 > 3000 || System.currentTimeMillis() - start_time == 0) {
+                        start_time_3 = System.currentTimeMillis();
+                        System.out.println(spieler.hp.decrease(1));
+                        System.out.println("contact sp3");
+                    }
+                }
             }
+
         }
 
 
@@ -193,7 +219,6 @@ public class MyGdxGame extends ApplicationAdapter {
     public void dispose() {
         batch.dispose();
         healthTexture.dispose();
-
     }
 
     public void drawHealthIcons() {
@@ -225,6 +250,34 @@ public class MyGdxGame extends ApplicationAdapter {
 
             }
         }
+
+    }
+
+    public void drawRandomEnemies() {
+        int r = random.nextInt(4);
+
+        if (System.currentTimeMillis() - start_time_4 > 10000 || System.currentTimeMillis() - start_time == 0) {
+            start_time_4 = System.currentTimeMillis();
+            switch (r) {
+                case 0:
+                    gegner.createEnemysTop();
+                    follow();
+                    break;
+                case 1:
+                    gegner.createEnemysBottom();
+                    follow();
+                    break;
+                case 2:
+                    gegner.createEnemysLeft();
+                    follow();
+                    break;
+                case 3:
+                    gegner.createEnemysRight();
+                    follow();
+                    break;
+            }
+        }
+
 
     }
 }
