@@ -36,6 +36,8 @@ public class MyGdxGame extends ApplicationAdapter {
     Random random = new Random();
     Bullet bullet;
     boolean bullet_draw;
+    Texture fireball_texture;
+    Rectangle fireball;
 
 
     @Override
@@ -45,7 +47,8 @@ public class MyGdxGame extends ApplicationAdapter {
         enemy09_texture = new Texture("Enemy 09-1.png");
         redpotion_texture = new Texture("red potion.png");
 
-
+        fireball_texture = new Texture("myBall.png");
+        fireball = new Rectangle(700, 100, 32, 32);
         //Spieler
         spieler = new Player();
 
@@ -92,6 +95,7 @@ public class MyGdxGame extends ApplicationAdapter {
         //Red Potion
         batch.draw(redpotion, redpotion_rectangle.x, redpotion_rectangle.y, 64, 64);
 
+        batch.draw(fireball_texture,fireball.x,fireball.y,32,32);
         //Spieler "Animationen"
         if (spieler.show_player_right)
             batch.draw(spieler.player_walk_right, spieler.player_rectangle.x, spieler.player_rectangle.y, 96, 96);
@@ -194,6 +198,10 @@ public class MyGdxGame extends ApplicationAdapter {
         if (spieler.player_rectangle.overlaps(redpotion_rectangle)) {
             spieler.hp.increase(1);
             System.out.println("Hp increase");
+        }
+
+        if (spieler.player_rectangle.overlaps(fireball)) {
+            System.out.println("Fireball");
         }
 
         if (zeichneGegner) {
