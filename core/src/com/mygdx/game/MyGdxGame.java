@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 
 import java.util.Random;
@@ -112,6 +113,12 @@ public class MyGdxGame extends ApplicationAdapter {
 
         //Draw Hp Bar
         drawHealthIcons();
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            //bullet.createBullet();
+            //fireball_draw = true;
+            drawFireBall();
+        }
+
 
         //Zeichne Gegner
         if (zeichneGegner) {
@@ -121,11 +128,12 @@ public class MyGdxGame extends ApplicationAdapter {
         }
 
         if (fireball_draw) {
-            batch.draw(bullet.getBullet_texture(),100,100,64,64);
+            drawFireBall();
         }
 
         //Ende Des Draw Prozess
         batch.end();
+
 
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             spieler.show_player_left = false;
@@ -162,10 +170,7 @@ public class MyGdxGame extends ApplicationAdapter {
             zeichneGegner = true;
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            bullet.createBullet();
-            fireball_draw = true;
-        }
+
         if (zeichneGegner) {
             follow();
         }
@@ -184,10 +189,10 @@ public class MyGdxGame extends ApplicationAdapter {
             fireball_draw = true;
         }
         drawRandomEnemies();
-        if (fireball_draw) {
-            fireball_rectangle.x += 100 * Gdx.graphics.getDeltaTime();
+        //if (fireball_draw) {
+        //    fireball_rectangle.x += 100 * Gdx.graphics.getDeltaTime();
 
-        }
+        //}
 
         // Wenn player ausserhalb des Screens im X bereich
         if (spieler.player_rectangle.x < 0) spieler.player_rectangle.x = 0;
@@ -296,7 +301,21 @@ public class MyGdxGame extends ApplicationAdapter {
                     break;
             }
         }
+    }
 
-
+    public void drawFireBall() {
+        if (spieler.show_player_front) {
+            batch.draw(fireball_texture,fireball_rectangle.x,fireball_rectangle.y,32,32);
+            fireball_rectangle.y -= 100 * Gdx.graphics.getDeltaTime();
+        } else if (spieler.show_player_back) {
+            batch.draw(fireball_texture,fireball_rectangle.x,fireball_rectangle.y,32,32);
+            fireball_rectangle.y += 100 * Gdx.graphics.getDeltaTime();
+        } else if (spieler.show_player_left) {
+            batch.draw(fireball_texture,fireball_rectangle.x,fireball_rectangle.y,32,32);
+            fireball_rectangle.x -= 100 * Gdx.graphics.getDeltaTime();
+        } else if (spieler.show_player_right) {
+            batch.draw(fireball_texture,fireball_rectangle.x,fireball_rectangle.y,32,32);
+            fireball_rectangle.x += 100 * Gdx.graphics.getDeltaTime();
+        }
     }
 }

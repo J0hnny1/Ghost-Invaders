@@ -11,6 +11,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Enemy {
 
     private final Rectangle[] rectangles = new Rectangle[5];
+    private Boolean[] check_enemy_draw = new Boolean[5];
     private final Texture text = new Texture("Enemy 09-1.png");
     private final TextureRegion enemy_textureRegion = new TextureRegion(text, 0, 0, 32, 32);
     private Random random = new Random();
@@ -33,32 +34,36 @@ public class Enemy {
      */
     public void createEnemys() {
         for (int i = 0; i < rectangles.length; i++) {
-
             rectangles[i] = new Rectangle(random.nextInt(1280 - 64), random.nextInt(720) - 64, 96, 96);
+            check_enemy_draw[i] = true;
         }
     }
 
     public void createEnemysTop() {
         for (int i = 0; i < rectangles.length; i++) {
             rectangles[i] = new Rectangle(random.nextInt(1280 - 64), ThreadLocalRandom.current().nextInt(720 - 64, 720 + 1), 96, 96);
+            check_enemy_draw[i] = true;
         }
     }
 
     public void createEnemysBottom() {
         for (int i = 0; i < rectangles.length; i++) {
             rectangles[i] = new Rectangle(random.nextInt(1280 - 64), ThreadLocalRandom.current().nextInt(-64, 32 + 1), 96, 96);
+            check_enemy_draw[i] = true;
         }
     }
 
     public void createEnemysLeft() {
         for (int i = 0; i < rectangles.length; i++) {
             rectangles[i] = new Rectangle(ThreadLocalRandom.current().nextInt(-64, 64 + 1), random.nextInt(720 - 64), 96, 96);
+            check_enemy_draw[i] = true;
         }
     }
 
     public void createEnemysRight() {
         for (int i = 0; i < rectangles.length; i++) {
             rectangles[i] = new Rectangle(ThreadLocalRandom.current().nextInt(1280 - 64, 1280 + 64 + 1), random.nextInt(720) - 64, 96, 96);
+            check_enemy_draw[i] = true;
         }
     }
 

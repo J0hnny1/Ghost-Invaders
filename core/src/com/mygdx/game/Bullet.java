@@ -9,6 +9,7 @@ public class Bullet {
     private Rectangle[] rectangles_fireballs = new Rectangle[20];
     private boolean[] draw_fireball_array = new boolean[20];
     //private String direction;
+    private int c = 0;
 
     public Rectangle[] getCircles() {
         return rectangles_fireballs;
@@ -21,10 +22,16 @@ public class Bullet {
     public void createBullet() {
         for (int i = 0; i < rectangles_fireballs.length; i++) {
             rectangles_fireballs[i] = new Rectangle(600,200,32,32);
+            c++;
         }
     }
 
     public void drawBullet(String direction) {
+        for (int i = 0; i < draw_fireball_array.length; i++) {
+            if (rectangles_fireballs[i] == null) {
+                draw_fireball_array[i] = true;
+            }
+        }
 
         switch (direction) {
             case "right":
