@@ -35,9 +35,9 @@ public class MyGdxGame extends ApplicationAdapter {
     Player spieler;
     Random random = new Random();
     Bullet bullet;
-    boolean bullet_draw;
+    boolean fireball_draw = false;
     Texture fireball_texture;
-    Rectangle fireball;
+    Rectangle fireball_rectangle;
 
 
     @Override
@@ -48,11 +48,11 @@ public class MyGdxGame extends ApplicationAdapter {
         redpotion_texture = new Texture("red potion.png");
 
         fireball_texture = new Texture("myBall.png");
-        fireball = new Rectangle(700, 100, 32, 32);
+
         //Spieler
         spieler = new Player();
 
-
+        fireball_rectangle = new Rectangle(spieler.player_rectangle.x, spieler.player_rectangle.y, 32, 32);
         //Enemy Texture Region
         enemy09_front = new TextureRegion(enemy09_texture, 0, 0, 32, 32);
 
@@ -95,7 +95,7 @@ public class MyGdxGame extends ApplicationAdapter {
         //Red Potion
         batch.draw(redpotion, redpotion_rectangle.x, redpotion_rectangle.y, 64, 64);
 
-        batch.draw(fireball_texture,fireball.x,fireball.y,32,32);
+        batch.draw(fireball_texture, fireball_rectangle.x, fireball_rectangle.y,32,32);
         //Spieler "Animationen"
         if (spieler.show_player_right)
             batch.draw(spieler.player_walk_right, spieler.player_rectangle.x, spieler.player_rectangle.y, 96, 96);
@@ -105,6 +105,10 @@ public class MyGdxGame extends ApplicationAdapter {
             batch.draw(spieler.player_walk_back, spieler.player_rectangle.x, spieler.player_rectangle.y, 96, 96);
         if (spieler.show_player_front)
             batch.draw(spieler.player_walk_front, spieler.player_rectangle.x, spieler.player_rectangle.y, 96, 96);
+
+        if (fireball_draw) {
+            batch.draw(fireball_texture,fireball_rectangle.x,fireball_rectangle.y);
+        }
 
         //Draw Hp Bar
         drawHealthIcons();
@@ -116,7 +120,7 @@ public class MyGdxGame extends ApplicationAdapter {
             }
         }
 
-        if (bullet_draw) {
+        if (fireball_draw) {
             batch.draw(bullet.getBullet_texture(),100,100,64,64);
         }
 
@@ -159,7 +163,8 @@ public class MyGdxGame extends ApplicationAdapter {
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            bullet_draw = true;
+            bullet.createBullet();
+            fireball_draw = true;
         }
         if (zeichneGegner) {
             follow();
@@ -175,8 +180,14 @@ public class MyGdxGame extends ApplicationAdapter {
         if (Gdx.input.isKeyPressed(Input.Keys.K)) {
             follow();
         }
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            fireball_draw = true;
+        }
         drawRandomEnemies();
+        if (fireball_draw) {
+            fireball_rectangle.x += 100 * Gdx.graphics.getDeltaTime();
 
+        }
 
         // Wenn player ausserhalb des Screens im X bereich
         if (spieler.player_rectangle.x < 0) spieler.player_rectangle.x = 0;
@@ -200,7 +211,7 @@ public class MyGdxGame extends ApplicationAdapter {
             System.out.println("Hp increase");
         }
 
-        if (spieler.player_rectangle.overlaps(fireball)) {
+        if (spieler.player_rectangle.overlaps(fireball_rectangle)) {
             System.out.println("Fireball");
         }
 
