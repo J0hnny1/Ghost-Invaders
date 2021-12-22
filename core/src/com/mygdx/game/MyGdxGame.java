@@ -114,8 +114,6 @@ public class MyGdxGame extends ApplicationAdapter {
         //Draw Hp Bar
         drawHealthIcons();
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            //bullet.createBullet();
-            //fireball_draw = true;
             drawFireBall();
         }
 
@@ -133,6 +131,9 @@ public class MyGdxGame extends ApplicationAdapter {
 
         //Ende Des Draw Prozess
         batch.end();
+
+
+
 
 
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
@@ -168,6 +169,9 @@ public class MyGdxGame extends ApplicationAdapter {
         if (Gdx.input.isKeyPressed(Input.Keys.O)) {
             gegner.createEnemys();
             zeichneGegner = true;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.C)) {
+            drawRandomEnemies();
         }
 
 
@@ -210,6 +214,8 @@ public class MyGdxGame extends ApplicationAdapter {
                 System.out.println("contact sp3");
             }
         }
+
+
 
         if (spieler.player_rectangle.overlaps(redpotion_rectangle)) {
             spieler.hp.increase(1);

@@ -4,14 +4,15 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 import org.graalvm.compiler.lir.StandardOp;
 
+import java.util.ArrayList;
+
 public class Bullet {
     private Texture bullet_texture = new Texture("bullet.jpg");
-    private Rectangle[] rectangles_fireballs = new Rectangle[20];
+    ArrayList<Rectangle> rectangles_fireballs = new ArrayList<>();
     private boolean[] draw_fireball_array = new boolean[20];
-    //private String direction;
     private int c = 0;
 
-    public Rectangle[] getCircles() {
+    public ArrayList<Rectangle> getCircles() {
         return rectangles_fireballs;
     }
 
@@ -20,15 +21,15 @@ public class Bullet {
     }
 
     public void createBullet() {
-        for (int i = 0; i < rectangles_fireballs.length; i++) {
-            rectangles_fireballs[i] = new Rectangle(600,200,32,32);
+        for (int i = 0; i < rectangles_fireballs.size(); i++) {
+            rectangles_fireballs.add(new Rectangle(600,200,32,32));
             c++;
         }
     }
 
     public void drawBullet(String direction) {
         for (int i = 0; i < draw_fireball_array.length; i++) {
-            if (rectangles_fireballs[i] == null) {
+            if (rectangles_fireballs.get(i) == null) {
                 draw_fireball_array[i] = true;
             }
         }
