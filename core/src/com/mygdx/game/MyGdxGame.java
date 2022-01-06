@@ -16,24 +16,22 @@ import java.util.Random;
 public class MyGdxGame extends ApplicationAdapter {
 
     //nur zu Testzwecken
-    Rectangle enemy01;
     Texture enemy09_texture;
     TextureRegion enemy09_front;
 
     SpriteBatch batch;
     OrthographicCamera camera;
     Texture healthTexture;
+    long start_time_initial = System.currentTimeMillis();
     long start_time = System.currentTimeMillis();
     long start_time_2 = System.currentTimeMillis();
-    long start_time_3 = System.currentTimeMillis();
-    long start_time_4 = System.currentTimeMillis();
+    long start_time_spawn = System.currentTimeMillis();
     InputProcessor inputProcessor = new InputProcessor();
     Texture redpotion_texture;
     TextureRegion redpotion;
     Rectangle redpotion_rectangle;
-    Enemys enemy_ghost;
     boolean zeichneGegner;
-    Player spieler;
+    Player player;
     Random random = new Random();
     Bullet bullet;
     boolean fireball_draw = false;
@@ -54,9 +52,9 @@ public class MyGdxGame extends ApplicationAdapter {
         fireball_texture = new Texture("myBall.png");
 
         //Spieler
-        spieler = new Player();
+        player = new Player();
 
-        fireball_rectangle = new Rectangle(spieler.player_rectangle.x, spieler.player_rectangle.y, 32, 32);
+        fireball_rectangle = new Rectangle(player.player_rectangle.x, player.player_rectangle.y, 32, 32);
         //Enemy Texture Region
         enemy09_front = new TextureRegion(enemy09_texture, 0, 0, 32, 32);
 
@@ -69,21 +67,15 @@ public class MyGdxGame extends ApplicationAdapter {
         batch = new SpriteBatch();
         camera.setToOrtho(false, 1280, 720);
 
-
-        //enemy01
-        enemy01 = new Rectangle(32, 200, 32, 32);
-
         redpotion_rectangle = new Rectangle(100, 500, 64, 64);
         // Input Prozessor
         Gdx.input.setInputProcessor(inputProcessor);
 
-        //Erstelle Objekt gegners
-        enemy_ghost = new Enemys();
-
         bullet = new Bullet();
 
-        gameEntities.add(new Enemy(1, 4, 100, 100, enemy09_texture));
-        gameEntities.add(new Enemy(1, 4, 700, 300, enemy09_texture));
+        //draw random enemies
+        spawnRandomEnemies(5);
+
     }
 
     @Override
@@ -96,178 +88,117 @@ public class MyGdxGame extends ApplicationAdapter {
         //Start des Draw Prozess
         batch.begin();
 
-        //Zeichne Debug Gegner
-        //batch.draw(enemy09_front, enemy01.x, enemy01.y, 96, 96);
+
         //Red Potion
         batch.draw(redpotion, redpotion_rectangle.x, redpotion_rectangle.y, 64, 64);
 
-        batch.draw(fireball_texture, fireball_rectangle.x, fireball_rectangle.y,32,32);
+        batch.draw(fireball_texture, fireball_rectangle.x, fireball_rectangle.y, 32, 32);
         //Spieler "Animationen"
-        if (spieler.show_player_right)
-            batch.draw(spieler.player_walk_right, spieler.player_rectangle.x, spieler.player_rectangle.y, 96, 96);
-        if (spieler.show_player_left)
-            batch.draw(spieler.player_walk_left, spieler.player_rectangle.x, spieler.player_rectangle.y, 96, 96);
-        if (spieler.show_player_back)
-            batch.draw(spieler.player_walk_back, spieler.player_rectangle.x, spieler.player_rectangle.y, 96, 96);
-        if (spieler.show_player_front)
-            batch.draw(spieler.player_walk_front, spieler.player_rectangle.x, spieler.player_rectangle.y, 96, 96);
+        if (player.show_player_right)
+            batch.draw(player.player_walk_right, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
+        if (player.show_player_left)
+            batch.draw(player.player_walk_left, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
+        if (player.show_player_back)
+            batch.draw(player.player_walk_back, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
+        if (player.show_player_front)
+            batch.draw(player.player_walk_front, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
 
         if (fireball_draw) {
-            batch.draw(fireball_texture,fireball_rectangle.x,fireball_rectangle.y);
+            batch.draw(fireball_texture, fireball_rectangle.x, fireball_rectangle.y);
         }
 
         //Draw Hp Bar
         drawHealthIcons();
 
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            drawFireBall();
-        }
-
-
-        //Zeichne Gegner
-        if (zeichneGegner) {
-            for (int i = 0; i < enemy_ghost.getEnemy_rectangles_arraylist().size(); i++) {
-                batch.draw(enemy_ghost.getEnemy_textureRegion(), enemy_ghost.getRectangleAnStelle(i).x, enemy_ghost.getRectangleAnStelle(i).y, 96, 96);
-            }
-        }
 
         if (fireball_draw) {
             drawFireBall();
         }
 
-
-
-        // drawing
-        //gameEntities.forEach(e -> {
-        //    Rectangle r = e.getRectangle();
-        //    batch.draw(e.getTextureRegion(), (int)e.getx(), (int)e.gety(), r.width, r.height);
-        //});
-
+        // Zeichnen aller GameEntities
         for (int i = 0; i < gameEntities.size(); i++) {
             GameEntity e = gameEntities.get(i);
             Rectangle r = e.getRectangle();
-            batch.draw(e.getTextureRegion(),r.x, r.y, r.width, r.height);
+            batch.draw(e.getTextureRegion(), (int) e.getx(), (int) e.gety(), r.width, r.height);
         }
 
         //Ende Des Draw Prozess
         batch.end();
 
+        // spawn enemies
+        spawnRandomEnemies(5);
 
 
-
-        //Movement
-        for(int i = 0; i < gameEntities.size(); i++){
+        //Movement der Gegner
+        for (int i = 0; i < gameEntities.size(); i++) {
             GameEntity e = gameEntities.get(i);
-            // TODO hier checken ob e am rand
-            //if (e.gety() + 96 < 700){
-            e.setPosition(e.getx() + e.getxSpeed() * Gdx.graphics.getDeltaTime(), e.gety() + e.getySpeed() * Gdx.graphics.getDeltaTime());
-            //}
-            //e.move(spieler.player_rectangle.x,spieler.player_rectangle.y,Gdx.graphics.getDeltaTime());
-        }
+            Rectangle r = new Rectangle(e.getx(), e.gety(), 96, 96);
 
+            e.move(player, gameEntities, Gdx.graphics.getDeltaTime());
 
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            spieler.show_player_left = false;
-            spieler.show_player_right = true;
-            spieler.show_player_back = false;
-            spieler.show_player_front = false;
-            spieler.player_rectangle.x += 250 * Gdx.graphics.getDeltaTime();
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            spieler.show_player_right = false;
-            spieler.show_player_left = true;
-            spieler.show_player_back = false;
-            spieler.show_player_front = false;
-            spieler.player_rectangle.x -= 250 * Gdx.graphics.getDeltaTime();
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            spieler.show_player_right = false;
-            spieler.show_player_left = false;
-            spieler.show_player_front = false;
-            spieler.show_player_back = true;
-            spieler.player_rectangle.y += 250 * Gdx.graphics.getDeltaTime();
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            spieler.show_player_right = false;
-            spieler.show_player_left = false;
-            spieler.show_player_back = false;
-            spieler.show_player_front = true;
-            spieler.player_rectangle.y -= 250 * Gdx.graphics.getDeltaTime();
-        }
-
-        //if (Gdx.input.isKeyPressed(Input.Keys.O)) {
-        //    enemy_ghost.createEnemys(5);
-        //    zeichneGegner = true;
-        //}
-        //if (Gdx.input.isKeyPressed(Input.Keys.C)) {
-        //    drawRandomEnemies();
-        //}
-
-        //if (zeichneGegner) {
-        //    follow();
-        //}
-        //if (zeichneGegner) {
-        //    for (int i = 0; i < enemy_ghost.getEnemy_rectangles_arraylist().size(); i++) {
-        //        Rectangle r1 = enemy_ghost.getRectangleAnStelle(i);
-                //Rectangle r2 = gegner.getRectangleAnStelle(i + 1);
-                //if (r1.x == r2.x) r1.x = r2.x +96;
-        //    }
-        //}
-
-        if (Gdx.input.isKeyPressed(Input.Keys.K)) {
-            follow();
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            fireball_draw = true;
-        }
-        drawRandomEnemies();
-        //if (fireball_draw) {
-        //    fireball_rectangle.x += 100 * Gdx.graphics.getDeltaTime();
-
-        //}
-
-        // Wenn player ausserhalb des Screens im X bereich
-        if (spieler.player_rectangle.x < 0) spieler.player_rectangle.x = 0;
-        if (spieler.player_rectangle.x > 1280 - 64) spieler.player_rectangle.x = 1280 - 64;
-
-        // Wenn player ausserhalb des Screens im Y bereich
-        if (spieler.player_rectangle.y < 0) spieler.player_rectangle.y = 0;
-        if (spieler.player_rectangle.y + 64 > 720) spieler.player_rectangle.y = 720 - 64;
-
-
-        if (spieler.player_rectangle.overlaps(enemy01)) {
-            if (System.currentTimeMillis() - start_time > 3000 || System.currentTimeMillis() - start_time == 0) {
-                start_time = System.currentTimeMillis();
-                System.out.println(spieler.hp.decrease(1));
-                System.out.println("contact sp3");
+            // check for collisions with the player TODO!
+            /*
+            if (spieler.player_rectangle.x + 96 == e.getx() || e.getx() + 96 == spieler.player_rectangle.x) {
+                e.setXspeed(e.getxSpeed() * -1);
+                e.setYspeed(e.getySpeed() * -1);
+                System.out.println("awr");
             }
+            if (r.overlaps(spieler.player_rectangle)) {
+                e.setXspeed(e.getxSpeed() * -1);
+                e.setYspeed(e.getySpeed() * -1);
+            }
+            */
         }
 
-
-
-        if (spieler.player_rectangle.overlaps(redpotion_rectangle)) {
-            spieler.hp.increase(1);
+        if (player.player_rectangle.overlaps(redpotion_rectangle)) {
+            player.hp.increase(1);
             System.out.println("Hp increase");
         }
 
-        if (spieler.player_rectangle.overlaps(fireball_rectangle)) {
-            System.out.println("Fireball");
+        // Wenn player ausserhalb des Screens im X bereich
+        if (player.player_rectangle.x < 0) player.player_rectangle.x = 0;
+        if (player.player_rectangle.x > 1280 - 96) player.player_rectangle.x = 1280 - 96;
+
+        // Wenn player ausserhalb des Screens im Y bereich
+        if (player.player_rectangle.y < 0) player.player_rectangle.y = 0;
+        if (player.player_rectangle.y + 96 > 720) player.player_rectangle.y = 720 - 96;
+
+        //Input
+        if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            player.show_player_left = false;
+            player.show_player_right = true;
+            player.show_player_back = false;
+            player.show_player_front = false;
+            player.player_rectangle.x += 250 * Gdx.graphics.getDeltaTime();
         }
-
-        if (zeichneGegner) {
-            for (int i = 0; i < enemy_ghost.getEnemy_rectangles_arraylist().size(); i++) {
-                Rectangle r = enemy_ghost.getRectangleAnStelle(i);
-                if (spieler.player_rectangle.overlaps(r)) {
-                    System.out.println("Contact with enemy");
-
-                    if (System.currentTimeMillis() - start_time_3 > 3000 || System.currentTimeMillis() - start_time == 0) {
-                        start_time_3 = System.currentTimeMillis();
-                        System.out.println(spieler.hp.decrease(1));
-                        System.out.println("contact sp3");
-                    }
-                }
-            }
-
+        if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            player.show_player_right = false;
+            player.show_player_left = true;
+            player.show_player_back = false;
+            player.show_player_front = false;
+            player.player_rectangle.x -= 250 * Gdx.graphics.getDeltaTime();
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            player.show_player_right = false;
+            player.show_player_left = false;
+            player.show_player_front = false;
+            player.show_player_back = true;
+            player.player_rectangle.y += 250 * Gdx.graphics.getDeltaTime();
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            player.show_player_right = false;
+            player.show_player_left = false;
+            player.show_player_back = false;
+            player.show_player_front = true;
+            player.player_rectangle.y -= 250 * Gdx.graphics.getDeltaTime();
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            drawFireBall();
+            fireball_draw = true;
+        }
+        //Debug
+        if (Gdx.input.isKeyPressed(Input.Keys.O)) {
+            gameEntities.add(new Enemy(gameEntities.size(), 0, 10, 14, 500, 100, enemy09_texture));
         }
 
 
@@ -280,12 +211,13 @@ public class MyGdxGame extends ApplicationAdapter {
     }
 
     public void drawHealthIcons() {
-        for (int i = 0; i < spieler.hp.getHealth(); i++) {
+        for (int i = 0; i < player.hp.getHealth(); i++) {
             batch.draw(healthTexture, i * 32, 720 - 32);
         }
     }
 
     public void follow() {
+        /*
         for (int i = 0; i < enemy_ghost.getEnemy_rectangles_arraylist().size(); i++) {
             if (enemy_ghost.getRectangleAnStelle(i).y != spieler.player_rectangle.y && enemy_ghost.getRectangleAnStelle(i).x != spieler.player_rectangle.x) {
                 if (enemy_ghost.getRectangleAnStelle(i).x < spieler.player_rectangle.x) {
@@ -308,47 +240,65 @@ public class MyGdxGame extends ApplicationAdapter {
 
             }
         }
+        */
 
     }
 
-    public void drawRandomEnemies() {
+    public void spawnRandomEnemies(int enemy_amount) {
         int r = random.nextInt(4);
 
-        if (System.currentTimeMillis() - start_time_4 > 10000 || System.currentTimeMillis() - start_time == 0) {
-            start_time_4 = System.currentTimeMillis();
+        if (System.currentTimeMillis() - start_time_spawn > 10000) {
+            start_time_spawn = System.currentTimeMillis();
+            int speed = 0;
+
             switch (r) {
                 case 0:
-                    enemy_ghost.createEnemysTop(5);
-                    follow();
+                    //top
+                    for (int i = 0; i < enemy_amount; i++) {
+                        speed = random.nextInt(70) + 80;
+                        gameEntities.add(new Enemy(gameEntities.size(), 1, 0, -speed, random.nextInt(1280 - 96), 720 - 96, enemy09_texture));
+                    }
                     break;
                 case 1:
-                    enemy_ghost.createEnemysBottom(5);
-                    follow();
+                    //bottom
+                    for (int i = 0; i < enemy_amount; i++) {
+                        speed = random.nextInt(70) + 80;
+                        gameEntities.add(new Enemy(gameEntities.size(), 1, 0, speed, random.nextInt(1280 - 96), 0, enemy09_texture));
+                    }
+                    ;
                     break;
                 case 2:
-                    enemy_ghost.createEnemysLeft(5);
-                    follow();
+                    //left
+                    for (int i = 0; i < enemy_amount; i++) {
+                        speed = random.nextInt(70) + 80;
+                        gameEntities.add(new Enemy(gameEntities.size(), 1, speed, 0, 0, random.nextInt(720 - 96), enemy09_texture));
+                    }
+
                     break;
                 case 3:
-                    enemy_ghost.createEnemysRight(5);
-                    follow();
+                    //right
+                    for (int i = 0; i < enemy_amount; i++) {
+                        speed = random.nextInt(70) + 80;
+                        gameEntities.add(new Enemy(gameEntities.size(), 1, -speed, 0, 1280 - 96, random.nextInt(720 - 96), enemy09_texture));
+                    }
                     break;
             }
+
         }
     }
 
     public void drawFireBall() {
-        if (spieler.show_player_front) {
-            batch.draw(fireball_texture,fireball_rectangle.x,fireball_rectangle.y,32,32);
+        if (player.show_player_front) {
+            batch.draw(fireball_texture, fireball_rectangle.x, fireball_rectangle.y, 32, 32);
             fireball_rectangle.y -= 100 * Gdx.graphics.getDeltaTime();
-        } else if (spieler.show_player_back) {
-            batch.draw(fireball_texture,fireball_rectangle.x,fireball_rectangle.y,32,32);
+        } else if (player.show_player_back) {
+            batch.draw(fireball_texture, fireball_rectangle.x, fireball_rectangle.y, 32, 32);
             fireball_rectangle.y += 100 * Gdx.graphics.getDeltaTime();
-        } else if (spieler.show_player_left) {
-            batch.draw(fireball_texture,fireball_rectangle.x,fireball_rectangle.y,32,32);
+        } else if (player.show_player_left) {
+            batch.draw(fireball_texture, fireball_rectangle.x, fireball_rectangle.y, 32, 32);
             fireball_rectangle.x -= 100 * Gdx.graphics.getDeltaTime();
-        } else if (spieler.show_player_right) {
-            batch.draw(fireball_texture,fireball_rectangle.x,fireball_rectangle.y,32,32);
+        } else if (player.show_player_right) {
+            batch.draw(fireball_texture, fireball_rectangle.x, fireball_rectangle.y, 32, 32);
             fireball_rectangle.x += 100 * Gdx.graphics.getDeltaTime();
         }
     }

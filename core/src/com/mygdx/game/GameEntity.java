@@ -3,6 +3,8 @@ package com.mygdx.game;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 
+import java.util.ArrayList;
+
 public interface GameEntity {
     /**
      *
@@ -22,9 +24,16 @@ public interface GameEntity {
 
     public float getySpeed();
 
+
+    void setXspeed(float xspeed);
+
+    void setYspeed(float yspeed);
+
     public float getx();
 
     public float gety();
 
-    public void move(float x_ziel, float y_ziel, float deltaTime);
+    public void move(Player player, ArrayList<GameEntity> gameEntities, float deltaTime);
+
+    public int getId();
 }

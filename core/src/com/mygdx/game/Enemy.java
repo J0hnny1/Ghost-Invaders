@@ -5,9 +5,11 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 
+import java.util.ArrayList;
+
 public class Enemy implements GameEntity {
+    private int id;
     private float x, y, xspeed, yspeed;
-    private float movementspeed;
     private Health health;
     Rectangle rectangle;
     TextureRegion textureRegion;
@@ -26,6 +28,8 @@ public class Enemy implements GameEntity {
     public void setPosition(float x, float y) {
         this.x = x;
         this.y = y;
+        this.rectangle.x = x;
+        this.rectangle.y = y;
     }
 
     @Override
@@ -39,6 +43,16 @@ public class Enemy implements GameEntity {
     }
 
     @Override
+    public void setXspeed(float xspeed) {
+        this.xspeed = xspeed;
+    }
+
+    @Override
+    public void setYspeed(float yspeed) {
+        this.yspeed = yspeed;
+    }
+
+    @Override
     public float getx() {
         return x;
     }
@@ -47,24 +61,51 @@ public class Enemy implements GameEntity {
     public float gety() {
         return y;
     }
+    @Override
+    public int getId(){ return id; }
 
-    public Enemy(int health, int movementspeed, int x, int y, Texture texture) {
+    public Enemy(int id, int health, int xspeed, int yspeed, int x, int y, Texture texture) {
+        this.id = id;
         this.health = new Health(health);
-        this.movementspeed = movementspeed;
-        xspeed = 10;
-        yspeed = 69;
+        this.xspeed = xspeed;
+        this.yspeed = yspeed;
+        this.x = x;
+        this.y = y;
         this.rectangle = new Rectangle(x, y, 96, 96);
         this.textureRegion = new TextureRegion(texture, 0, 0, 32, 32);
     }
 
     @Override
-    public void move(float x_ziel, float y_ziel, float deltaTime) {
-        setPosition(x,rectangle.y + getySpeed() * deltaTime);
-        System.out.println("move?");
-        if (y + 96 < 700 && y >= 0 && x + 96 < 1280 && x > 0) {
+    public void move(Player player, ArrayList<GameEntity> gameEntities, float deltaTime) {
+        setPosition(x + xspeed * Gdx.graphics.getDeltaTime(), y + yspeed * Gdx.graphics.getDeltaTime());
 
+        if(y + 96 > 700){
+            yspeed *= -1;
+            this.setPosition(this.x, 700 - 96);
+        } else if(y < 0){
+            yspeed *= -1;
+            this.setPosition(this.x, 0);
         }
 
-        // spieler.player_rectangle.y -= 250 * Gdx.graphics.getDeltaTime();
+        if(x + 96 > 1280){
+            xspeed *= -1;
+            this.setPosition(1280 - 96, this.y);
+        } else if(x < 0){
+            xspeed *= -1;
+            this.setPosition(0, this.y);
+        }
+
+        for(int i = 0; i < gameEntities.size(); i++){
+            GameEntity e = gameEntities.get(i);
+            float e_x = e.getx();
+            float e_y = e.gety();
+            float e_w = e.getRectangle().width;
+            float e_h = e.getRectangle().height;
+            Rectangle e_rectangle = new Rectangle(e_x, e_y, e_w, e_h);
+
+            if(e_rectangle.overlaps(this.rectangle) && this.id != e.getId() ){
+
+            }
+        }
     }
 }
