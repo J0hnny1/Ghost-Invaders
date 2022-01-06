@@ -2,7 +2,6 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
-import org.graalvm.compiler.lir.StandardOp;
 
 import java.util.ArrayList;
 

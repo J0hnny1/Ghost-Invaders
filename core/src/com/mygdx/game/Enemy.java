@@ -1,79 +1,70 @@
 package com.mygdx.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
+public class Enemy implements GameEntity {
+    private float x, y, xspeed, yspeed;
+    private float movementspeed;
+    private Health health;
+    Rectangle rectangle;
+    TextureRegion textureRegion;
 
-
-public class Enemy {
-
-    //private final Rectangle[] rectangles = new Rectangle[5];
-    private ArrayList<Rectangle> rectangles = new ArrayList<>();
-    private Boolean[] check_enemy_draw = new Boolean[5];
-    private final Texture text = new Texture("Enemy 09-1.png");
-    private final TextureRegion enemy_textureRegion = new TextureRegion(text, 0, 0, 32, 32);
-    private Random random = new Random();
-    private Health hp = new Health(1, 2);
-
-    /**
-     * @return Rectangles Array
-     */
-    public ArrayList<Rectangle> getRectangles() {
-        return rectangles;
+    @Override
+    public Rectangle getRectangle() {
+        return rectangle;
     }
 
-    public TextureRegion getEnemy_textureRegion() {
-        return enemy_textureRegion;
+    @Override
+    public TextureRegion getTextureRegion() {
+        return textureRegion;
     }
 
+    @Override
+    public void setPosition(float x, float y) {
+        this.x = x;
+        this.y = y;
+    }
 
-    /**
-     * Filles Rectangle Array with new Rectangles with random coordinates
-     */
-    public void createEnemys() {
-        for (int i = 0; i < rectangles.size(); i++) {
-            rectangles.add(new Rectangle(random.nextInt(1280 - 64), random.nextInt(720) - 64, 96, 96));
-            check_enemy_draw[i] = true;
+    @Override
+    public float getxSpeed() {
+        return xspeed;
+    }
+
+    @Override
+    public float getySpeed() {
+        return yspeed;
+    }
+
+    @Override
+    public float getx() {
+        return x;
+    }
+
+    @Override
+    public float gety() {
+        return y;
+    }
+
+    public Enemy(int health, int movementspeed, int x, int y, Texture texture) {
+        this.health = new Health(health);
+        this.movementspeed = movementspeed;
+        xspeed = 10;
+        yspeed = 69;
+        this.rectangle = new Rectangle(x, y, 96, 96);
+        this.textureRegion = new TextureRegion(texture, 0, 0, 32, 32);
+    }
+
+    @Override
+    public void move(float x_ziel, float y_ziel, float deltaTime) {
+        setPosition(x,rectangle.y + getySpeed() * deltaTime);
+        System.out.println("move?");
+        if (y + 96 < 700 && y >= 0 && x + 96 < 1280 && x > 0) {
+
         }
-    }
 
-    public void createEnemysTop() {
-        for (int i = 0; i < rectangles.size(); i++) {
-            rectangles.add(new Rectangle(random.nextInt(1280 - 64), ThreadLocalRandom.current().nextInt(720 - 64, 720 + 1), 96, 96));
-            check_enemy_draw[i] = true;
-        }
-    }
-
-    public void createEnemysBottom() {
-        for (int i = 0; i < rectangles.size(); i++) {
-            rectangles.add(new Rectangle(random.nextInt(1280 - 64), ThreadLocalRandom.current().nextInt(-64, 32 + 1), 96, 96));
-            check_enemy_draw[i] = true;
-        }
-    }
-
-    public void createEnemysLeft() {
-        for (int i = 0; i < rectangles.size(); i++) {
-            rectangles.add(new Rectangle(ThreadLocalRandom.current().nextInt(-64, 64 + 1), random.nextInt(720 - 64), 96, 96));
-            check_enemy_draw[i] = true;
-        }
-    }
-
-    public void createEnemysRight() {
-        for (int i = 0; i < rectangles.size(); i++) {
-            rectangles.add(new Rectangle(ThreadLocalRandom.current().nextInt(1280 - 64, 1280 + 64 + 1), random.nextInt(720) - 64, 96, 96));
-            check_enemy_draw[i] = true;
-        }
-    }
-
-    /**
-     * @param i
-     * @return Rectangle on index i
-     */
-    public Rectangle getRectangleAnStelle(int i) {
-        return rectangles.get(i);
+        // spieler.player_rectangle.y -= 250 * Gdx.graphics.getDeltaTime();
     }
 }

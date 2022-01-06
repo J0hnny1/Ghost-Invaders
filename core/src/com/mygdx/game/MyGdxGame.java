@@ -7,9 +7,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.math.Rectangle;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 
+import java.util.ArrayList;
 import java.util.Random;
 
 
@@ -31,7 +31,7 @@ public class MyGdxGame extends ApplicationAdapter {
     Texture redpotion_texture;
     TextureRegion redpotion;
     Rectangle redpotion_rectangle;
-    Enemy gegner;
+    Enemys enemy_ghost;
     boolean zeichneGegner;
     Player spieler;
     Random random = new Random();
@@ -39,7 +39,10 @@ public class MyGdxGame extends ApplicationAdapter {
     boolean fireball_draw = false;
     Texture fireball_texture;
     Rectangle fireball_rectangle;
+    Enemy gegnerEinzelnTest;
 
+    // game entities or enemies ?
+    ArrayList<GameEntity> gameEntities = new ArrayList<>();
 
     @Override
     public void create() {
@@ -75,10 +78,12 @@ public class MyGdxGame extends ApplicationAdapter {
         Gdx.input.setInputProcessor(inputProcessor);
 
         //Erstelle Objekt gegners
-        gegner = new Enemy();
+        enemy_ghost = new Enemys();
 
         bullet = new Bullet();
 
+        gameEntities.add(new Enemy(1, 4, 100, 100, enemy09_texture));
+        gameEntities.add(new Enemy(1, 4, 700, 300, enemy09_texture));
     }
 
     @Override
@@ -92,7 +97,7 @@ public class MyGdxGame extends ApplicationAdapter {
         batch.begin();
 
         //Zeichne Debug Gegner
-        batch.draw(enemy09_front, enemy01.x, enemy01.y, 96, 96);
+        //batch.draw(enemy09_front, enemy01.x, enemy01.y, 96, 96);
         //Red Potion
         batch.draw(redpotion, redpotion_rectangle.x, redpotion_rectangle.y, 64, 64);
 
@@ -113,6 +118,7 @@ public class MyGdxGame extends ApplicationAdapter {
 
         //Draw Hp Bar
         drawHealthIcons();
+
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             drawFireBall();
         }
@@ -120,8 +126,8 @@ public class MyGdxGame extends ApplicationAdapter {
 
         //Zeichne Gegner
         if (zeichneGegner) {
-            for (int i = 0; i < gegner.getRectangles().length; i++) {
-                batch.draw(gegner.getEnemy_textureRegion(), gegner.getRectangleAnStelle(i).x, gegner.getRectangleAnStelle(i).y, 96, 96);
+            for (int i = 0; i < enemy_ghost.getEnemy_rectangles_arraylist().size(); i++) {
+                batch.draw(enemy_ghost.getEnemy_textureRegion(), enemy_ghost.getRectangleAnStelle(i).x, enemy_ghost.getRectangleAnStelle(i).y, 96, 96);
             }
         }
 
@@ -129,11 +135,35 @@ public class MyGdxGame extends ApplicationAdapter {
             drawFireBall();
         }
 
+
+
+        // drawing
+        //gameEntities.forEach(e -> {
+        //    Rectangle r = e.getRectangle();
+        //    batch.draw(e.getTextureRegion(), (int)e.getx(), (int)e.gety(), r.width, r.height);
+        //});
+
+        for (int i = 0; i < gameEntities.size(); i++) {
+            GameEntity e = gameEntities.get(i);
+            Rectangle r = e.getRectangle();
+            batch.draw(e.getTextureRegion(),r.x, r.y, r.width, r.height);
+        }
+
         //Ende Des Draw Prozess
         batch.end();
 
 
 
+
+        //Movement
+        for(int i = 0; i < gameEntities.size(); i++){
+            GameEntity e = gameEntities.get(i);
+            // TODO hier checken ob e am rand
+            //if (e.gety() + 96 < 700){
+            e.setPosition(e.getx() + e.getxSpeed() * Gdx.graphics.getDeltaTime(), e.gety() + e.getySpeed() * Gdx.graphics.getDeltaTime());
+            //}
+            //e.move(spieler.player_rectangle.x,spieler.player_rectangle.y,Gdx.graphics.getDeltaTime());
+        }
 
 
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
@@ -156,7 +186,6 @@ public class MyGdxGame extends ApplicationAdapter {
             spieler.show_player_front = false;
             spieler.show_player_back = true;
             spieler.player_rectangle.y += 250 * Gdx.graphics.getDeltaTime();
-
         }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
             spieler.show_player_right = false;
@@ -164,27 +193,26 @@ public class MyGdxGame extends ApplicationAdapter {
             spieler.show_player_back = false;
             spieler.show_player_front = true;
             spieler.player_rectangle.y -= 250 * Gdx.graphics.getDeltaTime();
-
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.O)) {
-            gegner.createEnemys();
-            zeichneGegner = true;
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.C)) {
-            drawRandomEnemies();
         }
 
+        //if (Gdx.input.isKeyPressed(Input.Keys.O)) {
+        //    enemy_ghost.createEnemys(5);
+        //    zeichneGegner = true;
+        //}
+        //if (Gdx.input.isKeyPressed(Input.Keys.C)) {
+        //    drawRandomEnemies();
+        //}
 
-        if (zeichneGegner) {
-            follow();
-        }
-        if (zeichneGegner) {
-            for (int i = 0; i < gegner.getRectangles().length; i++) {
-                Rectangle r1 = gegner.getRectangleAnStelle(i);
+        //if (zeichneGegner) {
+        //    follow();
+        //}
+        //if (zeichneGegner) {
+        //    for (int i = 0; i < enemy_ghost.getEnemy_rectangles_arraylist().size(); i++) {
+        //        Rectangle r1 = enemy_ghost.getRectangleAnStelle(i);
                 //Rectangle r2 = gegner.getRectangleAnStelle(i + 1);
                 //if (r1.x == r2.x) r1.x = r2.x +96;
-            }
-        }
+        //    }
+        //}
 
         if (Gdx.input.isKeyPressed(Input.Keys.K)) {
             follow();
@@ -227,8 +255,8 @@ public class MyGdxGame extends ApplicationAdapter {
         }
 
         if (zeichneGegner) {
-            for (int i = 0; i < 5; i++) {
-                Rectangle r = gegner.getRectangleAnStelle(i);
+            for (int i = 0; i < enemy_ghost.getEnemy_rectangles_arraylist().size(); i++) {
+                Rectangle r = enemy_ghost.getRectangleAnStelle(i);
                 if (spieler.player_rectangle.overlaps(r)) {
                     System.out.println("Contact with enemy");
 
@@ -258,22 +286,22 @@ public class MyGdxGame extends ApplicationAdapter {
     }
 
     public void follow() {
-        for (int i = 0; i < 5; i++) {
-            if (gegner.getRectangleAnStelle(i).y != spieler.player_rectangle.y && gegner.getRectangleAnStelle(i).x != spieler.player_rectangle.x) {
-                if (gegner.getRectangleAnStelle(i).x < spieler.player_rectangle.x) {
-                    gegner.getRectangleAnStelle(i).x += 50 * Gdx.graphics.getDeltaTime();
+        for (int i = 0; i < enemy_ghost.getEnemy_rectangles_arraylist().size(); i++) {
+            if (enemy_ghost.getRectangleAnStelle(i).y != spieler.player_rectangle.y && enemy_ghost.getRectangleAnStelle(i).x != spieler.player_rectangle.x) {
+                if (enemy_ghost.getRectangleAnStelle(i).x < spieler.player_rectangle.x) {
+                    enemy_ghost.getRectangleAnStelle(i).x += 50 * Gdx.graphics.getDeltaTime();
                 }
-                if (gegner.getRectangleAnStelle(i).x > spieler.player_rectangle.x) {
-                    gegner.getRectangleAnStelle(i).x -= 50 * Gdx.graphics.getDeltaTime();
+                if (enemy_ghost.getRectangleAnStelle(i).x > spieler.player_rectangle.x) {
+                    enemy_ghost.getRectangleAnStelle(i).x -= 50 * Gdx.graphics.getDeltaTime();
                 }
                 //start_time_2 = System.currentTimeMillis();
                 if (System.currentTimeMillis() - start_time_2 > 1000) {
 
-                    if (gegner.getRectangleAnStelle(i).y > spieler.player_rectangle.y) {
-                        gegner.getRectangleAnStelle(i).y -= 50 * Gdx.graphics.getDeltaTime();
+                    if (enemy_ghost.getRectangleAnStelle(i).y > spieler.player_rectangle.y) {
+                        enemy_ghost.getRectangleAnStelle(i).y -= 50 * Gdx.graphics.getDeltaTime();
                     }
-                    if (gegner.getRectangleAnStelle(i).y < spieler.player_rectangle.y) {
-                        gegner.getRectangleAnStelle(i).y += 50 * Gdx.graphics.getDeltaTime();
+                    if (enemy_ghost.getRectangleAnStelle(i).y < spieler.player_rectangle.y) {
+                        enemy_ghost.getRectangleAnStelle(i).y += 50 * Gdx.graphics.getDeltaTime();
 
                     }
                 }
@@ -290,19 +318,19 @@ public class MyGdxGame extends ApplicationAdapter {
             start_time_4 = System.currentTimeMillis();
             switch (r) {
                 case 0:
-                    gegner.createEnemysTop();
+                    enemy_ghost.createEnemysTop(5);
                     follow();
                     break;
                 case 1:
-                    gegner.createEnemysBottom();
+                    enemy_ghost.createEnemysBottom(5);
                     follow();
                     break;
                 case 2:
-                    gegner.createEnemysLeft();
+                    enemy_ghost.createEnemysLeft(5);
                     follow();
                     break;
                 case 3:
-                    gegner.createEnemysRight();
+                    enemy_ghost.createEnemysRight(5);
                     follow();
                     break;
             }
