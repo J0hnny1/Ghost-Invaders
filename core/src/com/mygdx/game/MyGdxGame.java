@@ -11,13 +11,14 @@ import com.badlogic.gdx.math.Rectangle;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 public class MyGdxGame extends ApplicationAdapter {
 
-    //nur zu Testzwecken
     Texture enemy09_texture;
     TextureRegion enemy09_front;
+    Texture blue_enemy_texture;
 
     SpriteBatch batch;
     OrthographicCamera camera;
@@ -30,6 +31,7 @@ public class MyGdxGame extends ApplicationAdapter {
     Texture redpotion_texture;
     TextureRegion redpotion;
     Rectangle redpotion_rectangle;
+    Texture background_texture;
     boolean zeichneGegner;
     Player player;
     Random random = new Random();
@@ -37,7 +39,8 @@ public class MyGdxGame extends ApplicationAdapter {
     boolean fireball_draw = false;
     Texture fireball_texture;
     Rectangle fireball_rectangle;
-    Enemy gegnerEinzelnTest;
+    int c;
+    boolean is_paused = false;
 
     // game entities or enemies ?
     ArrayList<GameEntity> gameEntities = new ArrayList<>();
@@ -45,9 +48,10 @@ public class MyGdxGame extends ApplicationAdapter {
     @Override
     public void create() {
         //Texturen
-        healthTexture = new Texture("health.png");
+        healthTexture = new Texture("heart.png");
         enemy09_texture = new Texture("Enemy 09-1.png");
         redpotion_texture = new Texture("red potion.png");
+        background_texture = new Texture("duuh69.png");
 
         fireball_texture = new Texture("myBall.png");
 
@@ -76,11 +80,14 @@ public class MyGdxGame extends ApplicationAdapter {
         //draw random enemies
         spawnRandomEnemies(5);
 
+        blue_enemy_texture = new Texture("Enemy 11-1.png");
+
     }
 
     @Override
     public void render() {
 
+        //Initalize scene
         ScreenUtils.clear(216, 158, 85, 0);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
@@ -88,39 +95,48 @@ public class MyGdxGame extends ApplicationAdapter {
         //Start des Draw Prozess
         batch.begin();
 
+        // draw background
+        batch.draw(background_texture, 0, 0);
 
-        //Red Potion
-        batch.draw(redpotion, redpotion_rectangle.x, redpotion_rectangle.y, 64, 64);
+        // draw all items
+        for (int i = 0; i < gameEntities.size(); i++) {
+            GameEntity e = gameEntities.get(i);
+            if (e.getType() == GameEntity.entityType.ITEM) {
+                Rectangle r = e.getRectangle();
+                batch.draw(e.getTextureRegion(), (int) e.getx(), (int) e.gety(), r.width, r.height);
+            }
+        }
 
-        batch.draw(fireball_texture, fireball_rectangle.x, fireball_rectangle.y, 32, 32);
-        //Spieler "Animationen"
+        // draw player
         if (player.show_player_right)
             batch.draw(player.player_walk_right, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
-        if (player.show_player_left)
+        else if (player.show_player_left)
             batch.draw(player.player_walk_left, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
-        if (player.show_player_back)
+        else if (player.show_player_back)
             batch.draw(player.player_walk_back, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
-        if (player.show_player_front)
+        else if (player.show_player_front)
             batch.draw(player.player_walk_front, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
 
-        if (fireball_draw) {
-            batch.draw(fireball_texture, fireball_rectangle.x, fireball_rectangle.y);
+        // draw all enemies
+        for (int i = 0; i < gameEntities.size(); i++) {
+            GameEntity e = gameEntities.get(i);
+            if (e.getType() == GameEntity.entityType.ENEMY) {
+                Rectangle r = e.getRectangle();
+                batch.draw(e.getTextureRegion(), (int) e.getx(), (int) e.gety(), r.width, r.height);
+            }
+        }
+
+        // draw all bullets
+        for (int i = 0; i < gameEntities.size(); i++) {
+            GameEntity e = gameEntities.get(i);
+            if (e.getType() == GameEntity.entityType.BULLET) {
+                Rectangle r = e.getRectangle();
+                batch.draw(e.getTextureRegion(), (int) e.getx(), (int) e.gety(), r.width, r.height);
+            }
         }
 
         //Draw Hp Bar
         drawHealthIcons();
-
-
-        if (fireball_draw) {
-            drawFireBall();
-        }
-
-        // Zeichnen aller GameEntities
-        for (int i = 0; i < gameEntities.size(); i++) {
-            GameEntity e = gameEntities.get(i);
-            Rectangle r = e.getRectangle();
-            batch.draw(e.getTextureRegion(), (int) e.getx(), (int) e.gety(), r.width, r.height);
-        }
 
         //Ende Des Draw Prozess
         batch.end();
@@ -128,6 +144,8 @@ public class MyGdxGame extends ApplicationAdapter {
         // spawn enemies
         spawnRandomEnemies(5);
 
+        //spawn Item
+        spawnItem();
 
         //Movement der Gegner
         for (int i = 0; i < gameEntities.size(); i++) {
@@ -136,25 +154,28 @@ public class MyGdxGame extends ApplicationAdapter {
 
             e.move(player, gameEntities, Gdx.graphics.getDeltaTime());
 
-            // check for collisions with the player TODO!
-            /*
-            if (spieler.player_rectangle.x + 96 == e.getx() || e.getx() + 96 == spieler.player_rectangle.x) {
-                e.setXspeed(e.getxSpeed() * -1);
-                e.setYspeed(e.getySpeed() * -1);
-                System.out.println("awr");
+            //damage the player if he has contact with enemy
+            if (e.getType() == GameEntity.entityType.ENEMY && player.player_rectangle.overlaps(r)) {
+                if (System.currentTimeMillis() - start_time > 2000 || System.currentTimeMillis() - start_time == 0) {
+                    start_time = System.currentTimeMillis();
+                    player.hp.decrease(1);
+                }
             }
-            if (r.overlaps(spieler.player_rectangle)) {
-                e.setXspeed(e.getxSpeed() * -1);
-                e.setYspeed(e.getySpeed() * -1);
+
+            //increase health of player if he walks into health potion
+            if (e.getType() == GameEntity.entityType.ITEM && player.player_rectangle.overlaps(r)) {
+                player.hp.increase(1);
+                gameEntities.remove(i);
             }
-            */
+
+
         }
 
-        if (player.player_rectangle.overlaps(redpotion_rectangle)) {
-            player.hp.increase(1);
-            System.out.println("Hp increase");
+        //If player dies
+        if (player.hp.getHealth() == 0) {
+            player.hp.increase(4);
+            gameEntities.clear();
         }
-
         // Wenn player ausserhalb des Screens im X bereich
         if (player.player_rectangle.x < 0) player.player_rectangle.x = 0;
         if (player.player_rectangle.x > 1280 - 96) player.player_rectangle.x = 1280 - 96;
@@ -193,15 +214,9 @@ public class MyGdxGame extends ApplicationAdapter {
             player.player_rectangle.y -= 250 * Gdx.graphics.getDeltaTime();
         }
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            drawFireBall();
-            fireball_draw = true;
         }
+
         //Debug
-        if (Gdx.input.isKeyPressed(Input.Keys.O)) {
-            gameEntities.add(new Enemy(gameEntities.size(), 0, 10, 14, 500, 100, enemy09_texture));
-        }
-
-
     }
 
     @Override
@@ -212,78 +227,82 @@ public class MyGdxGame extends ApplicationAdapter {
 
     public void drawHealthIcons() {
         for (int i = 0; i < player.hp.getHealth(); i++) {
-            batch.draw(healthTexture, i * 32, 720 - 32);
+            batch.draw(healthTexture, i * 40, 720 - 40, 40, 40);
         }
     }
 
-    public void follow() {
-        /*
-        for (int i = 0; i < enemy_ghost.getEnemy_rectangles_arraylist().size(); i++) {
-            if (enemy_ghost.getRectangleAnStelle(i).y != spieler.player_rectangle.y && enemy_ghost.getRectangleAnStelle(i).x != spieler.player_rectangle.x) {
-                if (enemy_ghost.getRectangleAnStelle(i).x < spieler.player_rectangle.x) {
-                    enemy_ghost.getRectangleAnStelle(i).x += 50 * Gdx.graphics.getDeltaTime();
-                }
-                if (enemy_ghost.getRectangleAnStelle(i).x > spieler.player_rectangle.x) {
-                    enemy_ghost.getRectangleAnStelle(i).x -= 50 * Gdx.graphics.getDeltaTime();
-                }
-                //start_time_2 = System.currentTimeMillis();
-                if (System.currentTimeMillis() - start_time_2 > 1000) {
-
-                    if (enemy_ghost.getRectangleAnStelle(i).y > spieler.player_rectangle.y) {
-                        enemy_ghost.getRectangleAnStelle(i).y -= 50 * Gdx.graphics.getDeltaTime();
-                    }
-                    if (enemy_ghost.getRectangleAnStelle(i).y < spieler.player_rectangle.y) {
-                        enemy_ghost.getRectangleAnStelle(i).y += 50 * Gdx.graphics.getDeltaTime();
-
-                    }
-                }
-
-            }
-        }
-        */
-
-    }
 
     public void spawnRandomEnemies(int enemy_amount) {
-        int r = random.nextInt(4);
-
         if (System.currentTimeMillis() - start_time_spawn > 10000) {
             start_time_spawn = System.currentTimeMillis();
-            int speed = 0;
 
-            switch (r) {
-                case 0:
-                    //top
-                    for (int i = 0; i < enemy_amount; i++) {
-                        speed = random.nextInt(70) + 80;
-                        gameEntities.add(new Enemy(gameEntities.size(), 1, 0, -speed, random.nextInt(1280 - 96), 720 - 96, enemy09_texture));
-                    }
-                    break;
-                case 1:
-                    //bottom
-                    for (int i = 0; i < enemy_amount; i++) {
-                        speed = random.nextInt(70) + 80;
-                        gameEntities.add(new Enemy(gameEntities.size(), 1, 0, speed, random.nextInt(1280 - 96), 0, enemy09_texture));
-                    }
-                    ;
-                    break;
-                case 2:
-                    //left
-                    for (int i = 0; i < enemy_amount; i++) {
-                        speed = random.nextInt(70) + 80;
-                        gameEntities.add(new Enemy(gameEntities.size(), 1, speed, 0, 0, random.nextInt(720 - 96), enemy09_texture));
-                    }
+            int enemy_type = random.nextInt(2);
+            int direction = random.nextInt(4);
+            Texture texture = healthTexture;
 
-                    break;
-                case 3:
-                    //right
-                    for (int i = 0; i < enemy_amount; i++) {
-                        speed = random.nextInt(70) + 80;
-                        gameEntities.add(new Enemy(gameEntities.size(), 1, -speed, 0, 1280 - 96, random.nextInt(720 - 96), enemy09_texture));
-                    }
-                    break;
+            switch (enemy_type){
+                case 0 -> {
+                    texture = enemy09_texture;
+                }
+                case 1 -> {
+                    texture = blue_enemy_texture;
+                }
             }
 
+            for (int i = 0; i < enemy_amount; i++) {
+
+                int speed1 = 0, speed2 = 0, speed_x = 0, speed_y = 0, x = 0, y = 0;
+
+                // get random speeds
+                switch (enemy_type) {
+                    case 0 -> {
+                        speed1 = 0;
+                        speed2 = random.nextInt(70) + 80;
+                    }
+                    case 1 -> {
+                        speed1 = random.nextInt(70) + 90;
+                        speed2 = random.nextInt(20) + 30;
+                    }
+                }
+
+                switch(direction) {
+                    case 0 -> {
+                        speed_x = speed1;
+                        speed_y = -speed2;
+                        x = random.nextInt(1280 - 96);
+                        y = 720 - 96;
+                    }
+                    case 1 -> {
+                        speed_x = speed1;
+                        speed_y = speed2;
+                        x = random.nextInt(1280 - 96);
+                        y = 0;
+                    }
+                    case 2 -> {
+                        speed_x = speed2;
+                        speed_y = speed1;
+                        x = 0;
+                        y = random.nextInt(720 - 96);
+                    }
+                    case 3 -> {
+                        speed_x = -speed2;
+                        speed_y = speed1;
+                        x = 1280 - 96;
+                        y = random.nextInt(720 - 96);
+                    }
+                }
+
+                gameEntities.add(new Enemy(gameEntities.size(), 1, speed_x, speed_y, x, y, texture));
+
+            }
+        }
+
+    }
+
+
+    public void spawnItem() {
+        if (random.nextInt(1000) == 1) {
+            gameEntities.add(new Item(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, redpotion_texture));
         }
     }
 

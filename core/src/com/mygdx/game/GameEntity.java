@@ -7,13 +7,11 @@ import java.util.ArrayList;
 
 public interface GameEntity {
     /**
-     *
      * @return
      */
     public Rectangle getRectangle();
 
     /**
-     *
      * @return
      */
     public TextureRegion getTextureRegion();
@@ -36,4 +34,13 @@ public interface GameEntity {
     public void move(Player player, ArrayList<GameEntity> gameEntities, float deltaTime);
 
     public int getId();
+
+
+    public entityType getType();
+
+    public enum entityType {
+        ENEMY,
+        ITEM,
+        BULLET
+    }
 }

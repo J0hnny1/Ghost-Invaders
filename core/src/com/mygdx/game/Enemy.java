@@ -75,6 +75,12 @@ public class Enemy implements GameEntity {
         this.textureRegion = new TextureRegion(texture, 0, 0, 32, 32);
     }
 
+
+
+    public entityType getType() {
+        return entityType.ENEMY;
+    }
+
     @Override
     public void move(Player player, ArrayList<GameEntity> gameEntities, float deltaTime) {
         setPosition(x + xspeed * Gdx.graphics.getDeltaTime(), y + yspeed * Gdx.graphics.getDeltaTime());
