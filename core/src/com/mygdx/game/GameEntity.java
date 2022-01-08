@@ -35,6 +35,7 @@ public interface GameEntity {
 
     public int getId();
 
+    public void onContact();
 
     public entityType getType();
 

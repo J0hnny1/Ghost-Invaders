@@ -4,9 +4,10 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.mygdx.game.Items.HealthPotion;
+import com.mygdx.game.Items.Poison;
 
 
 import java.util.ArrayList;
@@ -16,83 +17,85 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class MyGdxGame extends ApplicationAdapter {
 
-    Texture enemy09_texture;
-    TextureRegion enemy09_front;
-    Texture blue_enemy_texture;
-
+    // game entities
+    ArrayList<GameEntity> gameEntities = new ArrayList<>();
+    //camera
     SpriteBatch batch;
     OrthographicCamera camera;
+    //InputProcessor
+    InputProcessor inputProcessor = new InputProcessor();
+    //heart for hp bar
     Texture healthTexture;
+    //player
+    Player player;
+    //enemies
+    Texture white_enemy_texture;
+    Texture blue_enemy_texture;
+    Texture pink_enemy_texture;
+    //timers
     long start_time_initial = System.currentTimeMillis();
     long start_time = System.currentTimeMillis();
-    long start_time_2 = System.currentTimeMillis();
+    long start_time_itemSpawn = System.currentTimeMillis();
     long start_time_spawn = System.currentTimeMillis();
-    InputProcessor inputProcessor = new InputProcessor();
+    //Items
     Texture redpotion_texture;
-    TextureRegion redpotion;
-    Rectangle redpotion_rectangle;
+    Texture greenpotion_texture;
+    Texture yellowpotion_texture;
+    //background textures
     Texture background_texture;
-    boolean zeichneGegner;
-    Player player;
+    //random for random generated numbers
     Random random = new Random();
-    Bullet bullet;
-    boolean fireball_draw = false;
+    //fireball
     Texture fireball_texture;
-    Rectangle fireball_rectangle;
-    int c;
-    boolean is_paused = false;
+    //counters for increased hardness
+    int min_enemies = 3;
+    int max_enemies = 5;
+    int waveCount;
 
-    // game entities or enemies ?
-    ArrayList<GameEntity> gameEntities = new ArrayList<>();
 
     @Override
     public void create() {
-        //Texturen
-        healthTexture = new Texture("heart.png");
-        enemy09_texture = new Texture("Enemy 09-1.png");
-        redpotion_texture = new Texture("red potion.png");
-        background_texture = new Texture("duuh69.png");
-
-        fireball_texture = new Texture("myBall.png");
-
-        //Spieler
-        player = new Player();
-
-        fireball_rectangle = new Rectangle(player.player_rectangle.x, player.player_rectangle.y, 32, 32);
-        //Enemy Texture Region
-        enemy09_front = new TextureRegion(enemy09_texture, 0, 0, 32, 32);
-
-        //Red Potion Texture Region
-        redpotion = new TextureRegion(redpotion_texture, 0, 0, 16, 16);
-
-
-        //Kamera
+        //Camera
         camera = new OrthographicCamera();
         batch = new SpriteBatch();
         camera.setToOrtho(false, 1280, 720);
 
-        redpotion_rectangle = new Rectangle(100, 500, 64, 64);
-        // Input Prozessor
+        //Input Processor
         Gdx.input.setInputProcessor(inputProcessor);
 
-        bullet = new Bullet();
+        //Spieler
+        player = new Player();
 
-        //draw random enemies
-        spawnRandomEnemies(5);
+        //heart Texture
+        healthTexture = new Texture("heart.png");
 
+        //background textures
+        background_texture = new Texture("duuh69.png");
+
+        //fireball
+        fireball_texture = new Texture("myBall.png");
+
+        //Items
+        greenpotion_texture = new Texture("green potion.png");
+        redpotion_texture = new Texture("red potion.png");
+        yellowpotion_texture = new Texture("yellow potion.png");
+
+        //enemy textures
+        white_enemy_texture = new Texture("Enemy 09-1.png");
         blue_enemy_texture = new Texture("Enemy 11-1.png");
+        pink_enemy_texture = new Texture("Enemy 12-1.png");
 
     }
 
     @Override
     public void render() {
 
-        //Initalize scene
+        //Initialise scene
         ScreenUtils.clear(216, 158, 85, 0);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
-        //Start des Draw Prozess
+        //start of draw process
         batch.begin();
 
         // draw background
@@ -108,14 +111,15 @@ public class MyGdxGame extends ApplicationAdapter {
         }
 
         // draw player
-        if (player.show_player_right)
-            batch.draw(player.player_walk_right, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
-        else if (player.show_player_left)
-            batch.draw(player.player_walk_left, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
-        else if (player.show_player_back)
-            batch.draw(player.player_walk_back, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
-        else if (player.show_player_front)
-            batch.draw(player.player_walk_front, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
+        if (player.playerdirection == null) {
+            player.playerdirection = Player.direction.BACK;
+        }
+        switch (player.playerdirection) {
+            case BACK -> batch.draw(player.player_walk_front, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
+            case FRONT -> batch.draw(player.player_walk_back, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
+            case LEFT -> batch.draw(player.player_walk_left, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
+            case RIGHT -> batch.draw(player.player_walk_right, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
+        }
 
         // draw all enemies
         for (int i = 0; i < gameEntities.size(); i++) {
@@ -138,14 +142,15 @@ public class MyGdxGame extends ApplicationAdapter {
         //Draw Hp Bar
         drawHealthIcons();
 
-        //Ende Des Draw Prozess
+        //end of draw process
         batch.end();
 
         // spawn enemies
-        spawnRandomEnemies(5);
+        spawnRandomEnemies(random.nextInt(min_enemies, max_enemies));
+
 
         //spawn Item
-        spawnItem();
+        spawnItems();
 
         //Movement der Gegner
         for (int i = 0; i < gameEntities.size(); i++) {
@@ -160,21 +165,24 @@ public class MyGdxGame extends ApplicationAdapter {
                     start_time = System.currentTimeMillis();
                     player.hp.decrease(1);
                 }
+                if (player.killsEnemiesOnContact) {
+                    gameEntities.remove(i);
+                }
             }
 
-            //increase health of player if he walks into health potion
+            //execute onContact of Item when in contact & remove item from screen
             if (e.getType() == GameEntity.entityType.ITEM && player.player_rectangle.overlaps(r)) {
-                player.hp.increase(1);
+                e.onContact();
                 gameEntities.remove(i);
             }
 
 
         }
 
+
         //If player dies
         if (player.hp.getHealth() == 0) {
-            player.hp.increase(4);
-            gameEntities.clear();
+            playerDeath();
         }
         // Wenn player ausserhalb des Screens im X bereich
         if (player.player_rectangle.x < 0) player.player_rectangle.x = 0;
@@ -186,37 +194,28 @@ public class MyGdxGame extends ApplicationAdapter {
 
         //Input
         if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            player.show_player_left = false;
-            player.show_player_right = true;
-            player.show_player_back = false;
-            player.show_player_front = false;
+            player.setPlayerdirection(Player.direction.RIGHT);
             player.player_rectangle.x += 250 * Gdx.graphics.getDeltaTime();
         }
         if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            player.show_player_right = false;
-            player.show_player_left = true;
-            player.show_player_back = false;
-            player.show_player_front = false;
+            player.setPlayerdirection(Player.direction.LEFT);
             player.player_rectangle.x -= 250 * Gdx.graphics.getDeltaTime();
         }
         if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            player.show_player_right = false;
-            player.show_player_left = false;
-            player.show_player_front = false;
-            player.show_player_back = true;
+            player.setPlayerdirection(Player.direction.FRONT);
             player.player_rectangle.y += 250 * Gdx.graphics.getDeltaTime();
         }
         if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            player.show_player_right = false;
-            player.show_player_left = false;
-            player.show_player_back = false;
-            player.show_player_front = true;
+            player.setPlayerdirection(Player.direction.BACK);
             player.player_rectangle.y -= 250 * Gdx.graphics.getDeltaTime();
         }
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.R)) {
+            playerDeath();
         }
 
-        //Debug
     }
 
     @Override
@@ -238,14 +237,22 @@ public class MyGdxGame extends ApplicationAdapter {
 
             int enemy_type = random.nextInt(2);
             int direction = random.nextInt(4);
+            int r_pink = random.nextInt(1,101);
             Texture texture = healthTexture;
 
-            switch (enemy_type){
+            switch (enemy_type) {
                 case 0 -> {
-                    texture = enemy09_texture;
+                    texture = white_enemy_texture;
                 }
                 case 1 -> {
                     texture = blue_enemy_texture;
+                    //check to avoid min and max value for random to be same
+                    if (min_enemies + 1 < max_enemies) {
+                        min_enemies++;
+                    }
+                    if (max_enemies < 10) {
+                        max_enemies++;
+                    }
                 }
             }
 
@@ -265,7 +272,7 @@ public class MyGdxGame extends ApplicationAdapter {
                     }
                 }
 
-                switch(direction) {
+                switch (direction) {
                     case 0 -> {
                         speed_x = speed1;
                         speed_y = -speed2;
@@ -293,6 +300,10 @@ public class MyGdxGame extends ApplicationAdapter {
                 }
 
                 gameEntities.add(new Enemy(gameEntities.size(), 1, speed_x, speed_y, x, y, texture));
+                waveCount++;
+                if (r_pink <= 10 && waveCount > 7) {
+                    gameEntities.add(new PinkEnemy(10,1,125,125,500,500,pink_enemy_texture));
+                }
 
             }
         }
@@ -300,25 +311,34 @@ public class MyGdxGame extends ApplicationAdapter {
     }
 
 
-    public void spawnItem() {
-        if (random.nextInt(1000) == 1) {
-            gameEntities.add(new Item(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, redpotion_texture));
+    public void spawnItems() {
+        if (System.currentTimeMillis() - start_time_itemSpawn > 12000) {
+            start_time_itemSpawn = System.currentTimeMillis();
+            int r = random.nextInt(1, 101);
+
+            if (r <= 10) {
+                gameEntities.add(new Poison(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, greenpotion_texture));
+            } else if (r <= 80) {
+                gameEntities.add(new HealthPotion(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, redpotion_texture));
+            } else if (r <= 90) {
+                gameEntities.add(new HealthPotion(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, yellowpotion_texture));
+            }
+
         }
     }
 
-    public void drawFireBall() {
-        if (player.show_player_front) {
-            batch.draw(fireball_texture, fireball_rectangle.x, fireball_rectangle.y, 32, 32);
-            fireball_rectangle.y -= 100 * Gdx.graphics.getDeltaTime();
-        } else if (player.show_player_back) {
-            batch.draw(fireball_texture, fireball_rectangle.x, fireball_rectangle.y, 32, 32);
-            fireball_rectangle.y += 100 * Gdx.graphics.getDeltaTime();
-        } else if (player.show_player_left) {
-            batch.draw(fireball_texture, fireball_rectangle.x, fireball_rectangle.y, 32, 32);
-            fireball_rectangle.x -= 100 * Gdx.graphics.getDeltaTime();
-        } else if (player.show_player_right) {
-            batch.draw(fireball_texture, fireball_rectangle.x, fireball_rectangle.y, 32, 32);
-            fireball_rectangle.x += 100 * Gdx.graphics.getDeltaTime();
-        }
+    /**
+     *  callled when the player dies, resets the game state
+     */
+    public void playerDeath() {
+        player.hp.decrease(10); // TODO! use health  setter
+        player.hp.increase(4);
+        gameEntities.clear();
+        waveCount = 0;
+        player.killsEnemiesOnContact = false;
+        player.player_rectangle.x = 1280 / 2 - 32 / 2;
+        player.player_rectangle.y = 720 / 2;
+        min_enemies = 3;
+        max_enemies = 5;
     }
 }

@@ -1,8 +1,10 @@
-package com.mygdx.game;
+package com.mygdx.game.Items;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
+import com.mygdx.game.GameEntity;
+import com.mygdx.game.Player;
 
 import java.util.ArrayList;
 
@@ -12,14 +14,18 @@ public class Item implements GameEntity {
     float y;
     Texture texture;
     TextureRegion textureRegion;
+    Player player;
 
-    public Item(float x, float y, int width, int height, Texture texture) {
+    public Item(float x, float y, int width, int height, Player player, Texture texture) {
         this.x = x;
         this.y = y;
         this.texture = texture;
         this.textureRegion = new TextureRegion(texture, 0, 0, 16, 16);
         this.item_rectangle = new Rectangle(x, y, width, height);
+        this.player = player;
     }
+
+
 
     @Override
     public Rectangle getRectangle() {
@@ -73,6 +79,11 @@ public class Item implements GameEntity {
     @Override
     public int getId() {
         return 0;
+    }
+
+    @Override
+    public void onContact() {
+
     }
 
     @Override

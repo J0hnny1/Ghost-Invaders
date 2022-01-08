@@ -57,12 +57,23 @@ public class Enemy implements GameEntity {
         return x;
     }
 
+    public void setX(float x) {
+        this.x = x;
+    }
+    public void setY(float y) {
+        this.y = y;
+    }
     @Override
     public float gety() {
         return y;
     }
     @Override
     public int getId(){ return id; }
+
+    @Override
+    public void onContact() {
+
+    }
 
     public Enemy(int id, int health, int xspeed, int yspeed, int x, int y, Texture texture) {
         this.id = id;
