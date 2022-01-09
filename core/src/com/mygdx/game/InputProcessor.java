@@ -8,7 +8,15 @@ import com.badlogic.gdx.Input;
 public class InputProcessor implements com.badlogic.gdx.InputProcessor {
     boolean fullscreen = false;
     Player spieler;
+    boolean isPaused = false;
 
+    public boolean isPaused() {
+        return isPaused;
+    }
+
+    public void setPaused(boolean paused) {
+        isPaused = paused;
+    }
 
     /**
      * @param keycode
@@ -24,6 +32,7 @@ public class InputProcessor implements com.badlogic.gdx.InputProcessor {
                     fullscreen = true;
                     if (!Gdx.graphics.setFullscreenMode(displayMode)) {
                         // switching to full-screen mode failed
+
                     }
 
                 } else {
@@ -31,6 +40,10 @@ public class InputProcessor implements com.badlogic.gdx.InputProcessor {
                     fullscreen = false;
                 }
                 break;
+            case Input.Keys.ESCAPE:
+                if (!isPaused) {
+                    isPaused = true;
+                }else isPaused = false;
 
 
         }

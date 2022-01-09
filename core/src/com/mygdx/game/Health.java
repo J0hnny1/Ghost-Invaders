@@ -20,6 +20,10 @@ public class Health {
         this.max_health = max_health;
     }
 
+    public void setHealth(int health) {
+        this.health = health;
+    }
+
     public Health(int health) {
         this.health = health;
     }

@@ -88,7 +88,7 @@ public class Enemy implements GameEntity {
 
 
 
-    public entityType getType() {
+    public entityType getEntityType() {
         return entityType.ENEMY;
     }
 
@@ -110,19 +110,6 @@ public class Enemy implements GameEntity {
         } else if(x < 0){
             xspeed *= -1;
             this.setPosition(0, this.y);
-        }
-
-        for(int i = 0; i < gameEntities.size(); i++){
-            GameEntity e = gameEntities.get(i);
-            float e_x = e.getx();
-            float e_y = e.gety();
-            float e_w = e.getRectangle().width;
-            float e_h = e.getRectangle().height;
-            Rectangle e_rectangle = new Rectangle(e_x, e_y, e_w, e_h);
-
-            if(e_rectangle.overlaps(this.rectangle) && this.id != e.getId() ){
-
-            }
         }
     }
 }

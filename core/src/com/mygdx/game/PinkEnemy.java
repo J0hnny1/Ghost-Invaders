@@ -5,15 +5,15 @@ import com.badlogic.gdx.graphics.Texture;
 
 import java.util.ArrayList;
 
-public class PinkEnemy extends Enemy implements GameEntity {
+public class PinkEnemy extends Enemy{
     public PinkEnemy(int id, int health, int xspeed, int yspeed, int x, int y, Texture texture) {
         super(id, health, xspeed, yspeed, x, y, texture);
     }
 
-    @Override
-    public void setPosition(float x, float y) {
-        super.setPosition(x, y);
-    }
+    //@Override
+    //public void setPosition(float x, float y) {
+   //     super.setPosition(x, y);
+    //}
 
     @Override
     public void move(Player player, ArrayList<GameEntity> gameEntities, float deltaTime) {

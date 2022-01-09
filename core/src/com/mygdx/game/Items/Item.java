@@ -87,7 +87,7 @@ public class Item implements GameEntity {
     }
 
     @Override
-    public entityType getType() {
+    public entityType getEntityType() {
         return entityType.ITEM;
     }
 }

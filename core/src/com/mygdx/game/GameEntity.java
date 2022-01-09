@@ -37,7 +37,7 @@ public interface GameEntity {
 
     public void onContact();
 
-    public entityType getType();
+    public entityType getEntityType();
 
     public enum entityType {
         ENEMY,
