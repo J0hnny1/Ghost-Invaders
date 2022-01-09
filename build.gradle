@@ -18,6 +18,7 @@ buildscript {
 
 allprojects {
     apply plugin: "eclipse"
+    apply plugin: "application"
 
     version = '1.0'
     ext {
@@ -50,6 +51,10 @@ project(":desktop") {
         api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
 
+    }
+
+    application {
+        mainClass.set("com.mygdx.game.desktop.DesktopLauncher")
     }
 }
 
