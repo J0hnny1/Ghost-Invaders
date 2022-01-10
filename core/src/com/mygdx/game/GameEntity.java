@@ -1,5 +1,6 @@
 package com.mygdx.game;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 
@@ -7,7 +8,7 @@ import java.util.ArrayList;
 
 public interface GameEntity {
     /**
-     * @return
+     * @return rectangle
      */
      Rectangle getRectangle();
 
@@ -23,6 +24,7 @@ public interface GameEntity {
      * @param y coordinate
      */
      void setPosition(float x, float y);
+     Texture getTexture();
 
     /**
      * @return speed in x direction
@@ -38,14 +40,14 @@ public interface GameEntity {
     /**
      * sets speed in x direction
      *
-     * @param xspeed
+     * @param xspeed speed in x direction
      */
     void setXspeed(float xspeed);
 
     /**
      * sets speed in y direction
      *
-     * @param yspeed
+     * @param yspeed speed in y direction
      */
     void setYspeed(float yspeed);
 

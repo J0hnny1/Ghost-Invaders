@@ -38,6 +38,11 @@ public class Item implements GameEntity {
     }
 
     @Override
+    public Texture getTexture() {
+        return null;
+    }
+
+    @Override
     public void setPosition(float x, float y) {
 
     }

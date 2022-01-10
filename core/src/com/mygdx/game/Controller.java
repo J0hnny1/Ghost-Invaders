@@ -15,7 +15,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 
-public class MyGdxGame extends ApplicationAdapter {
+public class Controller extends ApplicationAdapter {
 
     // game entities
     ArrayList<GameEntity> gameEntities = new ArrayList<>();
@@ -33,7 +33,7 @@ public class MyGdxGame extends ApplicationAdapter {
     Texture blue_enemy_texture;
     Texture pink_enemy_texture;
     //timers
-    long start_time_damageSplash = System.currentTimeMillis();;
+    long start_time_damageSplash = System.currentTimeMillis();
     long start_time = System.currentTimeMillis();
     long start_time_itemSpawn = System.currentTimeMillis();
     long start_time_spawn = System.currentTimeMillis();
@@ -104,8 +104,7 @@ public class MyGdxGame extends ApplicationAdapter {
         batch.draw(background_texture, 0, 0);
 
         // draw all items
-        for (int i = 0; i < gameEntities.size(); i++) {
-            GameEntity e = gameEntities.get(i);
+        for (GameEntity e : gameEntities) {
             if (e.getEntityType() == GameEntity.entityType.ITEM) {
                 Rectangle r = e.getRectangle();
                 batch.draw(e.getTextureRegion(), (int) e.getx(), (int) e.gety(), r.width, r.height);
@@ -138,8 +137,7 @@ public class MyGdxGame extends ApplicationAdapter {
         // draw all enemies
         //batch.setColor(1, 1, 1, 0.9f);
         batch.setColor(Color.WHITE);
-        for (int i = 0; i < gameEntities.size(); i++) {
-            GameEntity e = gameEntities.get(i);
+        for (GameEntity e : gameEntities) {
             if (e.getEntityType() == GameEntity.entityType.ENEMY) {
                 Rectangle r = e.getRectangle();
                 batch.draw(e.getTextureRegion(), (int) e.getx(), (int) e.gety(), r.width, r.height);
@@ -147,11 +145,10 @@ public class MyGdxGame extends ApplicationAdapter {
         }
 
         // draw all bullets
-        for (int i = 0; i < gameEntities.size(); i++) {
-            GameEntity e = gameEntities.get(i);
+        for (GameEntity e : gameEntities) {
             if (e.getEntityType() == GameEntity.entityType.BULLET) {
                 Rectangle r = e.getRectangle();
-                batch.draw(e.getTextureRegion(), (int) e.getx(), (int) e.gety(), r.width, r.height);
+                batch.draw(e.getTexture(), (int) e.getx(), (int) e.gety(), r.width, r.height);
             }
         }
 
@@ -208,6 +205,7 @@ public class MyGdxGame extends ApplicationAdapter {
             }
 
 
+
             //If player dies
             if (player.hp.getHealth() == 0) {
                 playerDeath();
@@ -238,6 +236,7 @@ public class MyGdxGame extends ApplicationAdapter {
                 player.player_rectangle.y -= 250 * Gdx.graphics.getDeltaTime();
             }
             if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+                gameEntities.add(new Bullet(69,500,500,10,50,fireball_texture));
             }
             if (Gdx.input.isKeyPressed(Input.Keys.R)) {
                 playerDeath();
@@ -298,7 +297,7 @@ public class MyGdxGame extends ApplicationAdapter {
                 // get random speeds
                 switch (enemy_type) {
                     case 0 -> {
-                        speed1 = 0;
+                        //speed1 = 0;
                         speed2 = random.nextInt(70) + 80;
                     }
                     case 1 -> {
@@ -318,12 +317,12 @@ public class MyGdxGame extends ApplicationAdapter {
                         speed_x = speed1;
                         speed_y = speed2;
                         x = random.nextInt(1280 - 96);
-                        y = 0;
+                        //y = 0;
                     }
                     case 2 -> {
                         speed_x = speed2;
                         speed_y = speed1;
-                        x = 0;
+                        //x = 0;
                         y = random.nextInt(720 - 96);
                     }
                     case 3 -> {
@@ -374,8 +373,8 @@ public class MyGdxGame extends ApplicationAdapter {
         gameEntities.clear();
         waveCount = 0;
         player.killsEnemiesOnContact = false;
-        player.player_rectangle.x = 1280 / 2 - 32 / 2;
-        player.player_rectangle.y = 720 / 2;
+        player.player_rectangle.x = 640 - 16;
+        player.player_rectangle.y = 360;
         min_enemies = 3;
         max_enemies = 5;
         enemySpawnDelay = 1000;

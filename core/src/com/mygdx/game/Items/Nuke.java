@@ -1,8 +1,6 @@
 package com.mygdx.game.Items;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.mygdx.game.GameEntity;
-import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.Player;
 
 import java.util.Random;

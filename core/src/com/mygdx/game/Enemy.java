@@ -25,6 +25,11 @@ public class Enemy implements GameEntity {
     }
 
     @Override
+    public Texture getTexture() {
+        return null;
+    }
+
+    @Override
     public void setPosition(float x, float y) {
         this.x = x;
         this.y = y;
