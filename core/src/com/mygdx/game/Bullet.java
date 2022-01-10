@@ -1,51 +1,75 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 
 import java.util.ArrayList;
 
-public class Bullet {
-    private Texture bullet_texture = new Texture("bullet.jpg");
-    ArrayList<Rectangle> rectangles_fireballs = new ArrayList<>();
-    private boolean[] draw_fireball_array = new boolean[20];
-    private int c = 0;
+public class Bullet implements GameEntity {
 
-    public ArrayList<Rectangle> getCircles() {
-        return rectangles_fireballs;
+    @Override
+    public Rectangle getRectangle() {
+        return null;
     }
 
-    public Texture getBullet_texture() {
-        return bullet_texture;
+    @Override
+    public TextureRegion getTextureRegion() {
+        return null;
     }
 
-    public void createBullet() {
-        for (int i = 0; i < rectangles_fireballs.size(); i++) {
-            rectangles_fireballs.add(new Rectangle(600,200,32,32));
-            c++;
-        }
+    @Override
+    public void setPosition(float x, float y) {
+
     }
 
-    public void drawBullet(String direction) {
-        for (int i = 0; i < draw_fireball_array.length; i++) {
-            if (rectangles_fireballs.get(i) == null) {
-                draw_fireball_array[i] = true;
-            }
-        }
+    @Override
+    public float getxSpeed() {
+        return 0;
+    }
 
-        switch (direction) {
-            case "right":
-                System.out.println("right");
-                break;
-            case "left":
-                System.out.println("left");
-                break;
-            case "top":
-                System.out.println("top");
-                break;
-            case "bottom":
-                System.out.println("bottom");
-        }
+    @Override
+    public float getySpeed() {
+        return 0;
+    }
 
+    @Override
+    public void setXspeed(float xspeed) {
+
+    }
+
+    @Override
+    public void setYspeed(float yspeed) {
+
+    }
+
+    @Override
+    public float getx() {
+        return 0;
+    }
+
+    @Override
+    public float gety() {
+        return 0;
+    }
+
+    @Override
+    public void move(Player player, ArrayList<GameEntity> gameEntities, float deltaTime) {
+
+    }
+
+    @Override
+    public int getId() {
+        return 0;
+    }
+
+    @Override
+    public void onContact() {
+
+    }
+
+    @Override
+    public entityType getEntityType() {
+        return null;
     }
 }

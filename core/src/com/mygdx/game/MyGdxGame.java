@@ -252,13 +252,19 @@ public class MyGdxGame extends ApplicationAdapter {
         healthTexture.dispose();
     }
 
+    /**
+     * draws health bar according to players Hp
+     */
     public void drawHealthIcons() {
         for (int i = 0; i < player.hp.getHealth(); i++) {
             batch.draw(healthTexture, i * 40, 720 - 40, 40, 40);
         }
     }
 
-
+    /**
+     * called to spawn a random amount of enemies on random positions
+     * @param enemy_amount amount of enemies to spawn
+     */
     public void spawnRandomEnemies(int enemy_amount) {
         if (System.currentTimeMillis() - start_time_spawn > enemySpawnDelay) {
             enemySpawnDelay = 10000;
@@ -341,6 +347,9 @@ public class MyGdxGame extends ApplicationAdapter {
     }
 
 
+    /**
+     * called to spawn random items after 12s
+     */
     public void spawnItems() {
         if (System.currentTimeMillis() - start_time_itemSpawn > 12000) {
             start_time_itemSpawn = System.currentTimeMillis();

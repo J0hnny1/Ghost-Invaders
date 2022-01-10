@@ -8,8 +8,14 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.HdpiMode;
 import com.mygdx.game.MyGdxGame;
 
-
+/**
+ *
+ */
 public class DesktopLauncher {
+    /**
+     *
+     * @param arg main
+     */
     public static void main(String[] arg) {
         Graphics.DisplayMode primaryMode = Lwjgl3ApplicationConfiguration.getDisplayMode();
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();

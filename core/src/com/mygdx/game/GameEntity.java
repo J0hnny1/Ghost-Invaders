@@ -9,37 +9,79 @@ public interface GameEntity {
     /**
      * @return
      */
-    public Rectangle getRectangle();
+     Rectangle getRectangle();
 
     /**
-     * @return
+     * @return TextureRegion
      */
-    public TextureRegion getTextureRegion();
+     TextureRegion getTextureRegion();
 
-    public void setPosition(float x, float y);
+    /**
+     * sets x and y coordinates of Gameentity
+     *
+     * @param x coordinate
+     * @param y coordinate
+     */
+     void setPosition(float x, float y);
 
-    public float getxSpeed();
+    /**
+     * @return speed in x direction
+     */
+     float getxSpeed();
 
-    public float getySpeed();
+    /**
+     * @return speed in y direction
+     */
+     float getySpeed();
 
 
+    /**
+     * sets speed in x direction
+     *
+     * @param xspeed
+     */
     void setXspeed(float xspeed);
 
+    /**
+     * sets speed in y direction
+     *
+     * @param yspeed
+     */
     void setYspeed(float yspeed);
 
-    public float getx();
+    /**
+     * @return x position
+     */
+     float getx();
 
-    public float gety();
+    /**
+     * @return y position
+     */
+    float gety();
 
-    public void move(Player player, ArrayList<GameEntity> gameEntities, float deltaTime);
+    /**
+     * @param player       Player object
+     * @param gameEntities Arraylist of GameEntity
+     * @param deltaTime    deltaTime
+     */
+    void move(Player player, ArrayList<GameEntity> gameEntities, float deltaTime);
 
-    public int getId();
+    /**
+     * @return GamEntity id
+     */
+    int getId();
 
-    public void onContact();
+    /**
+     * what happens if GameEntity overlaps other Rectangle
+     */
+    void onContact();
 
-    public entityType getEntityType();
+    /**
+     * @return entityType
+     */
+    entityType getEntityType();
 
-    public enum entityType {
+    enum entityType {
         ENEMY,
         ITEM,
         BULLET
