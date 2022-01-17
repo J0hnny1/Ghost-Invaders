@@ -86,6 +86,7 @@ public interface GameEntity {
     enum entityType {
         ENEMY,
         ITEM,
-        BULLET
+        BULLET,
+        PINKENEMY
     }
 }

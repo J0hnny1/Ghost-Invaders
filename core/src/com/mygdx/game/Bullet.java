@@ -1,5 +1,6 @@
 package com.mygdx.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
@@ -11,6 +12,7 @@ public class Bullet implements GameEntity {
     private float x, y, xspeed, yspeed;
     Rectangle rectangle;
     Texture texture;
+    boolean contactEnemy = false;
 
     public Bullet(int id, float x, float y, float xspeed, float yspeed, Texture texture) {
         this.id = id;
@@ -19,6 +21,7 @@ public class Bullet implements GameEntity {
         this.xspeed = xspeed;
         this.yspeed = yspeed;
         this.texture = texture;
+        this.rectangle = new Rectangle(x, y, 32, 32);
     }
 
     @Override
@@ -77,22 +80,23 @@ public class Bullet implements GameEntity {
 
     @Override
     public void move(Player player, ArrayList<GameEntity> gameEntities, float deltaTime) {
-        //setPosition(x + xspeed * Gdx.graphics.getDeltaTime(), y + yspeed * Gdx.graphics.getDeltaTime());
-        if (y + 96 > 700) {
-            yspeed *= -1;
-            this.setPosition(this.x, 700 - 96);
-        } else if (y < 0) {
-            yspeed *= -1;
-            this.setPosition(this.x, 0);
+        setPosition(x + xspeed * Gdx.graphics.getDeltaTime(), y + yspeed * Gdx.graphics.getDeltaTime());
+        for (int i = 0; i < gameEntities.size(); i++) {
+            GameEntity e = gameEntities.get(i);
+            if (e.getEntityType() == entityType.BULLET) {
+                if (y + 32 > 700 || y < 0 || x + 32 > 1280 || x < 0 || contactEnemy) {
+                    gameEntities.remove(i);
+                    contactEnemy = false;
+                }
+            }
+            if (e.getEntityType() == entityType.ENEMY || e.getEntityType() == entityType.PINKENEMY) {
+                if (e.getRectangle().overlaps(rectangle)) {
+                    gameEntities.remove(i);
+                    contactEnemy = true;
+                }
+            }
         }
 
-        if (x + 96 > 1280) {
-            xspeed *= -1;
-            this.setPosition(1280 - 96, this.y);
-        } else if (x < 0) {
-            xspeed *= -1;
-            this.setPosition(0, this.y);
-        }
 
     }
 

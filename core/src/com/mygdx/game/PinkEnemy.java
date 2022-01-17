@@ -14,6 +14,9 @@ public class PinkEnemy extends Enemy{
     //public void setPosition(float x, float y) {
    //     super.setPosition(x, y);
     //}
+    public entityType getEntityType() {
+        return entityType.PINKENEMY;
+    }
 
     @Override
     public void move(Player player, ArrayList<GameEntity> gameEntities, float deltaTime) {

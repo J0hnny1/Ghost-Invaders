@@ -6,11 +6,13 @@ buildscript {
         mavenCentral()
         gradlePluginPortal()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven {url "https://plugins.gradle.org/m2/"}
         google()
     }
     dependencies {
         classpath 'org.wisepersist:gwt-gradle-plugin:1.0.13'
         classpath 'org.gretty:gretty:3.0.2'
+        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.2"
 
 
     }
@@ -19,6 +21,7 @@ buildscript {
 allprojects {
     apply plugin: "eclipse"
     apply plugin: "application"
+    apply plugin: "com.github.johnrengelman.shadow"
 
     version = '1.0'
     ext {

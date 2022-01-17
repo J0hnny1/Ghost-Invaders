@@ -37,6 +37,7 @@ public class Controller extends ApplicationAdapter {
     long start_time = System.currentTimeMillis();
     long start_time_itemSpawn = System.currentTimeMillis();
     long start_time_spawn = System.currentTimeMillis();
+    long start_time_bullet = System.currentTimeMillis();
     //Items
     Texture redpotion_texture;
     Texture greenpotion_texture;
@@ -131,14 +132,11 @@ public class Controller extends ApplicationAdapter {
         }
 
 
-
-
-
         // draw all enemies
         //batch.setColor(1, 1, 1, 0.9f);
         batch.setColor(Color.WHITE);
         for (GameEntity e : gameEntities) {
-            if (e.getEntityType() == GameEntity.entityType.ENEMY) {
+            if (e.getEntityType() == GameEntity.entityType.ENEMY || e.getEntityType() == GameEntity.entityType.PINKENEMY) {
                 Rectangle r = e.getRectangle();
                 batch.draw(e.getTextureRegion(), (int) e.getx(), (int) e.gety(), r.width, r.height);
             }
@@ -168,17 +166,16 @@ public class Controller extends ApplicationAdapter {
         //end of draw process
         batch.end();
 
+        //check if Game is paused
         if (!inputProcessor.isPaused()) {
-
 
             // spawn enemies
             spawnRandomEnemies(random.nextInt(min_enemies, max_enemies));
 
-
             //spawn Item
             spawnItems();
 
-            //Movement der Gegner
+            //loop through gameEntities arraylist
             for (int i = 0; i < gameEntities.size(); i++) {
                 GameEntity e = gameEntities.get(i);
                 Rectangle r = new Rectangle(e.getx(), e.gety(), 96, 96);
@@ -192,7 +189,15 @@ public class Controller extends ApplicationAdapter {
                         player.hp.decrease(1);
                         playerTookDamage = true;
                     }
-
+                }
+                if (e.getEntityType() == GameEntity.entityType.PINKENEMY && player.player_rectangle.overlaps(r)) {
+                    if (System.currentTimeMillis() - start_time > 2000) {
+                        start_time = System.currentTimeMillis();
+                        player.hp.decrease(1);
+                        playerTookDamage = true;
+                        gameEntities.remove(i);
+                        System.out.println("Pinki Boy");
+                    }
                 }
 
                 //execute onContact of Item when in contact & remove item from screen
@@ -200,10 +205,7 @@ public class Controller extends ApplicationAdapter {
                     e.onContact();
                     gameEntities.remove(i);
                 }
-
-
             }
-
 
 
             //If player dies
@@ -236,7 +238,15 @@ public class Controller extends ApplicationAdapter {
                 player.player_rectangle.y -= 250 * Gdx.graphics.getDeltaTime();
             }
             if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-                gameEntities.add(new Bullet(69,500,500,10,50,fireball_texture));
+                if (System.currentTimeMillis() - start_time_bullet > 700) {
+                    start_time_bullet = System.currentTimeMillis();
+                    switch (player.playerdirection) {
+                        case BACK -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96 / 2, player.player_rectangle.y, 0, -250, fireball_texture));
+                        case FRONT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96 / 2, player.player_rectangle.y + 96, 0, 250, fireball_texture));
+                        case LEFT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x, player.player_rectangle.y + 96 / 2, -250, 0, fireball_texture));
+                        case RIGHT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96, player.player_rectangle.y + 96 / 2, 250, 0, fireball_texture));
+                    }
+                }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.R)) {
                 playerDeath();
@@ -262,6 +272,7 @@ public class Controller extends ApplicationAdapter {
 
     /**
      * called to spawn a random amount of enemies on random positions
+     *
      * @param enemy_amount amount of enemies to spawn
      */
     public void spawnRandomEnemies(int enemy_amount) {
@@ -379,5 +390,6 @@ public class Controller extends ApplicationAdapter {
         max_enemies = 5;
         enemySpawnDelay = 1000;
         batch.setColor(Color.WHITE);
+        player.setPlayerdirection(Player.direction.BACK);
     }
 }
