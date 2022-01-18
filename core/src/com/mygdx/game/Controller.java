@@ -38,6 +38,7 @@ public class Controller extends ApplicationAdapter {
     long start_time_itemSpawn = System.currentTimeMillis();
     long start_time_spawn = System.currentTimeMillis();
     long start_time_bullet = System.currentTimeMillis();
+    long start_time_poison = System.currentTimeMillis();
     //Items
     Texture redpotion_texture;
     Texture greenpotion_texture;
@@ -188,6 +189,9 @@ public class Controller extends ApplicationAdapter {
                         start_time = System.currentTimeMillis();
                         player.hp.decrease(1);
                         playerTookDamage = true;
+                        if (player.killsEnemiesOnContact) {
+                            gameEntities.remove(i);
+                        }
                     }
                 }
                 if (e.getEntityType() == GameEntity.entityType.PINKENEMY && player.player_rectangle.overlaps(r)) {
@@ -205,6 +209,12 @@ public class Controller extends ApplicationAdapter {
                     e.onContact();
                     gameEntities.remove(i);
                 }
+            }
+
+            //Check if poison effect is over
+            if (System.currentTimeMillis() - start_time_poison > 5000) {
+                player.killsEnemiesOnContact = false;
+                System.out.println("poison off");
             }
 
 
@@ -241,10 +251,10 @@ public class Controller extends ApplicationAdapter {
                 if (System.currentTimeMillis() - start_time_bullet > 700) {
                     start_time_bullet = System.currentTimeMillis();
                     switch (player.playerdirection) {
-                        case BACK -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96 / 2, player.player_rectangle.y, 0, -250, fireball_texture));
-                        case FRONT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96 / 2, player.player_rectangle.y + 96, 0, 250, fireball_texture));
-                        case LEFT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x, player.player_rectangle.y + 96 / 2, -250, 0, fireball_texture));
-                        case RIGHT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96, player.player_rectangle.y + 96 / 2, 250, 0, fireball_texture));
+                        case BACK -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y, 0, -280, fireball_texture));
+                        case FRONT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y + 96, 0, 280, fireball_texture));
+                        case LEFT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x, player.player_rectangle.y + 48, -280, 0, fireball_texture));
+                        case RIGHT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96, player.player_rectangle.y + 48, 280, 0, fireball_texture));
                     }
                 }
             }
@@ -277,7 +287,7 @@ public class Controller extends ApplicationAdapter {
      */
     public void spawnRandomEnemies(int enemy_amount) {
         if (System.currentTimeMillis() - start_time_spawn > enemySpawnDelay) {
-            enemySpawnDelay = 10000;
+            enemySpawnDelay = 6000;
             start_time_spawn = System.currentTimeMillis();
 
             int enemy_type = random.nextInt(2);
@@ -309,11 +319,11 @@ public class Controller extends ApplicationAdapter {
                 switch (enemy_type) {
                     case 0 -> {
                         //speed1 = 0;
-                        speed2 = random.nextInt(70) + 80;
+                        speed2 = random.nextInt(80,200);
                     }
                     case 1 -> {
-                        speed1 = random.nextInt(70) + 90;
-                        speed2 = random.nextInt(20) + 30;
+                        speed1 = random.nextInt(80,200);
+                        speed2 = random.nextInt(20,100);
                     }
                 }
 
@@ -365,8 +375,9 @@ public class Controller extends ApplicationAdapter {
             start_time_itemSpawn = System.currentTimeMillis();
             int r = random.nextInt(1, 101);
 
-            if (r <= 10) {
+            if (r <= 100) {
                 gameEntities.add(new Poison(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, greenpotion_texture));
+                start_time_poison = System.currentTimeMillis();
             } else if (r <= 80) {
                 gameEntities.add(new HealthPotion(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, redpotion_texture));
             } else if (r <= 90) {

@@ -11,7 +11,7 @@ public class Player {
     TextureRegion player_walk_right = new TextureRegion(player_spritesheet, 0, 64, 32, 32);
     TextureRegion player_walk_front = new TextureRegion(player_spritesheet, 0, 0, 32, 32);
     TextureRegion player_walk_back = new TextureRegion(player_spritesheet, 0, 96, 32, 32);
-    Rectangle player_rectangle = new Rectangle(1280 / 2 - 32 / 2, 720 / 2, 32, 32);
+    Rectangle player_rectangle = new Rectangle(1280 / 2 - 96 / 2, 720 / 2, 32, 32);
     boolean killsEnemiesOnContact = false;
 
     public enum direction {
