@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Player {
-    public Health hp = new Health(20, 10);
+    public Health hp = new Health(4, 10);
     private final Texture player_spritesheet = new Texture("Male 17-1.png");
 
     Rectangle player_rectangle = new Rectangle(1280 / 2 - 96 / 2, 720 / 2, 32, 32);

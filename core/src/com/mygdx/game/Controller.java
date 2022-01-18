@@ -244,13 +244,9 @@ public class Controller extends ApplicationAdapter {
                         hit.play();
                         playerTookDamage = true;
                         gameEntities.remove(i);
-                        System.out.println("Pinki Boy");
                     }
                 }
-                if (e.getEntityType() == GameEntity.entityType.ITEM) {
 
-
-                }
 
                 //execute onContact of Item when in contact & remove item from screen
                 if (e.getEntityType() == GameEntity.entityType.ITEM && player.player_rectangle.overlaps(r)) {
@@ -264,7 +260,6 @@ public class Controller extends ApplicationAdapter {
             if (start_time_poison != 0) {
                 if (System.currentTimeMillis() - start_time_poison > 7000) {
                     player.killsEnemiesOnContact = false;
-                    System.out.println("poison off" + start_time_poison);
                     start_time_poison = 0;
                 }
             }
@@ -283,19 +278,19 @@ public class Controller extends ApplicationAdapter {
             if (player.player_rectangle.y + 96 > 720) player.player_rectangle.y = 720 - 96;
 
             //Input
-            if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            if (Gdx.input.isKeyPressed(Input.Keys.D)) {
                 player.setPlayerdirection(Player.direction.WALKINGRIGHT);
                 player.player_rectangle.x += 250 * Gdx.graphics.getDeltaTime();
             }
-            if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            if (Gdx.input.isKeyPressed(Input.Keys.A)) {
                 player.setPlayerdirection(Player.direction.WALKINGLEFT);
                 player.player_rectangle.x -= 250 * Gdx.graphics.getDeltaTime();
             }
-            if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            if (Gdx.input.isKeyPressed(Input.Keys.W)) {
                 player.setPlayerdirection(Player.direction.WALKINGFRONT);
                 player.player_rectangle.y += 250 * Gdx.graphics.getDeltaTime();
             }
-            if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            if (Gdx.input.isKeyPressed(Input.Keys.S)) {
                 player.setPlayerdirection(Player.direction.WALKINGBACK);
                 player.player_rectangle.y -= 250 * Gdx.graphics.getDeltaTime();
             }
@@ -303,7 +298,7 @@ public class Controller extends ApplicationAdapter {
                 System.out.println("L\n");
             }
             if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-                if (System.currentTimeMillis() - start_time_bullet > 600) {
+                if (System.currentTimeMillis() - start_time_bullet > 750) {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
                     switch (player.playerdirection) {
@@ -314,6 +309,38 @@ public class Controller extends ApplicationAdapter {
                     }
                 }
             }
+            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+
+                if (System.currentTimeMillis() - start_time_bullet > 750) {
+                    flameAttack.play();
+                    start_time_bullet = System.currentTimeMillis();
+                    gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96, player.player_rectangle.y + 48, 280, 0, fireball_texture));
+                }
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+                if (System.currentTimeMillis() - start_time_bullet > 750) {
+                    flameAttack.play();
+
+                    start_time_bullet = System.currentTimeMillis();
+                    gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x, player.player_rectangle.y + 48, -280, 0, fireball_texture));
+                }
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+                if (System.currentTimeMillis() - start_time_bullet > 750) {
+                    flameAttack.play();
+
+                    start_time_bullet = System.currentTimeMillis();
+                    gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y + 96, 0, 280, fireball_texture));
+                }
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+                if (System.currentTimeMillis() - start_time_bullet > 750) {
+                    flameAttack.play();
+                    start_time_bullet = System.currentTimeMillis();
+                    gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y, 0, -280, fireball_texture));
+                }
+            }
+
             if (Gdx.input.isKeyPressed(Input.Keys.R)) {
                 playerDeath();
             }
