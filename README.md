@@ -1,5 +1,5 @@
 # Ghost-Invadors
-A top down pixel art shooter inspired by the minigame Journey of the Prairie King in Stardew Valley. This started as a school project, I am not sure how I will update the game.
+A top down pixel art shooter inspired by the minigame Journey of the Prairie King in Stardew Valley. This started as a school project, I am not sure if I update the game.
 ## Installation
 If not installed, install Java 17 or later. Download .jar file from relase tab and run it.
 ## Assets
