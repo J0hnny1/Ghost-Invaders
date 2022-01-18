@@ -2,6 +2,7 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 
@@ -13,8 +14,16 @@ public class Enemy implements GameEntity {
     private Health health;
     Rectangle rectangle;
     TextureRegion textureRegion;
+    Texture texture;
+    TextureRegion front1;
+    TextureRegion front2;
+    TextureRegion front3;
+    float stateTime = 0f;
+    TextureRegion[] walkFront;
+    Animation<TextureRegion> walkFrontAnimation;
 
     @Override
+
     public Rectangle getRectangle() {
         return rectangle;
     }
@@ -65,15 +74,20 @@ public class Enemy implements GameEntity {
     public void setX(float x) {
         this.x = x;
     }
+
     public void setY(float y) {
         this.y = y;
     }
+
     @Override
     public float gety() {
         return y;
     }
+
     @Override
-    public int getId(){ return id; }
+    public int getId() {
+        return id;
+    }
 
     @Override
     public void onContact() {
@@ -88,9 +102,14 @@ public class Enemy implements GameEntity {
         this.x = x;
         this.y = y;
         this.rectangle = new Rectangle(x, y, 96, 96);
+        this.texture = texture;
         this.textureRegion = new TextureRegion(texture, 0, 0, 32, 32);
+        front1 = new TextureRegion(texture, 0, 0, 32, 32);
+        front2 = new TextureRegion(texture, 32, 0, 32, 32);
+        front3 = new TextureRegion(texture, 64, 0, 32, 32);
+        walkFront = new TextureRegion[]{front1, front2, front3};
+        walkFrontAnimation = new Animation<TextureRegion>(0.25f, walkFront);
     }
-
 
 
     public entityType getEntityType() {
@@ -98,21 +117,37 @@ public class Enemy implements GameEntity {
     }
 
     @Override
+    public Animation<TextureRegion> getAnimation() {
+        return walkFrontAnimation;
+    }
+
+    @Override
+    public float getStateTime() {
+        return stateTime;
+    }
+
+    @Override
+    public void setStateTime(float stateTime) {
+        this.stateTime = stateTime;
+    }
+
+
+    @Override
     public void move(Player player, ArrayList<GameEntity> gameEntities, float deltaTime) {
         setPosition(x + xspeed * Gdx.graphics.getDeltaTime(), y + yspeed * Gdx.graphics.getDeltaTime());
 
-        if(y + 96 > 700){
+        if (y + 96 > 700) {
             yspeed *= -1;
             this.setPosition(this.x, 700 - 96);
-        } else if(y < 0){
+        } else if (y < 0) {
             yspeed *= -1;
             this.setPosition(this.x, 0);
         }
 
-        if(x + 96 > 1280){
+        if (x + 96 > 1280) {
             xspeed *= -1;
             this.setPosition(1280 - 96, this.y);
-        } else if(x < 0){
+        } else if (x < 0) {
             xspeed *= -1;
             this.setPosition(0, this.y);
         }

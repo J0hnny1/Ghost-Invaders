@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 
@@ -82,6 +83,12 @@ public interface GameEntity {
      * @return entityType
      */
     entityType getEntityType();
+
+    Animation<TextureRegion> getAnimation();
+
+    float getStateTime();
+
+    void setStateTime(float stateTime);
 
     enum entityType {
         ENEMY,

@@ -7,7 +7,12 @@ import com.badlogic.gdx.Input;
 
 public class InputProcessor implements com.badlogic.gdx.InputProcessor {
     boolean fullscreen = false;
-    Player spieler;
+    Player player;
+
+    public InputProcessor(Player player) {
+        this.player = player;
+    }
+
     boolean isPaused = false;
 
     public boolean isPaused() {
@@ -43,7 +48,7 @@ public class InputProcessor implements com.badlogic.gdx.InputProcessor {
             case Input.Keys.ESCAPE:
                 if (!isPaused) {
                     isPaused = true;
-                }else isPaused = false;
+                } else isPaused = false;
 
 
         }
@@ -53,7 +58,13 @@ public class InputProcessor implements com.badlogic.gdx.InputProcessor {
 
     @Override
     public boolean keyUp(int keycode) {
-        return false;
+        switch (keycode) {
+            case Input.Keys.W -> player.setPlayerdirection(Player.direction.FRONT);
+            case Input.Keys.A -> player.setPlayerdirection(Player.direction.LEFT);
+            case Input.Keys.S -> player.setPlayerdirection(Player.direction.BACK);
+            case Input.Keys.D -> player.setPlayerdirection(Player.direction.RIGHT);
+        }
+        return true;
     }
 
     @Override

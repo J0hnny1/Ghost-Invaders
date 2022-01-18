@@ -4,6 +4,7 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.mygdx.game.Items.HealthPotion;
@@ -23,11 +24,12 @@ public class Controller extends ApplicationAdapter {
     SpriteBatch batch;
     OrthographicCamera camera;
     //InputProcessor
-    InputProcessor inputProcessor = new InputProcessor();
+    Player player;
+    InputProcessor inputProcessor;
     //heart for hp bar
     Texture healthTexture;
     //player
-    Player player;
+
     //enemies
     Texture white_enemy_texture;
     Texture blue_enemy_texture;
@@ -57,6 +59,7 @@ public class Controller extends ApplicationAdapter {
     Texture gameOver;
     boolean playerTookDamage;
 
+
     @Override
     public void create() {
         //Camera
@@ -64,12 +67,15 @@ public class Controller extends ApplicationAdapter {
         batch = new SpriteBatch();
         camera.setToOrtho(false, 1280, 720);
 
-        //Input Processor
-        Gdx.input.setInputProcessor(inputProcessor);
+
 
         //Spieler
         player = new Player();
 
+        inputProcessor = new InputProcessor(player);
+
+        //Input Processor
+        Gdx.input.setInputProcessor(inputProcessor);
         //heart Texture
         healthTexture = new Texture("heart.png");
 
@@ -88,6 +94,7 @@ public class Controller extends ApplicationAdapter {
         white_enemy_texture = new Texture("Enemy 09-1.png");
         blue_enemy_texture = new Texture("Enemy 11-1.png");
         pink_enemy_texture = new Texture("Enemy 12-1.png");
+
     }
 
     @Override
@@ -109,7 +116,10 @@ public class Controller extends ApplicationAdapter {
         for (GameEntity e : gameEntities) {
             if (e.getEntityType() == GameEntity.entityType.ITEM) {
                 Rectangle r = e.getRectangle();
-                batch.draw(e.getTextureRegion(), (int) e.getx(), (int) e.gety(), r.width, r.height);
+                //batch.draw(e.getTextureRegion(), (int) e.getx(), (int) e.gety(), r.width, r.height);
+                e.setStateTime(e.getStateTime() + Gdx.graphics.getDeltaTime());
+                TextureRegion currentFrame = e.getAnimation().getKeyFrame(e.getStateTime(), true);
+                batch.draw(currentFrame,e.getx(),e.gety(),r.width,r.height);
             }
         }
         // draw player
@@ -126,20 +136,45 @@ public class Controller extends ApplicationAdapter {
             player.playerdirection = Player.direction.BACK;
         }
         switch (player.playerdirection) {
-            case BACK -> batch.draw(player.player_walk_front, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
-            case FRONT -> batch.draw(player.player_walk_back, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
-            case LEFT -> batch.draw(player.player_walk_left, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
-            case RIGHT -> batch.draw(player.player_walk_right, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
+            case WALKINGBACK -> {
+                player.stateTime += Gdx.graphics.getDeltaTime();
+                TextureRegion currentFrame = player.walkFrontAnimation.getKeyFrame(player.stateTime,true);
+                batch.draw(currentFrame,player.player_rectangle.x,player.player_rectangle.y,96,96);
+            }
+            case WALKINGFRONT -> {
+                player.stateTime += Gdx.graphics.getDeltaTime();
+                TextureRegion currentFrame = player.walkBackAnimation.getKeyFrame(player.stateTime,true);
+                batch.draw(currentFrame,player.player_rectangle.x,player.player_rectangle.y,96,96);
+            }
+            case WALKINGLEFT -> {
+                player.stateTime += Gdx.graphics.getDeltaTime();
+                TextureRegion currentFrame = player.walkLeftAnimation.getKeyFrame(player.stateTime,true);
+                batch.draw(currentFrame,player.player_rectangle.x,player.player_rectangle.y,96,96);
+            }
+            case WALKINGRIGHT -> {
+                player.stateTime += Gdx.graphics.getDeltaTime();
+                TextureRegion currentFrame = player.walkRightAnimation.getKeyFrame(player.stateTime,true);
+                batch.draw(currentFrame,player.player_rectangle.x,player.player_rectangle.y,96,96);
+            }
+            case BACK -> batch.draw(player.player_front, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
+            case FRONT -> batch.draw(player.player_back, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
+            case LEFT -> batch.draw(player.player_left, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
+            case RIGHT -> batch.draw(player.player_right, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
         }
 
 
         // draw all enemies
         //batch.setColor(1, 1, 1, 0.9f);
+        //
         batch.setColor(Color.WHITE);
         for (GameEntity e : gameEntities) {
             if (e.getEntityType() == GameEntity.entityType.ENEMY || e.getEntityType() == GameEntity.entityType.PINKENEMY) {
                 Rectangle r = e.getRectangle();
-                batch.draw(e.getTextureRegion(), (int) e.getx(), (int) e.gety(), r.width, r.height);
+                e.setStateTime(e.getStateTime() + Gdx.graphics.getDeltaTime());
+                TextureRegion currentFrame = e.getAnimation().getKeyFrame(e.getStateTime(), true);
+                batch.draw(currentFrame,e.getx(),e.gety(),r.width,r.height);
+
+                //batch.draw(e.getTextureRegion(), (int) e.getx(), (int) e.gety(), r.width, r.height);
             }
         }
 
@@ -214,7 +249,7 @@ public class Controller extends ApplicationAdapter {
             //Check if poison effect is over
             if (System.currentTimeMillis() - start_time_poison > 5000) {
                 player.killsEnemiesOnContact = false;
-                System.out.println("poison off");
+                //System.out.println("poison off");
             }
 
 
@@ -232,20 +267,23 @@ public class Controller extends ApplicationAdapter {
 
             //Input
             if (Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-                player.setPlayerdirection(Player.direction.RIGHT);
+                player.setPlayerdirection(Player.direction.WALKINGRIGHT);
                 player.player_rectangle.x += 250 * Gdx.graphics.getDeltaTime();
             }
             if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-                player.setPlayerdirection(Player.direction.LEFT);
+                player.setPlayerdirection(Player.direction.WALKINGLEFT);
                 player.player_rectangle.x -= 250 * Gdx.graphics.getDeltaTime();
             }
             if (Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP)) {
-                player.setPlayerdirection(Player.direction.FRONT);
+                player.setPlayerdirection(Player.direction.WALKINGFRONT);
                 player.player_rectangle.y += 250 * Gdx.graphics.getDeltaTime();
             }
             if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-                player.setPlayerdirection(Player.direction.BACK);
+                player.setPlayerdirection(Player.direction.WALKINGBACK);
                 player.player_rectangle.y -= 250 * Gdx.graphics.getDeltaTime();
+            }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.L)) {
+                System.out.println("L\n");
             }
             if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
                 if (System.currentTimeMillis() - start_time_bullet > 700) {
@@ -319,11 +357,11 @@ public class Controller extends ApplicationAdapter {
                 switch (enemy_type) {
                     case 0 -> {
                         //speed1 = 0;
-                        speed2 = random.nextInt(80,200);
+                        speed2 = random.nextInt(80, 200);
                     }
                     case 1 -> {
-                        speed1 = random.nextInt(80,200);
-                        speed2 = random.nextInt(20,100);
+                        speed1 = random.nextInt(80, 200);
+                        speed2 = random.nextInt(20, 100);
                     }
                 }
 
@@ -375,7 +413,7 @@ public class Controller extends ApplicationAdapter {
             start_time_itemSpawn = System.currentTimeMillis();
             int r = random.nextInt(1, 101);
 
-            if (r <= 100) {
+            if (r <= 20) {
                 gameEntities.add(new Poison(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, greenpotion_texture));
                 start_time_poison = System.currentTimeMillis();
             } else if (r <= 80) {

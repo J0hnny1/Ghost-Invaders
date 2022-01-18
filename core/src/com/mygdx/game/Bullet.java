@@ -2,6 +2,7 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 
@@ -114,4 +115,20 @@ public class Bullet implements GameEntity {
     public entityType getEntityType() {
         return entityType.BULLET;
     }
+
+    @Override
+    public Animation<TextureRegion> getAnimation() {
+        return null;
+    }
+
+    @Override
+    public float getStateTime() {
+        return 0;
+    }
+
+    @Override
+    public void setStateTime(float stateTime) {
+
+    }
+
 }
