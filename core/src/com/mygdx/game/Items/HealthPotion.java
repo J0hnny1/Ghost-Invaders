@@ -6,8 +6,8 @@ import com.mygdx.game.Player;
 public class HealthPotion extends Item{
 
 
-    public HealthPotion(float x, float y, int width, int height, Player player, Texture texture) {
-        super(x, y, width, height, player, texture);
+    public HealthPotion(float x, float y, int width, int height, Player player, float spawnTime, Texture texture) {
+        super(x, y, width, height, player, spawnTime, texture);
     }
 
     @Override
@@ -15,5 +15,8 @@ public class HealthPotion extends Item{
         player.hp.increase(1);
     }
 
-
+    @Override
+    public float getSpawnTime() {
+        return spawnTime;
+    }
 }

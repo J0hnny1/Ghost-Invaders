@@ -131,6 +131,11 @@ public class Enemy implements GameEntity {
         this.stateTime = stateTime;
     }
 
+    @Override
+    public float getSpawnTime() {
+        return 0;
+    }
+
 
     @Override
     public void move(Player player, ArrayList<GameEntity> gameEntities, float deltaTime) {

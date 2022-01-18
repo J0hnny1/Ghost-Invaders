@@ -131,4 +131,9 @@ public class Bullet implements GameEntity {
 
     }
 
+    @Override
+    public float getSpawnTime() {
+        return 0;
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -23,13 +24,12 @@ public class Controller extends ApplicationAdapter {
     //camera
     SpriteBatch batch;
     OrthographicCamera camera;
-    //InputProcessor
+    //player
     Player player;
+    //InputProcessor
     InputProcessor inputProcessor;
     //heart for hp bar
     Texture healthTexture;
-    //player
-
     //enemies
     Texture white_enemy_texture;
     Texture blue_enemy_texture;
@@ -40,7 +40,7 @@ public class Controller extends ApplicationAdapter {
     long start_time_itemSpawn = System.currentTimeMillis();
     long start_time_spawn = System.currentTimeMillis();
     long start_time_bullet = System.currentTimeMillis();
-    long start_time_poison = System.currentTimeMillis();
+    long start_time_poison;
     //Items
     Texture redpotion_texture;
     Texture greenpotion_texture;
@@ -58,6 +58,11 @@ public class Controller extends ApplicationAdapter {
     int enemySpawnDelay = 1000;
     Texture gameOver;
     boolean playerTookDamage;
+    //Sounds
+    Sound flameAttack;
+    Sound hit;
+    Sound death;
+    Sound sip;
 
 
     @Override
@@ -66,7 +71,6 @@ public class Controller extends ApplicationAdapter {
         camera = new OrthographicCamera();
         batch = new SpriteBatch();
         camera.setToOrtho(false, 1280, 720);
-
 
 
         //Spieler
@@ -95,6 +99,12 @@ public class Controller extends ApplicationAdapter {
         blue_enemy_texture = new Texture("Enemy 11-1.png");
         pink_enemy_texture = new Texture("Enemy 12-1.png");
 
+        //Sounds
+        flameAttack = Gdx.audio.newSound(Gdx.files.internal("Flame Attack (Terraria Sound) - Sound Effect for editing.mp3"));
+        hit = Gdx.audio.newSound(Gdx.files.internal("Male Player Hit (Nr. 1 _ Terraria Sound) - Sound Effect for editing.mp3"));
+        death = Gdx.audio.newSound(Gdx.files.internal("Player Killed (Terraria Sound) - Sound Effect for editing.mp3"));
+        sip = Gdx.audio.newSound(Gdx.files.internal("Potion Use_Drink (Terraria Sound) - Sound Effect for editing.mp3"));
+
     }
 
     @Override
@@ -119,7 +129,7 @@ public class Controller extends ApplicationAdapter {
                 //batch.draw(e.getTextureRegion(), (int) e.getx(), (int) e.gety(), r.width, r.height);
                 e.setStateTime(e.getStateTime() + Gdx.graphics.getDeltaTime());
                 TextureRegion currentFrame = e.getAnimation().getKeyFrame(e.getStateTime(), true);
-                batch.draw(currentFrame,e.getx(),e.gety(),r.width,r.height);
+                batch.draw(currentFrame, e.getx(), e.gety(), r.width, r.height);
             }
         }
         // draw player
@@ -138,23 +148,23 @@ public class Controller extends ApplicationAdapter {
         switch (player.playerdirection) {
             case WALKINGBACK -> {
                 player.stateTime += Gdx.graphics.getDeltaTime();
-                TextureRegion currentFrame = player.walkFrontAnimation.getKeyFrame(player.stateTime,true);
-                batch.draw(currentFrame,player.player_rectangle.x,player.player_rectangle.y,96,96);
+                TextureRegion currentFrame = player.walkFrontAnimation.getKeyFrame(player.stateTime, true);
+                batch.draw(currentFrame, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
             }
             case WALKINGFRONT -> {
                 player.stateTime += Gdx.graphics.getDeltaTime();
-                TextureRegion currentFrame = player.walkBackAnimation.getKeyFrame(player.stateTime,true);
-                batch.draw(currentFrame,player.player_rectangle.x,player.player_rectangle.y,96,96);
+                TextureRegion currentFrame = player.walkBackAnimation.getKeyFrame(player.stateTime, true);
+                batch.draw(currentFrame, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
             }
             case WALKINGLEFT -> {
                 player.stateTime += Gdx.graphics.getDeltaTime();
-                TextureRegion currentFrame = player.walkLeftAnimation.getKeyFrame(player.stateTime,true);
-                batch.draw(currentFrame,player.player_rectangle.x,player.player_rectangle.y,96,96);
+                TextureRegion currentFrame = player.walkLeftAnimation.getKeyFrame(player.stateTime, true);
+                batch.draw(currentFrame, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
             }
             case WALKINGRIGHT -> {
                 player.stateTime += Gdx.graphics.getDeltaTime();
-                TextureRegion currentFrame = player.walkRightAnimation.getKeyFrame(player.stateTime,true);
-                batch.draw(currentFrame,player.player_rectangle.x,player.player_rectangle.y,96,96);
+                TextureRegion currentFrame = player.walkRightAnimation.getKeyFrame(player.stateTime, true);
+                batch.draw(currentFrame, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
             }
             case BACK -> batch.draw(player.player_front, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
             case FRONT -> batch.draw(player.player_back, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
@@ -172,7 +182,7 @@ public class Controller extends ApplicationAdapter {
                 Rectangle r = e.getRectangle();
                 e.setStateTime(e.getStateTime() + Gdx.graphics.getDeltaTime());
                 TextureRegion currentFrame = e.getAnimation().getKeyFrame(e.getStateTime(), true);
-                batch.draw(currentFrame,e.getx(),e.gety(),r.width,r.height);
+                batch.draw(currentFrame, e.getx(), e.gety(), r.width, r.height);
 
                 //batch.draw(e.getTextureRegion(), (int) e.getx(), (int) e.gety(), r.width, r.height);
             }
@@ -190,9 +200,6 @@ public class Controller extends ApplicationAdapter {
         //Draw Hp Bar
         drawHealthIcons();
 
-        if (player.hp.getHealth() == 0) {
-            batch.draw(gameOver, 0, 0);
-        }
 
         if (inputProcessor.isPaused())
             batch.setColor(Color.GRAY);
@@ -223,33 +230,43 @@ public class Controller extends ApplicationAdapter {
                     if (System.currentTimeMillis() - start_time > 2000) {
                         start_time = System.currentTimeMillis();
                         player.hp.decrease(1);
+                        hit.play();
                         playerTookDamage = true;
-                        if (player.killsEnemiesOnContact) {
-                            gameEntities.remove(i);
-                        }
+                    }
+                    if (player.killsEnemiesOnContact) {
+                        gameEntities.remove(i);
                     }
                 }
-                if (e.getEntityType() == GameEntity.entityType.PINKENEMY && player.player_rectangle.overlaps(r)) {
+                if (e.getEntityType() == GameEntity.entityType.PINKENEMY && r.overlaps(player.player_rectangle)) {
                     if (System.currentTimeMillis() - start_time > 2000) {
                         start_time = System.currentTimeMillis();
                         player.hp.decrease(1);
+                        hit.play();
                         playerTookDamage = true;
                         gameEntities.remove(i);
                         System.out.println("Pinki Boy");
                     }
                 }
+                if (e.getEntityType() == GameEntity.entityType.ITEM) {
+
+
+                }
 
                 //execute onContact of Item when in contact & remove item from screen
                 if (e.getEntityType() == GameEntity.entityType.ITEM && player.player_rectangle.overlaps(r)) {
+                    sip.play();
                     e.onContact();
                     gameEntities.remove(i);
                 }
             }
 
             //Check if poison effect is over
-            if (System.currentTimeMillis() - start_time_poison > 5000) {
-                player.killsEnemiesOnContact = false;
-                //System.out.println("poison off");
+            if (start_time_poison != 0) {
+                if (System.currentTimeMillis() - start_time_poison > 7000) {
+                    player.killsEnemiesOnContact = false;
+                    System.out.println("poison off" + start_time_poison);
+                    start_time_poison = 0;
+                }
             }
 
 
@@ -286,13 +303,14 @@ public class Controller extends ApplicationAdapter {
                 System.out.println("L\n");
             }
             if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-                if (System.currentTimeMillis() - start_time_bullet > 700) {
+                if (System.currentTimeMillis() - start_time_bullet > 600) {
+                    flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
                     switch (player.playerdirection) {
-                        case BACK -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y, 0, -280, fireball_texture));
-                        case FRONT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y + 96, 0, 280, fireball_texture));
-                        case LEFT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x, player.player_rectangle.y + 48, -280, 0, fireball_texture));
-                        case RIGHT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96, player.player_rectangle.y + 48, 280, 0, fireball_texture));
+                        case BACK, WALKINGBACK -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y, 0, -280, fireball_texture));
+                        case FRONT, WALKINGFRONT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y + 96, 0, 280, fireball_texture));
+                        case LEFT, WALKINGLEFT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x, player.player_rectangle.y + 48, -280, 0, fireball_texture));
+                        case RIGHT, WALKINGRIGHT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96, player.player_rectangle.y + 48, 280, 0, fireball_texture));
                     }
                 }
             }
@@ -307,6 +325,14 @@ public class Controller extends ApplicationAdapter {
     public void dispose() {
         batch.dispose();
         healthTexture.dispose();
+        white_enemy_texture.dispose();
+        blue_enemy_texture.dispose();
+        pink_enemy_texture.dispose();
+        greenpotion_texture.dispose();
+        redpotion_texture.dispose();
+        yellowpotion_texture.dispose();
+        background_texture.dispose();
+        fireball_texture.dispose();
     }
 
     /**
@@ -394,7 +420,9 @@ public class Controller extends ApplicationAdapter {
 
                 waveCount++;
                 if (r_pink <= 10 && waveCount > 7) {
-                    gameEntities.add(new PinkEnemy(10, 1, 125, 125, 500, 500, pink_enemy_texture));
+                    enemy_amount = 1;
+                    gameEntities.add(new PinkEnemy(gameEntities.size(), 1, 200, 200, x, y, pink_enemy_texture));
+                    //gameEntities.add(new PinkEnemy(10, 1, 125, 125, 500, 500, pink_enemy_texture));
                 } else {
                     gameEntities.add(new Enemy(gameEntities.size(), 1, speed_x, speed_y, x, y, texture));
                 }
@@ -414,12 +442,12 @@ public class Controller extends ApplicationAdapter {
             int r = random.nextInt(1, 101);
 
             if (r <= 20) {
-                gameEntities.add(new Poison(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, greenpotion_texture));
+                gameEntities.add(new Poison(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, System.currentTimeMillis(), greenpotion_texture));
                 start_time_poison = System.currentTimeMillis();
             } else if (r <= 80) {
-                gameEntities.add(new HealthPotion(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, redpotion_texture));
+                gameEntities.add(new HealthPotion(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, start_time_itemSpawn, redpotion_texture));
             } else if (r <= 90) {
-                gameEntities.add(new HealthPotion(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, yellowpotion_texture));
+                gameEntities.add(new HealthPotion(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, System.currentTimeMillis(), yellowpotion_texture));
             }
 
         }
@@ -429,6 +457,7 @@ public class Controller extends ApplicationAdapter {
      * callled when the player dies, resets the game state
      */
     public void playerDeath() {
+        death.play();
         player.hp.setHealth(4);
         gameEntities.clear();
         waveCount = 0;

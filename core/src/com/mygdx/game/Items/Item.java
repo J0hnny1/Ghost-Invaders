@@ -25,14 +25,16 @@ public class Item implements GameEntity {
     float stateTime = 0f;
     TextureRegion[] idle;
     Animation<TextureRegion> itemIdle;
+    float spawnTime;
 
-    public Item(float x, float y, int width, int height, Player player, Texture texture) {
+    public Item(float x, float y, int width, int height, Player player, float spawnTime, Texture texture) {
         this.x = x;
         this.y = y;
         this.texture = texture;
         this.textureRegion = new TextureRegion(texture, 0, 0, 16, 16);
         this.item_rectangle = new Rectangle(x, y, width, height);
         this.player = player;
+        this.spawnTime = spawnTime;
         one = new TextureRegion(texture, 0, 0, 16, 16);
         two = new TextureRegion(texture, 16, 0, 16, 16);
         three = new TextureRegion(texture, 32, 0, 16, 16);
@@ -127,6 +129,11 @@ public class Item implements GameEntity {
     @Override
     public void setStateTime(float stateTime) {
         this.stateTime = stateTime;
+    }
+
+    @Override
+    public float getSpawnTime() {
+        return spawnTime;
     }
 
 

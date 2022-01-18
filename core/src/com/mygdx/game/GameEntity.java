@@ -90,6 +90,8 @@ public interface GameEntity {
 
     void setStateTime(float stateTime);
 
+    float getSpawnTime();
+
     enum entityType {
         ENEMY,
         ITEM,
