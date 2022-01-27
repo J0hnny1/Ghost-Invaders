@@ -7,7 +7,14 @@ import com.badlogic.gdx.math.Rectangle;
 
 public class Player {
     public Health hp = new Health(4, 10);
-    private final Texture player_spritesheet = new Texture("Male 17-1.png");
+
+    Texture defaultTexture = new Texture("Male 17-1.png");
+    Texture malered = new Texture("Male 01-1.png");
+    Texture maleblue = new Texture("Male 04-4.png");
+    Texture femalered = new Texture("Female 04-3.png");
+    Texture femalepink = new Texture("Female 09-2.png");
+    Texture femalepink2 = new Texture("Female 25-1.png");
+    Texture player_spritesheet = defaultTexture;
 
     Rectangle player_rectangle = new Rectangle(1280 / 2 - 96 / 2, 720 / 2, 32, 32);
     public boolean killsEnemiesOnContact = false;
@@ -47,6 +54,9 @@ public class Player {
     public enum direction {
         FRONT, BACK, LEFT, RIGHT, WALKINGFRONT, WALKINGBACK, WALKINGLEFT, WALKINGRIGHT
     }
+    public enum playerTexture{
+        DEFAULT, FEMALERED, FEMALEPINK, FEMALEPINK2, MALERED, MALEBLUE
+    }
 
     direction playerdirection;
 
@@ -67,7 +77,16 @@ public class Player {
     }
 
     public void walkFront() {
+    }
 
-
+    public void setTexture(playerTexture i) {
+        System.out.println("tChange");
+        switch (i) {
+            case FEMALEPINK2 -> player_spritesheet = femalepink2;
+            case FEMALEPINK -> player_spritesheet = femalepink;
+            case FEMALERED -> player_spritesheet = femalered;
+            case MALEBLUE -> player_spritesheet = maleblue;
+            case MALERED -> player_spritesheet = malered;
+        }
     }
 }

@@ -8,6 +8,7 @@ import com.badlogic.gdx.Input;
 public class InputProcessor implements com.badlogic.gdx.InputProcessor {
     boolean fullscreen = false;
     Player player;
+    int player_texture_index = 0;
 
     public InputProcessor(Player player) {
         this.player = player;
@@ -49,7 +50,11 @@ public class InputProcessor implements com.badlogic.gdx.InputProcessor {
                 if (!isPaused) {
                     isPaused = true;
                 } else isPaused = false;
-
+            case Input.Keys.NUM_1:
+                player_texture_index++;
+                if (player_texture_index >= 6) {
+                    player_texture_index = 0;
+                }
 
         }
 

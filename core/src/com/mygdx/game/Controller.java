@@ -200,6 +200,14 @@ public class Controller extends ApplicationAdapter {
         //Draw Hp Bar
         drawHealthIcons();
 
+        //playerTexture
+        switch (inputProcessor.player_texture_index) {
+            case 1-> player.setTexture(Player.playerTexture.MALERED);
+            case 2-> player.setTexture(Player.playerTexture.FEMALEPINK);
+            case 3-> player.setTexture(Player.playerTexture.FEMALEPINK2);
+            case 4-> player.setTexture(Player.playerTexture.MALEBLUE);
+            case 5-> player.setTexture(Player.playerTexture.FEMALERED);
+        }
 
         if (inputProcessor.isPaused())
             batch.setColor(Color.GRAY);
@@ -311,14 +319,14 @@ public class Controller extends ApplicationAdapter {
             }
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
 
-                if (System.currentTimeMillis() - start_time_bullet > 750) {
+                if (System.currentTimeMillis() - start_time_bullet > 700) {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
                     gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96, player.player_rectangle.y + 48, 280, 0, fireball_texture));
                 }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-                if (System.currentTimeMillis() - start_time_bullet > 750) {
+                if (System.currentTimeMillis() - start_time_bullet > 700) {
                     flameAttack.play();
 
                     start_time_bullet = System.currentTimeMillis();
@@ -326,7 +334,7 @@ public class Controller extends ApplicationAdapter {
                 }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-                if (System.currentTimeMillis() - start_time_bullet > 750) {
+                if (System.currentTimeMillis() - start_time_bullet > 700) {
                     flameAttack.play();
 
                     start_time_bullet = System.currentTimeMillis();
@@ -334,7 +342,7 @@ public class Controller extends ApplicationAdapter {
                 }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-                if (System.currentTimeMillis() - start_time_bullet > 750) {
+                if (System.currentTimeMillis() - start_time_bullet > 700) {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
                     gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y, 0, -280, fireball_texture));
