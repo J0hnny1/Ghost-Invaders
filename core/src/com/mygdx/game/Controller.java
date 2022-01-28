@@ -4,6 +4,7 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -15,6 +16,7 @@ import com.mygdx.game.Items.Poison;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.WeakHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 
@@ -64,6 +66,7 @@ public class Controller extends ApplicationAdapter {
     Sound hit;
     Sound death;
     Sound sip;
+    BitmapFont font;
 
 
     @Override
@@ -105,6 +108,10 @@ public class Controller extends ApplicationAdapter {
         hit = Gdx.audio.newSound(Gdx.files.internal("Male Player Hit (Nr. 1 _ Terraria Sound) - Sound Effect for editing.mp3"));
         death = Gdx.audio.newSound(Gdx.files.internal("Player Killed (Terraria Sound) - Sound Effect for editing.mp3"));
         sip = Gdx.audio.newSound(Gdx.files.internal("Potion Use_Drink (Terraria Sound) - Sound Effect for editing.mp3"));
+
+        //font for wave counter
+        font = new BitmapFont();
+        font.setColor(Color.WHITE);
 
     }
 
@@ -197,6 +204,9 @@ public class Controller extends ApplicationAdapter {
             }
         }
 
+        //WaveCounter
+        font.draw(batch, "" + waveCount, 1265 - font.getScaleX() , 700);
+
 
         //Draw Hp Bar
         drawHealthIcons();
@@ -276,7 +286,7 @@ public class Controller extends ApplicationAdapter {
 
             //If player dies
             if (player.hp.getHealth() == 0) {
-                playerDeath();
+                playerDeath(true);
             }
             // Wenn player ausserhalb des Screens im X bereich
             if (player.player_rectangle.x < 0) player.player_rectangle.x = 0;
@@ -351,7 +361,7 @@ public class Controller extends ApplicationAdapter {
             }
 
             if (Gdx.input.isKeyPressed(Input.Keys.R)) {
-                playerDeath();
+                playerDeath(false);
             }
 
         }
@@ -369,6 +379,9 @@ public class Controller extends ApplicationAdapter {
         yellowpotion_texture.dispose();
         background_texture.dispose();
         fireball_texture.dispose();
+        flameAttack.dispose();
+        death.dispose();
+        sip.dispose();
     }
 
     /**
@@ -454,7 +467,6 @@ public class Controller extends ApplicationAdapter {
                     }
                 }
 
-                waveCount++;
                 if (r_pink <= 10 && waveCount > 7) {
                     enemy_amount = 1;
                     gameEntities.add(new PinkEnemy(gameEntities.size(), 1, 200, 200, x, y, pink_enemy_texture));
@@ -464,6 +476,7 @@ public class Controller extends ApplicationAdapter {
                 }
 
             }
+            waveCount++;
         }
 
     }
@@ -493,8 +506,8 @@ public class Controller extends ApplicationAdapter {
     /**
      * callled when the player dies, resets the game state
      */
-    public void playerDeath() {
-        death.play();
+    public void playerDeath(boolean deathSound) {
+        if (deathSound) death.play();
         player.hp.setHealth(4);
         gameEntities.clear();
         waveCount = 0;

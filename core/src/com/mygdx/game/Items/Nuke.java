@@ -20,6 +20,7 @@ public class Nuke extends Item {
 
     @Override
     public void onContact() {
+        /*
         for (int i = 0; i < gameEntity.size() -1; i++) {
             GameEntity e = gameEntity.get(i);
             if (e.getEntityType() == entityType.ENEMY && player.player_rectangle.x - e.getx() < 500 && player.player_rectangle.y - e.gety() < 500) {
@@ -27,5 +28,7 @@ public class Nuke extends Item {
                 System.out.println("Remove Enemy");
             }
         }
+
+         */
     }
 }
