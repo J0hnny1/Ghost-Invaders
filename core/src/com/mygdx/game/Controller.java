@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.mygdx.game.Items.HealthPotion;
+import com.mygdx.game.Items.Nuke;
 import com.mygdx.game.Items.Poison;
 
 
@@ -472,7 +473,7 @@ public class Controller extends ApplicationAdapter {
      * called to spawn random items after 12s
      */
     public void spawnItems() {
-        if (System.currentTimeMillis() - start_time_itemSpawn > 12000) {
+        if (System.currentTimeMillis() - start_time_itemSpawn > 1000) {
             start_time_itemSpawn = System.currentTimeMillis();
             int r = random.nextInt(1, 101);
 
@@ -480,9 +481,10 @@ public class Controller extends ApplicationAdapter {
                 gameEntities.add(new Poison(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, System.currentTimeMillis(), greenpotion_texture));
                 start_time_poison = System.currentTimeMillis();
             } else if (r <= 80) {
-                gameEntities.add(new HealthPotion(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, start_time_itemSpawn, redpotion_texture));
+                gameEntities.add(new Nuke(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, System.currentTimeMillis(), yellowpotion_texture,gameEntities));
+                //gameEntities.add(new HealthPotion(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, start_time_itemSpawn, redpotion_texture));
             } else if (r <= 90) {
-                gameEntities.add(new HealthPotion(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, System.currentTimeMillis(), yellowpotion_texture));
+
             }
 
         }

@@ -16,7 +16,7 @@ public class Player {
     Texture femalepink2 = new Texture("Female 25-1.png");
     Texture player_spritesheet = defaultTexture;
 
-    Rectangle player_rectangle = new Rectangle(1280 / 2 - 96 / 2, 720 / 2, 32, 32);
+    public Rectangle player_rectangle = new Rectangle(1280 / 2 - 96 / 2, 720 / 2, 32, 32);
     public boolean killsEnemiesOnContact = false;
     //TextureRegions when standing
     TextureRegion player_left = new TextureRegion(player_spritesheet, 32, 32, 32, 32);
@@ -76,14 +76,14 @@ public class Player {
         this.killsEnemiesOnContact = killsEnemiesOnContact;
     }
 
-    public void walkFront() {
-    }
-
     public void setTexture(playerTexture i) {
         System.out.println("tChange");
         switch (i) {
             case FEMALEPINK2 -> player_spritesheet = femalepink2;
-            case FEMALEPINK -> player_spritesheet = femalepink;
+            case FEMALEPINK -> {
+                player_spritesheet = femalepink;
+                System.out.println("FEMalePoink");
+            }
             case FEMALERED -> player_spritesheet = femalered;
             case MALEBLUE -> player_spritesheet = maleblue;
             case MALERED -> player_spritesheet = malered;

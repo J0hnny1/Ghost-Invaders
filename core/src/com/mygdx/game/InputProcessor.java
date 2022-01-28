@@ -51,10 +51,7 @@ public class InputProcessor implements com.badlogic.gdx.InputProcessor {
                     isPaused = true;
                 } else isPaused = false;
             case Input.Keys.NUM_1:
-                player_texture_index++;
-                if (player_texture_index >= 6) {
-                    player_texture_index = 0;
-                }
+                player.setTexture(Player.playerTexture.FEMALEPINK);
 
         }
 
