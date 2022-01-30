@@ -14,6 +14,7 @@ public class Bullet implements GameEntity {
     Rectangle rectangle;
     Texture texture;
     boolean contactEnemy = false;
+    public int enemieskilled2;
 
     public Bullet(int id, float x, float y, float xspeed, float yspeed, Texture texture) {
         this.id = id;
@@ -79,6 +80,7 @@ public class Bullet implements GameEntity {
         return y;
     }
 
+    //TODO Zähler für getötete Gegner ohne das alles kaputt geht
     @Override
     public void move(Player player, ArrayList<GameEntity> gameEntities, float deltaTime) {
         setPosition(x + xspeed * Gdx.graphics.getDeltaTime(), y + yspeed * Gdx.graphics.getDeltaTime());
@@ -86,12 +88,14 @@ public class Bullet implements GameEntity {
             GameEntity e = gameEntities.get(i);
             if (e.getEntityType() == entityType.BULLET) {
                 if (y + 32 > 700 || y < 0 || x + 32 > 1280 || x < 0 || contactEnemy) {
+                    //noinspection SuspiciousListRemoveInLoop
                     gameEntities.remove(i);
                     contactEnemy = false;
                 }
             }
             if (e.getEntityType() == entityType.ENEMY || e.getEntityType() == entityType.PINKENEMY) {
                 if (e.getRectangle().overlaps(rectangle)) {
+                    //noinspection SuspiciousListRemoveInLoop
                     gameEntities.remove(i);
                     contactEnemy = true;
                 }
@@ -135,5 +139,11 @@ public class Bullet implements GameEntity {
     public float getSpawnTime() {
         return 0;
     }
+
+    @Override
+    public int enemieskilled(int i) {
+        return enemieskilled2 + i;
+    }
+
 
 }

@@ -98,4 +98,6 @@ public interface GameEntity {
         BULLET,
         PINKENEMY
     }
+
+    int enemieskilled(int i);
 }

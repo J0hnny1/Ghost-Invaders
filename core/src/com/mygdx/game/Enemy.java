@@ -108,7 +108,7 @@ public class Enemy implements GameEntity {
         front2 = new TextureRegion(texture, 32, 0, 32, 32);
         front3 = new TextureRegion(texture, 64, 0, 32, 32);
         walkFront = new TextureRegion[]{front1, front2, front3};
-        walkFrontAnimation = new Animation<TextureRegion>(0.25f, walkFront);
+        walkFrontAnimation = new Animation<>(0.25f, walkFront);
     }
 
 
@@ -133,6 +133,11 @@ public class Enemy implements GameEntity {
 
     @Override
     public float getSpawnTime() {
+        return 0;
+    }
+
+    @Override
+    public int enemieskilled(int i) {
         return 0;
     }
 

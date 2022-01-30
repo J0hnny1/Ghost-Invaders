@@ -16,7 +16,7 @@ public class Player {
     Texture femalepink2 = new Texture("Female 25-1.png");
     Texture player_spritesheet = defaultTexture;
 
-    public Rectangle player_rectangle = new Rectangle(1280 / 2 - 96 / 2, 720 / 2, 32, 32);
+    public Rectangle player_rectangle = new Rectangle(592, 360, 32, 32);
     public boolean killsEnemiesOnContact = false;
     //TextureRegions when standing
     TextureRegion player_left = new TextureRegion(player_spritesheet, 32, 32, 32, 32);
@@ -44,10 +44,10 @@ public class Player {
     TextureRegion[] walkFramesRight = {right1, right2, right3};
     TextureRegion[] walkFramesBack = {back1, back2, back3};
 
-    Animation<TextureRegion> walkFrontAnimation = new Animation<TextureRegion>(0.25f, walkFramesFront);
-    Animation<TextureRegion> walkLeftAnimation = new Animation<TextureRegion>(0.25f, walkFramesLeft);
-    Animation<TextureRegion> walkRightAnimation = new Animation<TextureRegion>(0.25f, walkFramesRight);
-    Animation<TextureRegion> walkBackAnimation = new Animation<TextureRegion>(0.25f, walkFramesBack);
+    Animation<TextureRegion> walkFrontAnimation = new Animation<>(0.25f, walkFramesFront);
+    Animation<TextureRegion> walkLeftAnimation = new Animation<>(0.25f, walkFramesLeft);
+    Animation<TextureRegion> walkRightAnimation = new Animation<>(0.25f, walkFramesRight);
+    Animation<TextureRegion> walkBackAnimation = new Animation<>(0.25f, walkFramesBack);
     float stateTime = 0f;
 
 
@@ -60,30 +60,15 @@ public class Player {
 
     direction playerdirection;
 
-    public direction getPlayerdirection() {
-        return playerdirection;
-    }
-
     public void setPlayerdirection(direction playerdirection) {
         this.playerdirection = playerdirection;
     }
 
-    public boolean KillsEnemiesOnContact() {
-        return killsEnemiesOnContact;
-    }
-
-    public void setKillsEnemiesOnContact(boolean killsEnemiesOnContact) {
-        this.killsEnemiesOnContact = killsEnemiesOnContact;
-    }
-
     public void setTexture(playerTexture i) {
-        System.out.println("tChange");
         switch (i) {
             case FEMALEPINK2 -> player_spritesheet = femalepink2;
-            case FEMALEPINK -> {
-                player_spritesheet = femalepink;
-                System.out.println("FEMalePoink");
-            }
+            case FEMALEPINK -> player_spritesheet = femalepink;
+
             case FEMALERED -> player_spritesheet = femalered;
             case MALEBLUE -> player_spritesheet = maleblue;
             case MALERED -> player_spritesheet = malered;

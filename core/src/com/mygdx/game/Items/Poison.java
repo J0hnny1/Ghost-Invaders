@@ -1,7 +1,6 @@
 package com.mygdx.game.Items;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.mygdx.game.GameEntity;
 import com.mygdx.game.Player;
 
 public class Poison extends Item{

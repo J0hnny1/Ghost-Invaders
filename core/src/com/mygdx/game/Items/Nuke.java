@@ -20,6 +20,7 @@ public class Nuke extends Item {
 
     @Override
     public void onContact() {
+        //TODO random crashes fixen
         /*
         for (int i = 0; i < gameEntity.size() -1; i++) {
             GameEntity e = gameEntity.get(i);

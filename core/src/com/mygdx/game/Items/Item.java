@@ -42,7 +42,7 @@ public class Item implements GameEntity {
         five = new TextureRegion(texture, 16, 16, 16, 16);
         six = new TextureRegion(texture, 32, 16, 16, 16);
         idle = new TextureRegion[]{one, two, three,four,five,six};
-        itemIdle = new Animation<TextureRegion>(0.25f, idle);
+        itemIdle = new Animation<>(0.25f, idle);
     }
 
 
@@ -134,6 +134,11 @@ public class Item implements GameEntity {
     @Override
     public float getSpawnTime() {
         return spawnTime;
+    }
+
+    @Override
+    public int enemieskilled(int i) {
+        return 0;
     }
 
 
