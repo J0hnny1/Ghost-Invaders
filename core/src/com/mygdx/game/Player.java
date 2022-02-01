@@ -9,6 +9,7 @@ public class Player {
     public Health health;
     int hp;
     int maxhp;
+    boolean shootSpeedIncreased = false;
 
     public Player(int hp, int maxhp) {
         this.hp = hp;
@@ -67,6 +68,10 @@ public class Player {
     }
 
     direction playerdirection;
+
+    public void setShootSpeedIncreased(boolean shootSpeedIncreased) {
+        this.shootSpeedIncreased = shootSpeedIncreased;
+    }
 
     public void setPlayerdirection(direction playerdirection) {
         this.playerdirection = playerdirection;

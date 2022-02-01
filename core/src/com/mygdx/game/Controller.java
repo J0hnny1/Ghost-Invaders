@@ -10,8 +10,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.mygdx.game.Items.HealthPotion;
-import com.mygdx.game.Items.Nuke;
 import com.mygdx.game.Items.Poison;
+import com.mygdx.game.Items.fastshoot;
 
 
 import java.util.ArrayList;
@@ -43,10 +43,12 @@ public class Controller extends ApplicationAdapter {
     long start_time_spawn = System.currentTimeMillis();
     long start_time_bullet = System.currentTimeMillis();
     long start_time_poison;
+    long start_time_fastshoot;
     //Items
     Texture redpotion_texture;
     Texture greenpotion_texture;
     Texture yellowpotion_texture;
+    Texture bluepotion_texture;
     //background textures
     Texture background_texture;
     //random for random generated numbers
@@ -54,12 +56,12 @@ public class Controller extends ApplicationAdapter {
     //fireball
     Texture fireball_texture;
     //counters for increased hardness
-    int min_enemies = 3;
-    int max_enemies = 5;
+    int min_enemies;
+    int max_enemies;
     int enemySpawnDelay = 1000;
     boolean playerTookDamage;
     //cooldown for shooting
-    int shootcooldown = 725;
+    int shootcooldown;
     //Sounds
     Sound flameAttack;
     Sound hit;
@@ -71,6 +73,8 @@ public class Controller extends ApplicationAdapter {
     int itemscollected;
     int enemieskilled;
     int waveCount;
+    boolean firstspawn = true;
+    int itemsonfield;
 
     @Override
     public void create() {
@@ -79,9 +83,13 @@ public class Controller extends ApplicationAdapter {
         batch = new SpriteBatch();
         camera.setToOrtho(false, 1280, 720);
 
+        //config
+        config = Gdx.app.getPreferences("ghostinvadorsconfig");
+        if (!config.getBoolean("ConfigExists")) initConfig();
+
 
         //Spieler
-        player = new Player(4,10);
+        player = new Player(config.getInteger("PlayerHP"), config.getInteger("MaxHealth"));
 
         inputProcessor = new InputProcessor(player);
 
@@ -100,6 +108,7 @@ public class Controller extends ApplicationAdapter {
         greenpotion_texture = new Texture("green potion.png");
         redpotion_texture = new Texture("red potion.png");
         yellowpotion_texture = new Texture("yellow potion.png");
+        bluepotion_texture = new Texture("blue  potion.png");
 
         //enemy textures
         white_enemy_texture = new Texture("Enemy 09-1.png");
@@ -117,11 +126,12 @@ public class Controller extends ApplicationAdapter {
         font = new BitmapFont();
         font.setColor(Color.WHITE);
 
-        //config
-        config = Gdx.app.getPreferences("ghostinvadorsconfig");
-        if (config.getInteger("maxenemies") == 0) {
-            initConfig();
-        }
+        enemySpawnDelay = config.getInteger("EnemyWaveCooldown(in ms)");
+        shootcooldown = config.getInteger("shootcooldown");
+        min_enemies = config.getInteger("MinAmountOfEnemies");
+        max_enemies = config.getInteger("MaxAmountOfEnemies");
+
+
     }
 
     @Override
@@ -227,12 +237,13 @@ public class Controller extends ApplicationAdapter {
             case 5 -> player.setTexture(Player.playerTexture.FEMALERED);
         }
 
+        //draw pause screen
         if (inputProcessor.isPaused()) {
             batch.setColor(Color.GRAY);
             //TODO Text richtig ausrichten
-            font.draw(batch, "Highscore: " + config.getString("highscore") + " Waves", 10, 600 +50);
-            font.draw(batch, "Items Collected: " + config.getString("items"), 10, 585 + 50);
-            font.draw(batch, "Enemies killed: " + config.getString("enemieskilled"), 10, 570 + 50);
+            font.draw(batch, "Highscore: " + config.getString("highscore") + " Waves", 10, 600 + 50);
+            font.draw(batch, "Items Collected: " + config.getString("ItemsCollected"), 10, 585 + 50);
+            //font.draw(batch, "Enemies killed: " + config.getString("enemieskilled"), 10, 570 + 50);
         } else batch.setColor(Color.WHITE);
 
 //end of draw process
@@ -241,12 +252,6 @@ public class Controller extends ApplicationAdapter {
 
         //check if Game is paused
         if (!inputProcessor.isPaused()) {
-
-            // spawn enemies
-            spawnRandomEnemies(random.nextInt(config.getInteger("minenemies"), config.getInteger("maxenemies")));
-
-            //spawn Item
-            spawnItems();
 
 //loop through gameEntities arraylist
             for (int i = 0; i < gameEntities.size(); i++) {
@@ -287,12 +292,21 @@ public class Controller extends ApplicationAdapter {
                     //noinspection SuspiciousListRemoveInLoop
                     gameEntities.remove(i);
                     itemscollected++;
+                    itemsonfield--;
                 }
-                if (e.getEntityType() == GameEntity.entityType.ENEMY || e.getEntityType() == GameEntity.entityType.PINKENEMY) enemieskilled = e.getEnemiesKilled() ;
+                if (e.getEntityType() == GameEntity.entityType.ENEMY || e.getEntityType() == GameEntity.entityType.PINKENEMY)
+                    enemieskilled = e.getEnemiesKilled();
 
 
             }
 //end of arraylist loop
+
+            // spawn enemies
+
+            spawnRandomEnemies(random.nextInt(min_enemies,max_enemies), 1);
+
+            //spawn Item
+            if (itemsonfield < 4) spawnItems();
 
             //Check if poison effect is over
             if (start_time_poison != 0) {
@@ -301,15 +315,28 @@ public class Controller extends ApplicationAdapter {
                     start_time_poison = 0;
                 }
             }
+            if (player.shootSpeedIncreased){
+                shootcooldown = shootcooldown - 200;
+                player.shootSpeedIncreased = false;
+            }
+            //Check if fastshoot effect is over
+            if (start_time_fastshoot != 0) {
+                if (System.currentTimeMillis() - start_time_fastshoot > 7000) {
+                    player.shootSpeedIncreased = false;
+                    start_time_fastshoot = 0;
+                    shootcooldown = config.getInteger("shootcooldown");
+                }
+            }
+
 
             //update stats
             updateStats();
 
 
             //If player dies
-            if (player.health.getHealth() == 0) {
-                playerDeath(true);
-            }
+            if (player.health.getHealth() == 0) playerDeath(true);
+
+
             // Wenn player ausserhalb des Screens im X bereich
             if (player.player_rectangle.x < 0) player.player_rectangle.x = 0;
             if (player.player_rectangle.x > 1280 - 96) player.player_rectangle.x = 1280 - 96;
@@ -335,11 +362,8 @@ public class Controller extends ApplicationAdapter {
                 player.setPlayerdirection(Player.direction.WALKINGBACK);
                 player.player_rectangle.y -= 250 * Gdx.graphics.getDeltaTime();
             }
-            if (Gdx.input.isKeyJustPressed(Input.Keys.L)) {
-                System.out.println("L\n");
-            }
             if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-                if (System.currentTimeMillis() - start_time_bullet > config.getInteger("shootcooldown")) {
+                if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
                     switch (player.playerdirection) {
@@ -351,21 +375,21 @@ public class Controller extends ApplicationAdapter {
                 }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-                if (System.currentTimeMillis() - start_time_bullet > config.getInteger("shootcooldown")) {
+                if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
                     gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96, player.player_rectangle.y + 48, 280, 0, fireball_texture));
                 }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-                if (System.currentTimeMillis() - start_time_bullet > config.getInteger("shootcooldown")) {
+                if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
                     gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x, player.player_rectangle.y + 48, -280, 0, fireball_texture));
                 }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-                if (System.currentTimeMillis() - start_time_bullet > config.getInteger("shootcooldown")) {
+                if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
                     flameAttack.play();
 
                     start_time_bullet = System.currentTimeMillis();
@@ -373,12 +397,10 @@ public class Controller extends ApplicationAdapter {
                 }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-                if (System.currentTimeMillis() - start_time_bullet > config.getInteger("shootcooldown")) {
+                if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
                     gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y, 0, -280, fireball_texture));
-                    System.out.println(enemySpawnDelay);
-                    System.out.println("Wavecount " + waveCount);
                 }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.R)) playerDeath(false);
@@ -419,18 +441,18 @@ public class Controller extends ApplicationAdapter {
      *
      * @param enemy_amount amount of enemies to spawn
      */
-    public void spawnRandomEnemies(int enemy_amount) {
-        if (System.currentTimeMillis() - start_time_spawn > enemySpawnDelay) {
-            if (enemySpawnDelay > 3000 || enemySpawnDelay == 1000){
-                System.out.println("en over 3000");
+    public void spawnRandomEnemies(int enemy_amount, int pink_enemy_amount) {
+        if (System.currentTimeMillis() - start_time_spawn > enemySpawnDelay || firstspawn) {
+            boolean pink_spawned = false;
+            firstspawn = false;
+            if (enemySpawnDelay > 3000 || enemySpawnDelay == 1000) {
                 if (waveCount <= 15) enemySpawnDelay = 10000;
-                else enemySpawnDelay -= random.nextInt(500,1000);
+                else enemySpawnDelay -= random.nextInt(500, 1000);
             }
             start_time_spawn = System.currentTimeMillis();
 
             int enemy_type = random.nextInt(2);
             int direction = random.nextInt(4);
-            int r_pink = random.nextInt(1, 101);
             Texture texture = healthTexture;
 
             switch (enemy_type) {
@@ -441,7 +463,7 @@ public class Controller extends ApplicationAdapter {
                     if (min_enemies + 1 < max_enemies) {
                         min_enemies++;
                     }
-                    if (max_enemies < 10) {
+                    if (max_enemies < 13 && random.nextBoolean()) {
                         max_enemies++;
                     }
                 }
@@ -454,10 +476,10 @@ public class Controller extends ApplicationAdapter {
                 // get random speeds
                 switch (enemy_type) {
                     case 0 -> //speed1 = 0;
-                            speed2 = random.nextInt(80, 200);
+                            speed2 = random.nextInt(80, 300);
                     case 1 -> {
-                        speed1 = random.nextInt(80, 200);
-                        speed2 = random.nextInt(20, 100);
+                        speed1 = random.nextInt(80, 250);
+                        speed2 = random.nextInt(20, 150);
                     }
                 }
 
@@ -488,13 +510,16 @@ public class Controller extends ApplicationAdapter {
                     }
                 }
 
-                if (r_pink <= 10 && waveCount > 7 || config.getBoolean("onlypinkenemies")) {
-                    enemy_amount = 1;
+
+                if (random.nextBoolean() && waveCount > 9 && !pink_spawned|| config.getBoolean("OnlyPinkEnemies")) {
+                    //for (int j = 0; j < pink_enemy_amount;j++);
                     gameEntities.add(new PinkEnemy(gameEntities.size(), 1, 200, 200, x, y, pink_enemy_texture));
-                    //gameEntities.add(new PinkEnemy(10, 1, 125, 125, 500, 500, pink_enemy_texture));
-                } else {
-                    gameEntities.add(new Enemy(gameEntities.size(), 1, speed_x, speed_y, x, y, texture));
+                    pink_spawned = true;
+
                 }
+
+                gameEntities.add(new Enemy(gameEntities.size(), 1, speed_x, speed_y, x, y, texture));
+
             }
             waveCount++;
         }
@@ -506,19 +531,19 @@ public class Controller extends ApplicationAdapter {
      * called to spawn random items after 12s
      */
     public void spawnItems() {
-        if (System.currentTimeMillis() - start_time_itemSpawn > 15000) {
+        if (System.currentTimeMillis() - start_time_itemSpawn > config.getInteger("ItemSpawnCooldown")) {
             start_time_itemSpawn = System.currentTimeMillis();
-            int r = random.nextInt(1, 101);
 
-            if (r <= 20) {
+            if (random.nextInt(0, 100) <= 60) {
+                gameEntities.add(new HealthPotion(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, start_time_itemSpawn, redpotion_texture));
+            } else if (random.nextInt(0, 100) <= 40) {
                 gameEntities.add(new Poison(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, System.currentTimeMillis(), greenpotion_texture));
                 start_time_poison = System.currentTimeMillis();
-            } else if (r <= 80) {
-                gameEntities.add(new HealthPotion(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, start_time_itemSpawn, redpotion_texture));
-            } else if (r <= 90) {
-                gameEntities.add(new Nuke(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, System.currentTimeMillis(), yellowpotion_texture, gameEntities));
+            } else if (random.nextInt(0, 100) <= 50) {
+                gameEntities.add(new fastshoot(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, System.currentTimeMillis(), bluepotion_texture, gameEntities));
+                start_time_fastshoot = System.currentTimeMillis();
             }
-
+            itemsonfield++;
         }
     }
 
@@ -526,7 +551,6 @@ public class Controller extends ApplicationAdapter {
      * callled when the player dies, resets the game state
      */
     public void playerDeath(boolean deathSound) {
-        System.out.println(waveCount);
         if (deathSound) death.play();
         player.health.setHealth(4);
         gameEntities.clear();
@@ -545,22 +569,29 @@ public class Controller extends ApplicationAdapter {
         if (waveCount > config.getInteger("highscore")) {
             config.putInteger("highscore", waveCount);
         }
-        config.putInteger("items", config.getInteger("items") + itemscollected);
+        config.putInteger("ItemsCollected", config.getInteger("ItemsCollected") + itemscollected);
         itemscollected = 0;
-        config.putInteger("enemieskilled", enemieskilled);
-        enemieskilled = 0;
         config.flush();
-        //enemieskilled = 0;
     }
 
     public void initConfig() {
-        config.putInteger("shootcooldown", 725);
-        config.putInteger("minenemies", 3);
-        config.putInteger("maxenemies", 7);
-        config.putBoolean("onlypinkenemies", false);
-        config.putInteger("starthealth", 4);
-        config.putInteger("maxhealth", 10);
-        config.putInteger("enemywavecooldown(in ms)", 10000);
-        config.putInteger("itemspawncooldown(in ms)", 15000);
+        config.putString("A", """
+
+                All entries have to be the same data type as the default values.\s
+                Time is set in milli seconds. The minimum and maximum amount of enemies can not be the same.\s
+                To reset the config press f5 in game, set ConfigExists false, or delete this file.""".indent(1));
+        config.putInteger("shootcooldown", 710);
+        config.putInteger("MinAmountOfEnemies", 5);
+        config.putInteger("MaxAmountOfEnemies", 9);
+        config.putBoolean("OnlyPinkEnemies", false);
+        config.putInteger("PlayerHP", 4);
+        config.putInteger("MaxHealth", 10);
+        config.putInteger("EnemyWaveCooldown(in ms)", 8000);
+        config.putInteger("ItemSpawnCooldown(in ms)", 15000);
+        config.putBoolean("ConfigExists", true);
+        config.putInteger("ItemSpawnCooldown", 15000);
+        //config.putInteger("maxSpeedWhiteGhost",200);
+        //config.putInteger("maxSpeedBlueGhost",200);
+        config.flush();
     }
 }

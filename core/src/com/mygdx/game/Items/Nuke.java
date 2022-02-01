@@ -7,6 +7,7 @@ import com.mygdx.game.Player;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.TreeSet;
 
 public class Nuke extends Item {
     Random random = new Random();
@@ -22,14 +23,20 @@ public class Nuke extends Item {
     public void onContact() {
         //TODO random crashes fixen
         /*
+        TreeSet<Integer> deleteEntities = new TreeSet<>();
+
+
         for (int i = 0; i < gameEntity.size() -1; i++) {
             GameEntity e = gameEntity.get(i);
             if (e.getEntityType() == entityType.ENEMY && player.player_rectangle.x - e.getx() < 500 && player.player_rectangle.y - e.gety() < 500) {
-                gameEntity.remove(i);
+                deleteEntities.add(i);
                 System.out.println("Remove Enemy");
             }
+
         }
+        deleteEntities.descendingSet().forEach(i -> this.gameEntity.remove(i.intValue()));
 
          */
+
     }
 }

@@ -92,7 +92,7 @@ public class Bullet implements GameEntity {
             boolean isThis = e == this;
 
             // delete bullet when it leaves the screen
-            if (isThis && (y + 32 > 700 || y < 0 || x + 32 > 1280 || x < 0)) {
+            if (isThis && (y + 32 > 732 || y < -32 || x + 32 > 1280 + 32 || x < -32)) {
                 deleteEntities.add(i);
             }
 
