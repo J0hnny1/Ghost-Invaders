@@ -72,10 +72,12 @@ public class Enemy implements GameEntity {
     }
 
     public void setX(float x) {
+        this.rectangle.x = x;
         this.x = x;
     }
 
     public void setY(float y) {
+        this.rectangle.y = y;
         this.y = y;
     }
 

@@ -67,7 +67,7 @@ public class Controller extends ApplicationAdapter {
     Sound sip;
     BitmapFont font;
     //statistics
-    Preferences statistics;
+    Preferences config;
     int itemscollected;
     int enemieskilled;
     int waveCount;
@@ -81,7 +81,7 @@ public class Controller extends ApplicationAdapter {
 
 
         //Spieler
-        player = new Player();
+        player = new Player(4,10);
 
         inputProcessor = new InputProcessor(player);
 
@@ -117,8 +117,11 @@ public class Controller extends ApplicationAdapter {
         font = new BitmapFont();
         font.setColor(Color.WHITE);
 
-        //stats
-        statistics = Gdx.app.getPreferences("statistics");
+        //config
+        config = Gdx.app.getPreferences("ghostinvadorsconfig");
+        if (config.getInteger("maxenemies") == 0) {
+            initConfig();
+        }
     }
 
     @Override
@@ -227,9 +230,9 @@ public class Controller extends ApplicationAdapter {
         if (inputProcessor.isPaused()) {
             batch.setColor(Color.GRAY);
             //TODO Text richtig ausrichten
-            font.draw(batch, "Highscore: " + statistics.getString("highscore") + " Waves", 100, 100);
-            font.draw(batch, "Items Collected: " + statistics.getString("items"), 100, 115);
-            font.draw(batch, "Enemies killed: " + statistics.getString("enemieskilled"), 100, 85);
+            font.draw(batch, "Highscore: " + config.getString("highscore") + " Waves", 100, 100);
+            font.draw(batch, "Items Collected: " + config.getString("items"), 100, 115);
+            font.draw(batch, "Enemies killed: " + config.getString("enemieskilled"), 100, 85);
         } else batch.setColor(Color.WHITE);
 
 //end of draw process
@@ -240,7 +243,7 @@ public class Controller extends ApplicationAdapter {
         if (!inputProcessor.isPaused()) {
 
             // spawn enemies
-            spawnRandomEnemies(random.nextInt(min_enemies, max_enemies));
+            spawnRandomEnemies(random.nextInt(config.getInteger("minenemies"), config.getInteger("maxenemies")));
 
             //spawn Item
             spawnItems();
@@ -256,7 +259,7 @@ public class Controller extends ApplicationAdapter {
                 if (e.getEntityType() == GameEntity.entityType.ENEMY && player.player_rectangle.overlaps(r)) {
                     if (System.currentTimeMillis() - start_time > 2000) {
                         start_time = System.currentTimeMillis();
-                        player.hp.decrease(1);
+                        player.health.decrease(1);
                         hit.play();
                         playerTookDamage = true;
                     }
@@ -269,7 +272,7 @@ public class Controller extends ApplicationAdapter {
                 if (e.getEntityType() == GameEntity.entityType.PINKENEMY && r.overlaps(player.player_rectangle)) {
                     if (System.currentTimeMillis() - start_time > 2000) {
                         start_time = System.currentTimeMillis();
-                        player.hp.decrease(1);
+                        player.health.decrease(1);
                         hit.play();
                         playerTookDamage = true;
                         //noinspection SuspiciousListRemoveInLoop
@@ -289,6 +292,7 @@ public class Controller extends ApplicationAdapter {
                     enemieskilled += e.enemieskilled(0);
                 }
             }
+//end of arraylist loop
 
             //Check if poison effect is over
             //TODO Poison effect timer fixen
@@ -302,8 +306,9 @@ public class Controller extends ApplicationAdapter {
             //update stats
             updateStats();
 
+
             //If player dies
-            if (player.hp.getHealth() == 0) {
+            if (player.health.getHealth() == 0) {
                 playerDeath(true);
             }
             // Wenn player ausserhalb des Screens im X bereich
@@ -335,7 +340,7 @@ public class Controller extends ApplicationAdapter {
                 System.out.println("L\n");
             }
             if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-                if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
+                if (System.currentTimeMillis() - start_time_bullet > config.getInteger("shootcooldown")) {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
                     switch (player.playerdirection) {
@@ -347,21 +352,21 @@ public class Controller extends ApplicationAdapter {
                 }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-                if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
+                if (System.currentTimeMillis() - start_time_bullet > config.getInteger("shootcooldown")) {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
                     gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96, player.player_rectangle.y + 48, 280, 0, fireball_texture));
                 }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-                if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
+                if (System.currentTimeMillis() - start_time_bullet > config.getInteger("shootcooldown")) {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
                     gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x, player.player_rectangle.y + 48, -280, 0, fireball_texture));
                 }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-                if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
+                if (System.currentTimeMillis() - start_time_bullet > config.getInteger("shootcooldown")) {
                     flameAttack.play();
 
                     start_time_bullet = System.currentTimeMillis();
@@ -369,14 +374,14 @@ public class Controller extends ApplicationAdapter {
                 }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-                if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
+                if (System.currentTimeMillis() - start_time_bullet > config.getInteger("shootcooldown")) {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
                     gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y, 0, -280, fireball_texture));
                 }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.R)) playerDeath(false);
-            if (Gdx.input.isKeyPressed(Input.Keys.F4)) statistics.clear();
+            if (Gdx.input.isKeyPressed(Input.Keys.F5)) initConfig();
 
 
         }
@@ -403,7 +408,7 @@ public class Controller extends ApplicationAdapter {
      * draws health bar according to players Hp
      */
     public void drawHealthIcons() {
-        for (int i = 0; i < player.hp.getHealth(); i++) {
+        for (int i = 0; i < player.health.getHealth(); i++) {
             batch.draw(healthTexture, i * 40, 720 - 40, 40, 40);
         }
     }
@@ -479,7 +484,7 @@ public class Controller extends ApplicationAdapter {
                     }
                 }
 
-                if (r_pink <= 10 && waveCount > 7) {
+                if (r_pink <= 10 && waveCount > 7 || config.getBoolean("onlypinkenemies")) {
                     enemy_amount = 1;
                     gameEntities.add(new PinkEnemy(gameEntities.size(), 1, 200, 200, x, y, pink_enemy_texture));
                     //gameEntities.add(new PinkEnemy(10, 1, 125, 125, 500, 500, pink_enemy_texture));
@@ -520,7 +525,7 @@ public class Controller extends ApplicationAdapter {
     public void playerDeath(boolean deathSound) {
         System.out.println(waveCount);
         if (deathSound) death.play();
-        player.hp.setHealth(4);
+        player.health.setHealth(4);
         gameEntities.clear();
         waveCount = 0;
         player.killsEnemiesOnContact = false;
@@ -534,13 +539,23 @@ public class Controller extends ApplicationAdapter {
     }
 
     public void updateStats() {
-        if (waveCount > statistics.getInteger("highscore")) {
-            statistics.putInteger("highscore", waveCount);
+        if (waveCount > config.getInteger("highscore")) {
+            config.putInteger("highscore", waveCount);
         }
-        statistics.putInteger("items", statistics.getInteger("items") + itemscollected);
+        config.putInteger("items", config.getInteger("items") + itemscollected);
         itemscollected = 0;
-        statistics.putInteger("enemieskilled", statistics.getInteger("enemies") + enemieskilled);
-        statistics.flush();
+        config.putInteger("enemieskilled", config.getInteger("enemies") + enemieskilled);
+        config.flush();
         //enemieskilled = 0;
+    }
+
+    public void initConfig() {
+        config.putInteger("shootcooldown", 725);
+        config.putInteger("minenemies", 3);
+        config.putInteger("maxenemies", 7);
+        config.putBoolean("onlypinkenemies", false);
+        config.putInteger("starthealth", 4);
+        config.putInteger("maxhealth", 10);
+        config.putInteger("enemywavecooldown(in ms)", 10000);
     }
 }

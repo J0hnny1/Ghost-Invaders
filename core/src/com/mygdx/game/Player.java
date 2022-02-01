@@ -6,7 +6,15 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Player {
-    public Health hp = new Health(4, 10);
+    public Health health;
+    int hp;
+    int maxhp;
+
+    public Player(int hp, int maxhp) {
+        this.hp = hp;
+        this.maxhp = maxhp;
+        health = new Health(hp, maxhp);
+    }
 
     Texture defaultTexture = new Texture("Male 17-1.png");
     Texture malered = new Texture("Male 01-1.png");

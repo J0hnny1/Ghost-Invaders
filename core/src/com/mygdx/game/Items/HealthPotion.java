@@ -12,7 +12,7 @@ public class HealthPotion extends Item{
 
     @Override
     public void onContact() {
-        player.hp.increase(1);
+        player.health.increase(1);
     }
 
     @Override
