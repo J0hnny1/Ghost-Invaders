@@ -99,6 +99,7 @@ public class Bullet implements GameEntity {
             if (e.getEntityType() == entityType.ENEMY || e.getEntityType() == entityType.PINKENEMY) {
                 if (e.getRectangle().overlaps(rectangle)) {
                     deleteEntities.add(i);
+                    enemieskilled2++;
                     deleteEntities.add(thisIndex);
                 }
             }
@@ -143,9 +144,15 @@ public class Bullet implements GameEntity {
     }
 
     @Override
-    public int enemieskilled(int i) {
-        return enemieskilled2 + i;
+    public int setEnemiesKilled() {
+        return 0;
     }
+
+    @Override
+    public int getEnemiesKilled() {
+        return enemieskilled2;
+    }
+
 
 
 }

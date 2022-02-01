@@ -99,5 +99,7 @@ public interface GameEntity {
         PINKENEMY
     }
 
-    int enemieskilled(int i);
+    int setEnemiesKilled();
+
+    int getEnemiesKilled();
 }

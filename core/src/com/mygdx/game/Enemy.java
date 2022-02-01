@@ -139,7 +139,12 @@ public class Enemy implements GameEntity {
     }
 
     @Override
-    public int enemieskilled(int i) {
+    public int setEnemiesKilled() {
+        return 0;
+    }
+
+    @Override
+    public int getEnemiesKilled() {
         return 0;
     }
 
