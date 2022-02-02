@@ -79,7 +79,6 @@ public class Bullet implements GameEntity {
         return y;
     }
 
-    //TODO Zähler für getötete Gegner ohne das alles kaputt geht
     @Override
     public void move(Player player, ArrayList<GameEntity> gameEntities, float deltaTime) {
         setPosition(x + xspeed * Gdx.graphics.getDeltaTime(), y + yspeed * Gdx.graphics.getDeltaTime());

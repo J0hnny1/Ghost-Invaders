@@ -7,6 +7,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGeneratorLoader;
+import com.badlogic.gdx.graphics.g2d.freetype.FreetypeFontLoader;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.mygdx.game.Items.HealthPotion;
@@ -28,6 +31,7 @@ public class Controller extends ApplicationAdapter {
     OrthographicCamera camera;
     //player
     Player player;
+    //player textures
     //InputProcessor
     InputProcessor inputProcessor;
     //heart for hp bar
@@ -53,12 +57,13 @@ public class Controller extends ApplicationAdapter {
     Texture background_texture;
     //random for random generated numbers
     Random random = new Random();
-    //fireball
+    //fireball texture
     Texture fireball_texture;
     //counters for increased hardness
     int min_enemies;
     int max_enemies;
     int enemySpawnDelay = 1000;
+    //boolean if player took damage to control damage effect
     boolean playerTookDamage;
     //cooldown for shooting
     int shootcooldown;
@@ -68,7 +73,7 @@ public class Controller extends ApplicationAdapter {
     Sound death;
     Sound sip;
     BitmapFont font;
-    //statistics
+    //config
     Preferences config;
     int itemscollected;
     int enemieskilled;
@@ -76,6 +81,9 @@ public class Controller extends ApplicationAdapter {
     boolean firstspawn = true;
     int itemsonfield;
 
+    FreeTypeFontGenerator generator;
+    FreeTypeFontGenerator.FreeTypeFontParameter parameter;
+    BitmapFont font2;
     @Override
     public void create() {
         //Camera
@@ -131,6 +139,12 @@ public class Controller extends ApplicationAdapter {
         min_enemies = config.getInteger("MinAmountOfEnemies");
         max_enemies = config.getInteger("MaxAmountOfEnemies");
 
+        //font shit
+        generator = new FreeTypeFontGenerator(Gdx.files.internal("Quintessential-Regular.ttf"));
+        parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 20;
+        parameter.characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!'()>?:";
+        font2 = generator.generateFont(parameter);
 
     }
 
@@ -222,7 +236,7 @@ public class Controller extends ApplicationAdapter {
         }
 
         //WaveCounter
-        font.draw(batch, "" + waveCount, 1265 - font.getScaleX(), 700);
+        font2.draw(batch, "" + waveCount, 1265 - font.getScaleX(), 700);
 
 
         //Draw Hp Bar
@@ -240,9 +254,8 @@ public class Controller extends ApplicationAdapter {
         //draw pause screen
         if (inputProcessor.isPaused()) {
             batch.setColor(Color.GRAY);
-            //TODO Text richtig ausrichten
-            font.draw(batch, "Highscore: " + config.getString("highscore") + " Waves", 10, 600 + 50);
-            font.draw(batch, "Items Collected: " + config.getString("ItemsCollected"), 10, 585 + 50);
+            font2.draw(batch, "Highscore: " + config.getString("highscore") + " Waves", 10, 600 + 50);
+            font2.draw(batch, "Items Collected: " + config.getString("ItemsCollected"), 10, 585 + 40);
             //font.draw(batch, "Enemies killed: " + config.getString("enemieskilled"), 10, 570 + 50);
         } else batch.setColor(Color.WHITE);
 
@@ -425,6 +438,7 @@ public class Controller extends ApplicationAdapter {
         flameAttack.dispose();
         death.dispose();
         sip.dispose();
+        font2.dispose();
     }
 
     /**
@@ -590,6 +604,7 @@ public class Controller extends ApplicationAdapter {
         config.putInteger("ItemSpawnCooldown(in ms)", 15000);
         config.putBoolean("ConfigExists", true);
         config.putInteger("ItemSpawnCooldown", 15000);
+        //config.putString("playerSkin","default");
         //config.putInteger("maxSpeedWhiteGhost",200);
         //config.putInteger("maxSpeedBlueGhost",200);
         config.flush();
