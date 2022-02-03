@@ -8,8 +8,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGeneratorLoader;
-import com.badlogic.gdx.graphics.g2d.freetype.FreetypeFontLoader;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.mygdx.game.Items.HealthPotion;
@@ -48,6 +46,7 @@ public class Controller extends ApplicationAdapter {
     long start_time_bullet = System.currentTimeMillis();
     long start_time_poison;
     long start_time_fastshoot;
+    long start_time_deathscreen;
     //Items
     Texture redpotion_texture;
     Texture greenpotion_texture;
@@ -80,10 +79,13 @@ public class Controller extends ApplicationAdapter {
     int waveCount;
     boolean firstspawn = true;
     int itemsonfield;
+    boolean playerDead = false;
 
     FreeTypeFontGenerator generator;
     FreeTypeFontGenerator.FreeTypeFontParameter parameter;
+    FreeTypeFontGenerator.FreeTypeFontParameter parameter2;
     BitmapFont font2;
+    BitmapFont font3;
     @Override
     public void create() {
         //Camera
@@ -130,7 +132,6 @@ public class Controller extends ApplicationAdapter {
         sip = Gdx.audio.newSound(Gdx.files.internal("Potion Use_Drink (Terraria Sound) - Sound Effect for editing.mp3"));
 
         //font for stats
-        // TODO Andere Font nehmen
         font = new BitmapFont();
         font.setColor(Color.WHITE);
 
@@ -144,7 +145,12 @@ public class Controller extends ApplicationAdapter {
         parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 20;
         parameter.characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!'()>?:";
+        parameter2 = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter2.size = 60;
+        parameter2.color = Color.RED;
+        parameter2.characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!'()>?:";
         font2 = generator.generateFont(parameter);
+        font3 = generator.generateFont(parameter2);
 
     }
 
@@ -183,6 +189,11 @@ public class Controller extends ApplicationAdapter {
         }
 
         if (player.playerdirection == null) player.playerdirection = Player.direction.BACK;
+        if (playerDead && System.currentTimeMillis() - start_time_deathscreen > 5000) {
+            font3.draw(batch,"You Died",520,400);
+            font2.draw(batch, "Enemies Killed: " ,520,400-60);
+            font2.draw(batch, "Items Collected: " ,520,400-90);
+        }
 
         switch (player.playerdirection) {
             case WALKINGBACK -> {
@@ -347,7 +358,11 @@ public class Controller extends ApplicationAdapter {
 
 
             //If player dies
-            if (player.health.getHealth() == 0) playerDeath(true);
+            if (player.health.getHealth() == 0) {
+                start_time_deathscreen = System.currentTimeMillis();
+                playerDeath(true);
+                playerDead = true;
+            }
 
 
             // Wenn player ausserhalb des Screens im X bereich
@@ -380,10 +395,10 @@ public class Controller extends ApplicationAdapter {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
                     switch (player.playerdirection) {
-                        case BACK, WALKINGBACK -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y, 0, -280, fireball_texture));
-                        case FRONT, WALKINGFRONT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y + 96, 0, 280, fireball_texture));
-                        case LEFT, WALKINGLEFT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x, player.player_rectangle.y + 48, -280, 0, fireball_texture));
-                        case RIGHT, WALKINGRIGHT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96, player.player_rectangle.y + 48, 280, 0, fireball_texture));
+                        case BACK, WALKINGBACK -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y, 0, -600, fireball_texture));
+                        case FRONT, WALKINGFRONT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y + 96, 0, 600, fireball_texture));
+                        case LEFT, WALKINGLEFT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x, player.player_rectangle.y + 48, -600, 0, fireball_texture));
+                        case RIGHT, WALKINGRIGHT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96, player.player_rectangle.y + 48, 600, 0, fireball_texture));
                     }
                 }
             }
@@ -548,7 +563,7 @@ public class Controller extends ApplicationAdapter {
         if (System.currentTimeMillis() - start_time_itemSpawn > config.getInteger("ItemSpawnCooldown")) {
             start_time_itemSpawn = System.currentTimeMillis();
 
-            if (random.nextInt(0, 100) <= 60) {
+            if (random.nextInt(0, 100) <= 40) {
                 gameEntities.add(new HealthPotion(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, start_time_itemSpawn, redpotion_texture));
             } else if (random.nextInt(0, 100) <= 40) {
                 gameEntities.add(new Poison(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, System.currentTimeMillis(), greenpotion_texture));
@@ -594,7 +609,7 @@ public class Controller extends ApplicationAdapter {
                 All entries have to be the same data type as the default values.\s
                 Time is set in milli seconds. The minimum and maximum amount of enemies can not be the same.\s
                 To reset the config press f5 in game, set ConfigExists false, or delete this file.""".indent(1));
-        config.putInteger("shootcooldown", 710);
+        config.putInteger("shootcooldown", 700);
         config.putInteger("MinAmountOfEnemies", 5);
         config.putInteger("MaxAmountOfEnemies", 9);
         config.putBoolean("OnlyPinkEnemies", false);

@@ -21,7 +21,6 @@ public class Nuke extends Item {
 
     @Override
     public void onContact() {
-        //TODO random crashes fixen
         /*
         TreeSet<Integer> deleteEntities = new TreeSet<>();
 
