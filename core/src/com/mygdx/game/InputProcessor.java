@@ -1,6 +1,5 @@
 package com.mygdx.game;
 
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.Input;
@@ -9,23 +8,17 @@ public class InputProcessor implements com.badlogic.gdx.InputProcessor {
     boolean fullscreen = false;
     Player player;
     int player_texture_index = 0;
+    boolean gameIsStarted = false;
+    boolean deathScreen = false;
+    boolean isPaused = false;
 
     public InputProcessor(Player player) {
         this.player = player;
     }
 
-    boolean isPaused = false;
-
-    public boolean isPaused() {
-        return isPaused;
-    }
-
-    public void setPaused(boolean paused) {
-        isPaused = paused;
-    }
 
     /**
-     * @param keycode
+     * @param keycode keycode of pressed key
      * @return if action is performed
      */
     @Override
@@ -38,7 +31,6 @@ public class InputProcessor implements com.badlogic.gdx.InputProcessor {
                     fullscreen = true;
                     if (!Gdx.graphics.setFullscreenMode(displayMode)) {
                         // switching to full-screen mode failed
-
                     }
 
                 } else {
@@ -47,9 +39,13 @@ public class InputProcessor implements com.badlogic.gdx.InputProcessor {
                 }
                 break;
             case Input.Keys.ESCAPE:
-                if (!isPaused) {
-                    isPaused = true;
-                } else isPaused = false;
+                isPaused = !isPaused;
+            case Input.Keys.SPACE:
+                gameIsStarted = true;
+                //if (player.hp == 0) continued = true;
+            case Input.Keys.B:
+                deathScreen = false;
+
         }
 
         return true;

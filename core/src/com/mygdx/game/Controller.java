@@ -86,6 +86,7 @@ public class Controller extends ApplicationAdapter {
     FreeTypeFontGenerator.FreeTypeFontParameter parameter2;
     BitmapFont font2;
     BitmapFont font3;
+
     @Override
     public void create() {
         //Camera
@@ -146,8 +147,8 @@ public class Controller extends ApplicationAdapter {
         parameter.size = 20;
         parameter.characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!'()>?:";
         parameter2 = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter2.size = 60;
-        parameter2.color = Color.RED;
+        parameter2.size = 65;
+        
         parameter2.characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!'()>?:";
         font2 = generator.generateFont(parameter);
         font3 = generator.generateFont(parameter2);
@@ -156,7 +157,6 @@ public class Controller extends ApplicationAdapter {
 
     @Override
     public void render() {
-
 
         //Initialise scene
         ScreenUtils.clear(216, 158, 85, 0);
@@ -168,6 +168,7 @@ public class Controller extends ApplicationAdapter {
 
         // draw background
         batch.draw(background_texture, 0, 0);
+
 
         // draw all items
         for (GameEntity e : gameEntities) {
@@ -189,43 +190,40 @@ public class Controller extends ApplicationAdapter {
         }
 
         if (player.playerdirection == null) player.playerdirection = Player.direction.BACK;
-        if (playerDead && System.currentTimeMillis() - start_time_deathscreen > 5000) {
-            font3.draw(batch,"You Died",520,400);
-            font2.draw(batch, "Enemies Killed: " ,520,400-60);
-            font2.draw(batch, "Items Collected: " ,520,400-90);
-        }
 
-        switch (player.playerdirection) {
-            case WALKINGBACK -> {
-                player.stateTime += Gdx.graphics.getDeltaTime();
-                TextureRegion currentFrame = player.walkFrontAnimation.getKeyFrame(player.stateTime, true);
-                batch.draw(currentFrame, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
+        if (!inputProcessor.deathScreen && inputProcessor.gameIsStarted) {
+
+
+            switch (player.playerdirection) {
+                case WALKINGBACK -> {
+                    player.stateTime += Gdx.graphics.getDeltaTime();
+                    TextureRegion currentFrame = player.walkFrontAnimation.getKeyFrame(player.stateTime, true);
+                    batch.draw(currentFrame, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
+                }
+                case WALKINGFRONT -> {
+                    player.stateTime += Gdx.graphics.getDeltaTime();
+                    TextureRegion currentFrame = player.walkBackAnimation.getKeyFrame(player.stateTime, true);
+                    batch.draw(currentFrame, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
+                }
+                case WALKINGLEFT -> {
+                    player.stateTime += Gdx.graphics.getDeltaTime();
+                    TextureRegion currentFrame = player.walkLeftAnimation.getKeyFrame(player.stateTime, true);
+                    batch.draw(currentFrame, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
+                }
+                case WALKINGRIGHT -> {
+                    player.stateTime += Gdx.graphics.getDeltaTime();
+                    TextureRegion currentFrame = player.walkRightAnimation.getKeyFrame(player.stateTime, true);
+                    batch.draw(currentFrame, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
+                }
+                case BACK -> batch.draw(player.player_front, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
+                case FRONT -> batch.draw(player.player_back, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
+                case LEFT -> batch.draw(player.player_left, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
+                case RIGHT -> batch.draw(player.player_right, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
             }
-            case WALKINGFRONT -> {
-                player.stateTime += Gdx.graphics.getDeltaTime();
-                TextureRegion currentFrame = player.walkBackAnimation.getKeyFrame(player.stateTime, true);
-                batch.draw(currentFrame, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
-            }
-            case WALKINGLEFT -> {
-                player.stateTime += Gdx.graphics.getDeltaTime();
-                TextureRegion currentFrame = player.walkLeftAnimation.getKeyFrame(player.stateTime, true);
-                batch.draw(currentFrame, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
-            }
-            case WALKINGRIGHT -> {
-                player.stateTime += Gdx.graphics.getDeltaTime();
-                TextureRegion currentFrame = player.walkRightAnimation.getKeyFrame(player.stateTime, true);
-                batch.draw(currentFrame, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
-            }
-            case BACK -> batch.draw(player.player_front, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
-            case FRONT -> batch.draw(player.player_back, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
-            case LEFT -> batch.draw(player.player_left, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
-            case RIGHT -> batch.draw(player.player_right, player.player_rectangle.x, player.player_rectangle.y, 96, 96);
         }
 
 
         // draw all enemies
-        //batch.setColor(1, 1, 1, 0.9f);
-        //
         batch.setColor(Color.WHITE);
         for (GameEntity e : gameEntities) {
             if (e.getEntityType() == GameEntity.entityType.ENEMY || e.getEntityType() == GameEntity.entityType.PINKENEMY) {
@@ -247,7 +245,7 @@ public class Controller extends ApplicationAdapter {
         }
 
         //WaveCounter
-        font2.draw(batch, "" + waveCount, 1265 - font.getScaleX(), 700);
+        font2.draw(batch, "" + waveCount, 1265 - 10, 700);
 
 
         //Draw Hp Bar
@@ -263,19 +261,39 @@ public class Controller extends ApplicationAdapter {
         }
 
         //draw pause screen
-        if (inputProcessor.isPaused()) {
+        if (inputProcessor.isPaused) {
             batch.setColor(Color.GRAY);
             font2.draw(batch, "Highscore: " + config.getString("highscore") + " Waves", 10, 600 + 50);
             font2.draw(batch, "Items Collected: " + config.getString("ItemsCollected"), 10, 585 + 40);
             //font.draw(batch, "Enemies killed: " + config.getString("enemieskilled"), 10, 570 + 50);
         } else batch.setColor(Color.WHITE);
 
+        //Halt execution if game is not started by player
+        if (!inputProcessor.gameIsStarted) {
+            batch.setColor(Color.LIGHT_GRAY);
+            font3.draw(batch, "Ghost Invaders", 465, 400);
+            font2.draw(batch, "Press Space to start", 570, 60);
+            batch.end();
+            return;
+        }
+        if (inputProcessor.deathScreen) {
+            batch.setColor(Color.GRAY);
+            font2.draw(batch, "Press Space to continue", 570, 60);
+            font3.draw(batch, "You Died", 530, 400);
+            //font2.draw(batch, "Enemies Killed: ", 520, 400 - 60);
+            //font2.draw(batch, "Items Collected: ", 520, 400 - 90);
+            batch.end();
+            return;
+        }
+
+
 //end of draw process
         batch.end();
 
 
+
         //check if Game is paused
-        if (!inputProcessor.isPaused()) {
+        if (!inputProcessor.isPaused) {
 
 //loop through gameEntities arraylist
             for (int i = 0; i < gameEntities.size(); i++) {
@@ -288,7 +306,7 @@ public class Controller extends ApplicationAdapter {
                 if (e.getEntityType() == GameEntity.entityType.ENEMY && player.player_rectangle.overlaps(r)) {
                     if (System.currentTimeMillis() - start_time > 2000) {
                         start_time = System.currentTimeMillis();
-                        player.health.decrease(1);
+                        if (config.getBoolean("PlayerTakesDamage")) player.health.decrease(1);
                         hit.play();
                         playerTookDamage = true;
                     }
@@ -301,7 +319,7 @@ public class Controller extends ApplicationAdapter {
                 if (e.getEntityType() == GameEntity.entityType.PINKENEMY && r.overlaps(player.player_rectangle)) {
                     if (System.currentTimeMillis() - start_time > 2000) {
                         start_time = System.currentTimeMillis();
-                        player.health.decrease(1);
+                        if (config.getBoolean("PlayerTakesDamage")) player.health.decrease(1);
                         hit.play();
                         playerTookDamage = true;
                         //noinspection SuspiciousListRemoveInLoop
@@ -326,8 +344,7 @@ public class Controller extends ApplicationAdapter {
 //end of arraylist loop
 
             // spawn enemies
-
-            spawnRandomEnemies(random.nextInt(min_enemies,max_enemies), 1);
+            spawnRandomEnemies(random.nextInt(min_enemies, max_enemies));
 
             //spawn Item
             if (itemsonfield < 4) spawnItems();
@@ -339,8 +356,9 @@ public class Controller extends ApplicationAdapter {
                     start_time_poison = 0;
                 }
             }
-            if (player.shootSpeedIncreased){
-                shootcooldown = shootcooldown - 200;
+            //check if fastshoot is active
+            if (player.shootSpeedIncreased) {
+                shootcooldown = shootcooldown - 250;
                 player.shootSpeedIncreased = false;
             }
             //Check if fastshoot effect is over
@@ -352,53 +370,52 @@ public class Controller extends ApplicationAdapter {
                 }
             }
 
-
             //update stats
             updateStats();
-
 
             //If player dies
             if (player.health.getHealth() == 0) {
                 start_time_deathscreen = System.currentTimeMillis();
                 playerDeath(true);
                 playerDead = true;
+                inputProcessor.deathScreen = true;
             }
 
 
-            // Wenn player ausserhalb des Screens im X bereich
+            // if player leaves screen in x direction
             if (player.player_rectangle.x < 0) player.player_rectangle.x = 0;
             if (player.player_rectangle.x > 1280 - 96) player.player_rectangle.x = 1280 - 96;
 
-            // Wenn player ausserhalb des Screens im Y bereich
+            // if player leaves screen in y direction
             if (player.player_rectangle.y < 0) player.player_rectangle.y = 0;
             if (player.player_rectangle.y + 96 > 720) player.player_rectangle.y = 720 - 96;
 
 //Input
             if (Gdx.input.isKeyPressed(Input.Keys.D)) {
                 player.setPlayerdirection(Player.direction.WALKINGRIGHT);
-                player.player_rectangle.x += 250 * Gdx.graphics.getDeltaTime();
+                player.player_rectangle.x += config.getInteger("MovementSpeed") * Gdx.graphics.getDeltaTime();
             }
             if (Gdx.input.isKeyPressed(Input.Keys.A)) {
                 player.setPlayerdirection(Player.direction.WALKINGLEFT);
-                player.player_rectangle.x -= 250 * Gdx.graphics.getDeltaTime();
+                player.player_rectangle.x -= config.getInteger("MovementSpeed") * Gdx.graphics.getDeltaTime();
             }
             if (Gdx.input.isKeyPressed(Input.Keys.W)) {
                 player.setPlayerdirection(Player.direction.WALKINGFRONT);
-                player.player_rectangle.y += 250 * Gdx.graphics.getDeltaTime();
+                player.player_rectangle.y += config.getInteger("MovementSpeed") * Gdx.graphics.getDeltaTime();
             }
             if (Gdx.input.isKeyPressed(Input.Keys.S)) {
                 player.setPlayerdirection(Player.direction.WALKINGBACK);
-                player.player_rectangle.y -= 250 * Gdx.graphics.getDeltaTime();
+                player.player_rectangle.y -= config.getInteger("MovementSpeed") * Gdx.graphics.getDeltaTime();
             }
             if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
                 if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
                     switch (player.playerdirection) {
-                        case BACK, WALKINGBACK -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y, 0, -600, fireball_texture));
-                        case FRONT, WALKINGFRONT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y + 96, 0, 600, fireball_texture));
-                        case LEFT, WALKINGLEFT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x, player.player_rectangle.y + 48, -600, 0, fireball_texture));
-                        case RIGHT, WALKINGRIGHT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96, player.player_rectangle.y + 48, 600, 0, fireball_texture));
+                        case BACK, WALKINGBACK -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y, 0, -290, fireball_texture));
+                        case FRONT, WALKINGFRONT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y + 96, 0, 290, fireball_texture));
+                        case LEFT, WALKINGLEFT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x, player.player_rectangle.y + 48, -290, 0, fireball_texture));
+                        case RIGHT, WALKINGRIGHT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96, player.player_rectangle.y + 48, 290, 0, fireball_texture));
                     }
                 }
             }
@@ -406,14 +423,14 @@ public class Controller extends ApplicationAdapter {
                 if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
-                    gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96, player.player_rectangle.y + 48, 280, 0, fireball_texture));
+                    gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96, player.player_rectangle.y + 48, 290, 0, fireball_texture));
                 }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
                 if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
-                    gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x, player.player_rectangle.y + 48, -280, 0, fireball_texture));
+                    gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x, player.player_rectangle.y + 48, -290, 0, fireball_texture));
                 }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
@@ -421,14 +438,14 @@ public class Controller extends ApplicationAdapter {
                     flameAttack.play();
 
                     start_time_bullet = System.currentTimeMillis();
-                    gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y + 96, 0, 280, fireball_texture));
+                    gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y + 96, 0, 290, fireball_texture));
                 }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
                 if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
-                    gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y, 0, -280, fireball_texture));
+                    gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y, 0, -290, fireball_texture));
                 }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.R)) playerDeath(false);
@@ -436,8 +453,12 @@ public class Controller extends ApplicationAdapter {
 
 
         }
+        //}
     }
 
+    /**
+     * disposes textures to avoid memory leak
+     */
     @Override
     public void dispose() {
         batch.dispose();
@@ -470,15 +491,28 @@ public class Controller extends ApplicationAdapter {
      *
      * @param enemy_amount amount of enemies to spawn
      */
-    public void spawnRandomEnemies(int enemy_amount, int pink_enemy_amount) {
+    public void spawnRandomEnemies(int enemy_amount) {
         if (System.currentTimeMillis() - start_time_spawn > enemySpawnDelay || firstspawn) {
             boolean pink_spawned = false;
             firstspawn = false;
-            if (enemySpawnDelay > 3000 || enemySpawnDelay == 1000) {
-                if (waveCount <= 15) enemySpawnDelay = 10000;
-                else enemySpawnDelay -= random.nextInt(500, 1000);
-            }
             start_time_spawn = System.currentTimeMillis();
+
+            //increase difficulty
+            if (enemySpawnDelay > 6000) {
+                if (waveCount <= 17) enemySpawnDelay = 10000;
+                else enemySpawnDelay -= random.nextInt(600, 800);
+            }
+            //check to avoid min and max value for random to be same
+            if (random.nextBoolean()){
+                //if (min_enemies + 1 < max_enemies) {
+                    //min_enemies++;
+                //}
+                if (max_enemies < 13 && random.nextBoolean()) {
+                    max_enemies++;
+                }
+
+            }
+
 
             int enemy_type = random.nextInt(2);
             int direction = random.nextInt(4);
@@ -488,13 +522,6 @@ public class Controller extends ApplicationAdapter {
                 case 0 -> texture = white_enemy_texture;
                 case 1 -> {
                     texture = blue_enemy_texture;
-                    //check to avoid min and max value for random to be same
-                    if (min_enemies + 1 < max_enemies) {
-                        min_enemies++;
-                    }
-                    if (max_enemies < 13 && random.nextBoolean()) {
-                        max_enemies++;
-                    }
                 }
             }
 
@@ -540,13 +567,12 @@ public class Controller extends ApplicationAdapter {
                 }
 
 
-                if (random.nextBoolean() && waveCount > 9 && !pink_spawned|| config.getBoolean("OnlyPinkEnemies")) {
-                    //for (int j = 0; j < pink_enemy_amount;j++);
+                if (random.nextBoolean() && waveCount > 14 && !pink_spawned || config.getBoolean("OnlyPinkEnemies")) {
                     gameEntities.add(new PinkEnemy(gameEntities.size(), 1, 200, 200, x, y, pink_enemy_texture));
                     pink_spawned = true;
 
                 }
-
+                //add enemy
                 gameEntities.add(new Enemy(gameEntities.size(), 1, speed_x, speed_y, x, y, texture));
 
             }
@@ -557,7 +583,7 @@ public class Controller extends ApplicationAdapter {
 
 
     /**
-     * called to spawn random items after 12s
+     * called to spawn random item
      */
     public void spawnItems() {
         if (System.currentTimeMillis() - start_time_itemSpawn > config.getInteger("ItemSpawnCooldown")) {
@@ -594,6 +620,9 @@ public class Controller extends ApplicationAdapter {
         player.setPlayerdirection(Player.direction.BACK);
     }
 
+    /**
+     * update values for highscore and items collected in config file
+     */
     public void updateStats() {
         if (waveCount > config.getInteger("highscore")) {
             config.putInteger("highscore", waveCount);
@@ -603,15 +632,17 @@ public class Controller extends ApplicationAdapter {
         config.flush();
     }
 
+    /**
+     * initialize Configuration File
+     */
     public void initConfig() {
         config.putString("A", """
-
                 All entries have to be the same data type as the default values.\s
                 Time is set in milli seconds. The minimum and maximum amount of enemies can not be the same.\s
                 To reset the config press f5 in game, set ConfigExists false, or delete this file.""".indent(1));
         config.putInteger("shootcooldown", 700);
-        config.putInteger("MinAmountOfEnemies", 5);
-        config.putInteger("MaxAmountOfEnemies", 9);
+        config.putInteger("MinAmountOfEnemies", 4);
+        config.putInteger("MaxAmountOfEnemies", 6);
         config.putBoolean("OnlyPinkEnemies", false);
         config.putInteger("PlayerHP", 4);
         config.putInteger("MaxHealth", 10);
@@ -619,9 +650,8 @@ public class Controller extends ApplicationAdapter {
         config.putInteger("ItemSpawnCooldown(in ms)", 15000);
         config.putBoolean("ConfigExists", true);
         config.putInteger("ItemSpawnCooldown", 15000);
-        //config.putString("playerSkin","default");
-        //config.putInteger("maxSpeedWhiteGhost",200);
-        //config.putInteger("maxSpeedBlueGhost",200);
+        config.putInteger("MovementSpeed",250);
+        config.putBoolean("PlayerTakesDamage", true);
         config.flush();
     }
 }

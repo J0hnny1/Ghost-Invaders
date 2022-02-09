@@ -84,14 +84,29 @@ public interface GameEntity {
      */
     entityType getEntityType();
 
+    /**
+     *
+     * @return Animation
+     */
     Animation<TextureRegion> getAnimation();
 
+    /**
+     * statetime used for animations
+     * @return statetime
+     */
     float getStateTime();
 
+    /**
+     * sets statetime used for animations
+     * @param stateTime statetime
+     */
     void setStateTime(float stateTime);
 
     float getSpawnTime();
 
+    /**
+     * type of game entity
+     */
     enum entityType {
         ENEMY,
         ITEM,
