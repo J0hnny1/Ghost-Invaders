@@ -80,6 +80,8 @@ public class Controller extends ApplicationAdapter {
     boolean firstspawn = true;
     int itemsonfield;
     boolean playerDead = false;
+    int itemspawncooldown;
+    boolean spawnratereduced = false;
 
     FreeTypeFontGenerator generator;
     FreeTypeFontGenerator.FreeTypeFontParameter parameter;
@@ -140,6 +142,11 @@ public class Controller extends ApplicationAdapter {
         shootcooldown = config.getInteger("shootcooldown");
         min_enemies = config.getInteger("MinAmountOfEnemies");
         max_enemies = config.getInteger("MaxAmountOfEnemies");
+        itemspawncooldown = config.getInteger("ItemSpawnCooldown");
+        if (waveCount >= 20 && !spawnratereduced){
+            itemspawncooldown = config.getInteger("ItemSpawnCooldown") - 5000;
+            spawnratereduced = true;
+        }
 
         //font shit
         generator = new FreeTypeFontGenerator(Gdx.files.internal("Quintessential-Regular.ttf"));
@@ -347,7 +354,7 @@ public class Controller extends ApplicationAdapter {
             spawnRandomEnemies(random.nextInt(min_enemies, max_enemies));
 
             //spawn Item
-            if (itemsonfield < 4) spawnItems();
+            if (itemsonfield < 6) spawnItems();
 
             //Check if poison effect is over
             if (start_time_poison != 0) {
@@ -357,6 +364,7 @@ public class Controller extends ApplicationAdapter {
                 }
             }
             //check if fastshoot is active
+            //TODO prevent to fast fire rate
             if (player.shootSpeedIncreased) {
                 shootcooldown = shootcooldown - 250;
                 player.shootSpeedIncreased = false;
@@ -411,6 +419,11 @@ public class Controller extends ApplicationAdapter {
                 if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
+                    System.out.println(enemySpawnDelay);
+                    System.out.println(min_enemies);
+                    System.out.println(max_enemies);
+                    System.out.println(itemspawncooldown);
+
                     switch (player.playerdirection) {
                         case BACK, WALKINGBACK -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y, 0, -290, fireball_texture));
                         case FRONT, WALKINGFRONT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y + 96, 0, 290, fireball_texture));
@@ -504,9 +517,9 @@ public class Controller extends ApplicationAdapter {
             }
             //check to avoid min and max value for random to be same
             if (random.nextBoolean()){
-                //if (min_enemies + 1 < max_enemies) {
-                    //min_enemies++;
-                //}
+                if (min_enemies + 1 < max_enemies && max_enemies >= 10) {
+                    min_enemies++;
+                }
                 if (max_enemies < 13 && random.nextBoolean()) {
                     max_enemies++;
                 }
@@ -538,7 +551,6 @@ public class Controller extends ApplicationAdapter {
                         speed2 = random.nextInt(20, 150);
                     }
                 }
-
                 switch (direction) {
                     case 0 -> {
                         speed_x = speed1;
@@ -586,7 +598,7 @@ public class Controller extends ApplicationAdapter {
      * called to spawn random item
      */
     public void spawnItems() {
-        if (System.currentTimeMillis() - start_time_itemSpawn > config.getInteger("ItemSpawnCooldown")) {
+        if (System.currentTimeMillis() - start_time_itemSpawn > itemspawncooldown) {
             start_time_itemSpawn = System.currentTimeMillis();
 
             if (random.nextInt(0, 100) <= 40) {
@@ -618,6 +630,7 @@ public class Controller extends ApplicationAdapter {
         enemySpawnDelay = 1000;
         batch.setColor(Color.WHITE);
         player.setPlayerdirection(Player.direction.BACK);
+        enemySpawnDelay = config.getInteger("EnemyWaveCooldown(in ms)");
     }
 
     /**
