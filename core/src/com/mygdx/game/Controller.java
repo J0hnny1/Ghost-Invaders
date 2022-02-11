@@ -25,7 +25,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Controller extends ApplicationAdapter {
 
-    // game entities
+    // game entities arraylist
     ArrayList<GameEntity> gameEntities = new ArrayList<>();
     //camera
     SpriteBatch batch;
@@ -37,7 +37,7 @@ public class Controller extends ApplicationAdapter {
     InputProcessor inputProcessor;
     //heart for hp bar
     Texture healthTexture;
-    //enemies
+    //enemie textures
     Texture white_enemy_texture;
     Texture blue_enemy_texture;
     Texture pink_enemy_texture;
@@ -49,7 +49,10 @@ public class Controller extends ApplicationAdapter {
     long start_time_bullet = System.currentTimeMillis();
     long start_time_poison;
     long start_time_fastshoot;
-    long start_time_deathscreen;
+    long star_time_run;
+    long stop_time_run;
+    long time_run;
+    String time_run_unit;
     //Items
     Texture redpotion_texture;
     Texture greenpotion_texture;
@@ -74,7 +77,6 @@ public class Controller extends ApplicationAdapter {
     Sound hit;
     Sound death;
     Sound sip;
-    BitmapFont font;
     //config
     Preferences config;
     int itemscollected;
@@ -85,6 +87,7 @@ public class Controller extends ApplicationAdapter {
     boolean playerDead = false;
     int itemspawncooldown;
     boolean spawnratereduced = false;
+    int itemscollected_in_run;
     //stage
     Stage mystage;
     InputMultiplexer multiplexer;
@@ -151,10 +154,7 @@ public class Controller extends ApplicationAdapter {
         death = Gdx.audio.newSound(Gdx.files.internal("Player Killed (Terraria Sound) - Sound Effect for editing.mp3"));
         sip = Gdx.audio.newSound(Gdx.files.internal("Potion Use_Drink (Terraria Sound) - Sound Effect for editing.mp3"));
 
-        //font for stats
-        font = new BitmapFont();
-        font.setColor(Color.WHITE);
-
+        //Fonts
         enemySpawnDelay = config.getInteger("EnemyWaveCooldown(in ms)");
         shootcooldown = config.getInteger("shootcooldown");
         min_enemies = config.getInteger("MinAmountOfEnemies");
@@ -176,6 +176,8 @@ public class Controller extends ApplicationAdapter {
         parameter2.characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!'()>?:";
         font2 = generator.generateFont(parameter);
         font3 = generator.generateFont(parameter2);
+
+        star_time_run = System.currentTimeMillis();
 
     }
 
@@ -308,8 +310,10 @@ public class Controller extends ApplicationAdapter {
             batch.setColor(Color.GRAY);
             font2.draw(batch, "Press Space to continue", 570, 60);
             font3.draw(batch, "You Died", 530, 400);
-            //font2.draw(batch, "Enemies Killed: ", 520, 400 - 60);
-            //font2.draw(batch, "Items Collected: ", 520, 400 - 90);
+            font2.draw(batch, "Enemies Killed: " + enemieskilled, 570, 310-25);
+            font2.draw(batch, "Items Collected: " + itemscollected_in_run, 570, 310);
+            font2.draw(batch, "Run Time: " + time_run, 570, 310 - 50);
+            star_time_run = System.currentTimeMillis();
             batch.end();
             return;
         }
@@ -362,10 +366,12 @@ public class Controller extends ApplicationAdapter {
                     //noinspection SuspiciousListRemoveInLoop
                     gameEntities.remove(i);
                     itemscollected++;
+                    itemscollected_in_run++;
                     itemsonfield--;
                 }
-                if (e.getEntityType() == GameEntity.entityType.ENEMY || e.getEntityType() == GameEntity.entityType.PINKENEMY)
-                    enemieskilled = e.getEnemiesKilled();
+                if (e.getEntityType() == GameEntity.entityType.BULLET) enemieskilled = enemieskilled + e.getEnemiesKilled();
+
+
 
 
             }
@@ -404,12 +410,21 @@ public class Controller extends ApplicationAdapter {
 
             //If player dies
             if (player.health.getHealth() == 0) {
-                start_time_deathscreen = System.currentTimeMillis();
                 playerDeath(true);
                 playerDead = true;
                 inputProcessor.deathScreen = true;
-            }
+                //time_run = System.currentTimeMillis() - star_time_run;
+                stop_time_run = System.currentTimeMillis();
+                long time_run_ms = stop_time_run - star_time_run;
+                time_run = time_run_ms / 1000;
+                if (time_run_ms / 1000 < 60) {
+                    time_run_unit = "s";
+                } else{
+                    time_run_unit = "m";
 
+                }
+            }
+            //time_run = time_run + System.currentTimeMillis() - time_run;
 
             // if player leaves screen in x direction
             if (player.player_rectangle.x < 0) player.player_rectangle.x = 0;
