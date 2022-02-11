@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.mygdx.game.Items.HealthPotion;
@@ -15,6 +17,7 @@ import com.mygdx.game.Items.Poison;
 import com.mygdx.game.Items.fastshoot;
 
 
+import javax.swing.text.Style;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -82,6 +85,10 @@ public class Controller extends ApplicationAdapter {
     boolean playerDead = false;
     int itemspawncooldown;
     boolean spawnratereduced = false;
+    //stage
+    Stage mystage;
+    InputMultiplexer multiplexer;
+    Button button;
 
     FreeTypeFontGenerator generator;
     FreeTypeFontGenerator.FreeTypeFontParameter parameter;
@@ -106,8 +113,18 @@ public class Controller extends ApplicationAdapter {
 
         inputProcessor = new InputProcessor(player);
 
-        //Input Processor
-        Gdx.input.setInputProcessor(inputProcessor);
+        //stage
+        mystage = new Stage();
+        button = new Button();
+        //mystage.addActor(button),
+        //button.setStyle();
+
+        //multiplexer
+        multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(mystage);
+        multiplexer.addProcessor(inputProcessor);
+        Gdx.input.setInputProcessor(multiplexer);
+
         //heart Texture
         healthTexture = new Texture("heart.png");
 
@@ -172,6 +189,10 @@ public class Controller extends ApplicationAdapter {
 
 //start of draw process
         batch.begin();
+
+        //Testing
+        mystage.act(Gdx.graphics.getDeltaTime());
+        mystage.draw();
 
         // draw background
         batch.draw(background_texture, 0, 0);
