@@ -17,7 +17,6 @@ import com.mygdx.game.Items.Poison;
 import com.mygdx.game.Items.fastshoot;
 
 
-import javax.swing.text.Style;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -52,7 +51,6 @@ public class Controller extends ApplicationAdapter {
     long star_time_run;
     long stop_time_run;
     long time_run;
-    String time_run_unit;
     //Items
     Texture redpotion_texture;
     Texture greenpotion_texture;
@@ -88,6 +86,7 @@ public class Controller extends ApplicationAdapter {
     int itemspawncooldown;
     boolean spawnratereduced = false;
     int itemscollected_in_run;
+    int enemieskilled2;
     //stage
     Stage mystage;
     InputMultiplexer multiplexer;
@@ -310,9 +309,9 @@ public class Controller extends ApplicationAdapter {
             batch.setColor(Color.GRAY);
             font2.draw(batch, "Press Space to continue", 570, 60);
             font3.draw(batch, "You Died", 530, 400);
-            font2.draw(batch, "Enemies Killed: " + enemieskilled, 570, 310-25);
+            font2.draw(batch, "Enemies Killed: " + enemieskilled2, 570, 310-25);
             font2.draw(batch, "Items Collected: " + itemscollected_in_run, 570, 310);
-            font2.draw(batch, "Run Time: " + time_run, 570, 310 - 50);
+            font2.draw(batch, "Time: " + time_run + " minutes", 570, 310 - 50);
             star_time_run = System.currentTimeMillis();
             batch.end();
             return;
@@ -371,9 +370,6 @@ public class Controller extends ApplicationAdapter {
                 }
                 if (e.getEntityType() == GameEntity.entityType.BULLET) enemieskilled = enemieskilled + e.getEnemiesKilled();
 
-
-
-
             }
 //end of arraylist loop
 
@@ -381,7 +377,7 @@ public class Controller extends ApplicationAdapter {
             spawnRandomEnemies(random.nextInt(min_enemies, max_enemies));
 
             //spawn Item
-            if (itemsonfield < 6) spawnItems();
+            if (itemsonfield < 5) spawnItems();
 
             //Check if poison effect is over
             if (start_time_poison != 0) {
@@ -408,6 +404,8 @@ public class Controller extends ApplicationAdapter {
             //update stats
             updateStats();
 
+            if (enemieskilled != 0) enemieskilled2 = enemieskilled;
+
             //If player dies
             if (player.health.getHealth() == 0) {
                 playerDeath(true);
@@ -416,13 +414,9 @@ public class Controller extends ApplicationAdapter {
                 //time_run = System.currentTimeMillis() - star_time_run;
                 stop_time_run = System.currentTimeMillis();
                 long time_run_ms = stop_time_run - star_time_run;
-                time_run = time_run_ms / 1000;
-                if (time_run_ms / 1000 < 60) {
-                    time_run_unit = "s";
-                } else{
-                    time_run_unit = "m";
+                long time_run_s = time_run_ms / 1000;
+                time_run = time_run_s / 60;
 
-                }
             }
             //time_run = time_run + System.currentTimeMillis() - time_run;
 
@@ -667,6 +661,7 @@ public class Controller extends ApplicationAdapter {
         batch.setColor(Color.WHITE);
         player.setPlayerdirection(Player.direction.BACK);
         enemySpawnDelay = config.getInteger("EnemyWaveCooldown(in ms)");
+        enemieskilled = 0;
     }
 
     /**
@@ -695,7 +690,7 @@ public class Controller extends ApplicationAdapter {
         config.putBoolean("OnlyPinkEnemies", false);
         config.putInteger("PlayerHP", 4);
         config.putInteger("MaxHealth", 10);
-        config.putInteger("EnemyWaveCooldown(in ms)", 8000);
+        config.putInteger("EnemyWaveCooldown(in ms)", 12000);
         config.putInteger("ItemSpawnCooldown(in ms)", 15000);
         config.putBoolean("ConfigExists", true);
         config.putInteger("ItemSpawnCooldown", 15000);
