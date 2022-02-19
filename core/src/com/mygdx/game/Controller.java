@@ -1,7 +1,11 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.assets.AssetLoaderParameters;
+import com.badlogic.gdx.assets.loaders.AssetLoader;
+import com.badlogic.gdx.assets.loaders.SkinLoader;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -10,6 +14,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.mygdx.game.Items.HealthPotion;
@@ -50,7 +56,8 @@ public class Controller extends ApplicationAdapter {
     long start_time_fastshoot;
     long star_time_run;
     long stop_time_run;
-    long time_run;
+    float time_run;
+    float time_run_s_2;
     //Items
     Texture redpotion_texture;
     Texture greenpotion_texture;
@@ -91,13 +98,16 @@ public class Controller extends ApplicationAdapter {
     Stage mystage;
     InputMultiplexer multiplexer;
     Button button;
-
+    //fonts
     FreeTypeFontGenerator generator;
     FreeTypeFontGenerator.FreeTypeFontParameter parameter;
     FreeTypeFontGenerator.FreeTypeFontParameter parameter2;
     BitmapFont font2;
     BitmapFont font3;
 
+    //Textfield
+    Button textField;
+    Skin default_skin;
     @Override
     public void create() {
         //Camera
@@ -158,25 +168,28 @@ public class Controller extends ApplicationAdapter {
         shootcooldown = config.getInteger("shootcooldown");
         min_enemies = config.getInteger("MinAmountOfEnemies");
         max_enemies = config.getInteger("MaxAmountOfEnemies");
-        itemspawncooldown = config.getInteger("ItemSpawnCooldown");
-        if (waveCount >= 20 && !spawnratereduced){
-            itemspawncooldown = config.getInteger("ItemSpawnCooldown") - 5000;
+        itemspawncooldown = config.getInteger("ItemSpawnCooldown(in ms)");
+        if (waveCount >= 20 && !spawnratereduced) {
+            itemspawncooldown = config.getInteger("ItemSpawnCooldown(in ms)") - 5000;
             spawnratereduced = true;
         }
 
-        //font shit
+        //font
         generator = new FreeTypeFontGenerator(Gdx.files.internal("Quintessential-Regular.ttf"));
         parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 20;
         parameter.characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!'()>?:";
         parameter2 = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter2.size = 65;
-        
         parameter2.characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!'()>?:";
         font2 = generator.generateFont(parameter);
         font3 = generator.generateFont(parameter2);
-
+        //start timer
         star_time_run = System.currentTimeMillis();
+
+        default_skin = new Skin(Gdx.files.internal("uiskin.json"));
+        textField = new Button(default_skin);
+        //TextField.TextFieldStyle
 
     }
 
@@ -191,9 +204,13 @@ public class Controller extends ApplicationAdapter {
 //start of draw process
         batch.begin();
 
-        //Testing
+        //Testing Menu
         mystage.act(Gdx.graphics.getDeltaTime());
+        mystage.addActor(textField);
+        textField.setX(200);
+        textField.setY(100);
         mystage.draw();
+        textField.draw(batch,1);
 
         // draw background
         batch.draw(background_texture, 0, 0);
@@ -211,13 +228,13 @@ public class Controller extends ApplicationAdapter {
         }
         // draw player
         if (playerTookDamage) batch.setColor(Color.RED);
-
+        //make player red if he takes damage
         if (System.currentTimeMillis() - start_time_damageSplash > 2000) {
             start_time_damageSplash = System.currentTimeMillis();
             batch.setColor(Color.WHITE);
             playerTookDamage = false;
         }
-
+        //default player direction back
         if (player.playerdirection == null) player.playerdirection = Player.direction.BACK;
 
         if (!inputProcessor.deathScreen && inputProcessor.gameIsStarted) {
@@ -280,21 +297,11 @@ public class Controller extends ApplicationAdapter {
         //Draw Hp Bar
         drawHealthIcons();
 
-        //playerTexture
-        switch (inputProcessor.player_texture_index) {
-            case 1 -> player.setTexture(Player.playerTexture.MALERED);
-            case 2 -> player.setTexture(Player.playerTexture.FEMALEPINK);
-            case 3 -> player.setTexture(Player.playerTexture.FEMALEPINK2);
-            case 4 -> player.setTexture(Player.playerTexture.MALEBLUE);
-            case 5 -> player.setTexture(Player.playerTexture.FEMALERED);
-        }
-
-        //draw pause screen
+        //pause screen
         if (inputProcessor.isPaused) {
             batch.setColor(Color.GRAY);
             font2.draw(batch, "Highscore: " + config.getString("highscore") + " Waves", 10, 600 + 50);
             font2.draw(batch, "Items Collected: " + config.getString("ItemsCollected"), 10, 585 + 40);
-            //font.draw(batch, "Enemies killed: " + config.getString("enemieskilled"), 10, 570 + 50);
         } else batch.setColor(Color.WHITE);
 
         //Halt execution if game is not started by player
@@ -309,9 +316,12 @@ public class Controller extends ApplicationAdapter {
             batch.setColor(Color.GRAY);
             font2.draw(batch, "Press Space to continue", 570, 60);
             font3.draw(batch, "You Died", 530, 400);
-            font2.draw(batch, "Enemies Killed: " + enemieskilled2, 570, 310-25);
+            font2.draw(batch, "Enemies Killed: " + enemieskilled2, 570, 310 - 25);
             font2.draw(batch, "Items Collected: " + itemscollected_in_run, 570, 310);
-            font2.draw(batch, "Time: " + time_run + " minutes", 570, 310 - 50);
+            //if (time_run < 1) font2.draw(batch, "Time: " + time_run / 60 + " seconds", 570, 310 - 50);
+            //if (((int) time_run) == 0) font2.draw(batch, "Time: " + ((int) time_run_s_2) + " seconds", 570, 310 - 50);
+            //else font2.draw(batch, "Time: " + ((int) time_run) + " minutes and " + ((int) time_run_s_2) + " seconds", 570, 310 - 50);
+            font2.draw(batch, "Time: " + ((int) time_run) + ":" + ((int) time_run_s_2) , 570, 310 - 50);
             star_time_run = System.currentTimeMillis();
             batch.end();
             return;
@@ -320,7 +330,6 @@ public class Controller extends ApplicationAdapter {
 
 //end of draw process
         batch.end();
-
 
 
         //check if Game is paused
@@ -368,7 +377,9 @@ public class Controller extends ApplicationAdapter {
                     itemscollected_in_run++;
                     itemsonfield--;
                 }
-                if (e.getEntityType() == GameEntity.entityType.BULLET) enemieskilled = enemieskilled + e.getEnemiesKilled();
+                //increase enemieskilled counter
+                if (e.getEntityType() == GameEntity.entityType.BULLET)
+                    enemieskilled = enemieskilled + e.getEnemiesKilled();
 
             }
 //end of arraylist loop
@@ -387,8 +398,7 @@ public class Controller extends ApplicationAdapter {
                 }
             }
             //check if fastshoot is active
-            //TODO prevent to fast fire rate
-            if (player.shootSpeedIncreased) {
+            if (player.shootSpeedIncreased && shootcooldown >= 200) {
                 shootcooldown = shootcooldown - 250;
                 player.shootSpeedIncreased = false;
             }
@@ -402,7 +412,7 @@ public class Controller extends ApplicationAdapter {
             }
 
             //update stats
-            updateStats();
+            updateConfig();
 
             if (enemieskilled != 0) enemieskilled2 = enemieskilled;
 
@@ -414,11 +424,12 @@ public class Controller extends ApplicationAdapter {
                 //time_run = System.currentTimeMillis() - star_time_run;
                 stop_time_run = System.currentTimeMillis();
                 long time_run_ms = stop_time_run - star_time_run;
-                long time_run_s = time_run_ms / 1000;
+                float time_run_s = time_run_ms / 1000;
                 time_run = time_run_s / 60;
-
+                time_run_s_2 = time_run_ms % 60;
+                System.out.println("time m: " + time_run);
+                System.out.println("time S: " + time_run_s_2);
             }
-            //time_run = time_run + System.currentTimeMillis() - time_run;
 
             // if player leaves screen in x direction
             if (player.player_rectangle.x < 0) player.player_rectangle.x = 0;
@@ -449,11 +460,6 @@ public class Controller extends ApplicationAdapter {
                 if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
-                    System.out.println(enemySpawnDelay);
-                    System.out.println(min_enemies);
-                    System.out.println(max_enemies);
-                    System.out.println(itemspawncooldown);
-
                     switch (player.playerdirection) {
                         case BACK, WALKINGBACK -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y, 0, -290, fireball_texture));
                         case FRONT, WALKINGFRONT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y + 96, 0, 290, fireball_texture));
@@ -493,7 +499,6 @@ public class Controller extends ApplicationAdapter {
             }
             if (Gdx.input.isKeyPressed(Input.Keys.R)) playerDeath(false);
             if (Gdx.input.isKeyPressed(Input.Keys.F5)) initConfig();
-
 
         }
         //}
@@ -546,14 +551,13 @@ public class Controller extends ApplicationAdapter {
                 else enemySpawnDelay -= random.nextInt(600, 800);
             }
             //check to avoid min and max value for random to be same
-            if (random.nextBoolean()){
+            if (random.nextBoolean()) {
                 if (min_enemies + 1 < max_enemies && max_enemies >= 10) {
                     min_enemies++;
                 }
                 if (max_enemies < 13 && random.nextBoolean()) {
                     max_enemies++;
                 }
-
             }
 
 
@@ -655,19 +659,19 @@ public class Controller extends ApplicationAdapter {
         player.killsEnemiesOnContact = false;
         player.player_rectangle.x = 640 - 16;
         player.player_rectangle.y = 360;
-        min_enemies = 3;
-        max_enemies = 5;
-        enemySpawnDelay = 1000;
+        min_enemies = config.getInteger("MinAmountOfEnemies");
+        max_enemies = config.getInteger("MaxAmountOfEnemies");
         batch.setColor(Color.WHITE);
         player.setPlayerdirection(Player.direction.BACK);
         enemySpawnDelay = config.getInteger("EnemyWaveCooldown(in ms)");
         enemieskilled = 0;
+
     }
 
     /**
      * update values for highscore and items collected in config file
      */
-    public void updateStats() {
+    public void updateConfig() {
         if (waveCount > config.getInteger("highscore")) {
             config.putInteger("highscore", waveCount);
         }
@@ -693,8 +697,7 @@ public class Controller extends ApplicationAdapter {
         config.putInteger("EnemyWaveCooldown(in ms)", 12000);
         config.putInteger("ItemSpawnCooldown(in ms)", 15000);
         config.putBoolean("ConfigExists", true);
-        config.putInteger("ItemSpawnCooldown", 15000);
-        config.putInteger("MovementSpeed",250);
+        config.putInteger("MovementSpeed", 250);
         config.putBoolean("PlayerTakesDamage", true);
         config.flush();
     }
