@@ -11,6 +11,8 @@ public class InputProcessor implements com.badlogic.gdx.InputProcessor {
     boolean gameIsStarted = false;
     boolean deathScreen = false;
     boolean isPaused = false;
+    public int mouse_x, mouse_y;
+    Controller controller = new Controller();
 
     public InputProcessor(Player player) {
         this.player = player;
@@ -24,32 +26,21 @@ public class InputProcessor implements com.badlogic.gdx.InputProcessor {
     @Override
     public boolean keyDown(int keycode) {
         switch (keycode) {
-            case Input.Keys.F:
-                if (!fullscreen) {
-                    Graphics.Monitor currMonitor = Gdx.graphics.getMonitor();
-                    Graphics.DisplayMode displayMode = Gdx.graphics.getDisplayMode(currMonitor);
-                    fullscreen = true;
-                    if (!Gdx.graphics.setFullscreenMode(displayMode)) {
-                        // switching to full-screen mode failed
-                    }
-
-                } else {
-                    Gdx.graphics.setWindowedMode(1280, 720);
-                    fullscreen = false;
-                }
-                break;
-            case Input.Keys.ESCAPE:
+            case Input.Keys.F -> controller.toggleFullscreen();
+            case Input.Keys.ESCAPE -> {
                 isPaused = !isPaused;
-            case Input.Keys.SPACE:
-                gameIsStarted = true;
-                //if (player.hp == 0) continued = true;
-            case Input.Keys.B:
-                deathScreen = false;
 
+            }
+            case Input.Keys.SPACE -> {
+                gameIsStarted = true;
+                deathScreen = false;
+            }
         }
+
 
         return true;
     }
+
 
     @Override
     public boolean keyUp(int keycode) {
@@ -79,11 +70,13 @@ public class InputProcessor implements com.badlogic.gdx.InputProcessor {
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-        return false;
+        return true;
     }
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
+        mouse_x = screenX;
+        mouse_y = screenY;
         return false;
     }
 

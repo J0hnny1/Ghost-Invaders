@@ -1,5 +1,6 @@
 package com.mygdx.game.desktop;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
@@ -13,8 +14,9 @@ public class DesktopLauncher {
 
         config.setTitle("Ghost Invaders");
         config.setWindowedMode(1280, 720);
-        config.setResizable(false);
+        config.setResizable(true);
         config.setWindowIcon("ghostIcon.png");
+        //config.setFullscreenMode(primaryMode);
         new Lwjgl3Application(new Controller(), config);
     }
 }
