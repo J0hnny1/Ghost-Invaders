@@ -29,7 +29,6 @@ public class InputProcessor implements com.badlogic.gdx.InputProcessor {
             case Input.Keys.F -> controller.toggleFullscreen();
             case Input.Keys.ESCAPE -> {
                 isPaused = !isPaused;
-
             }
             case Input.Keys.SPACE -> {
                 gameIsStarted = true;

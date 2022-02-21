@@ -102,6 +102,7 @@ public class Controller extends ApplicationAdapter {
     TextField textfield_maxamountofenemies;
     CheckBox checkBox_onlyPinkGuys;
     CheckBox godModeToggle;
+    TextButton back_button;
     Skin default_skin;
     TextButton resume_button;
     TextButton fullscreen_button;
@@ -139,6 +140,8 @@ public class Controller extends ApplicationAdapter {
         initializeSounds();
         initializeTextures();
         initializeFonts();
+        System.out.println("ar");
+        loadFromConfig();
         //input processing
         inputProcessor = new InputProcessor(player);
         multiplexer = new InputMultiplexer();
@@ -245,20 +248,29 @@ public class Controller extends ApplicationAdapter {
         //font2.draw(batch,  ((float)inputProcessor.mouse_x * 1000) / (float)Gdx.graphics.getWidth() + " " + ((float)inputProcessor.mouse_y * 1000) / (float)Gdx.graphics.getHeight(), 50, 50);
 
         //pause screen
+        boolean buttonsDisplayed = false;
         if (inputProcessor.isPaused) {
             batch.setColor(Color.GRAY);
-            font2.draw(batch, "Highscore: " + config.getString("highscore") + " Waves", 10, 600 + 50);
-            font2.draw(batch, "Items Collected: " + config.getString("ItemsCollected"), 10, 585 + 40);
-            setPauseMenuButtonsVisibility(true);
-            settingsScreen = false;
+            if (!settingsScreen){
+                font2.draw(batch, "Highscore: " + config.getString("highscore") + " Waves", 570, 50);
+                font2.draw(batch, "Items Collected: " + config.getString("ItemsCollected"), 570, 50 + 25);
+            }
+            if (!buttonsDisplayed){
+                setPauseMenuButtonsVisibility(true);
+                buttonsDisplayed = true;
+            }
+            //settingsScreen = false;
         } else batch.setColor(Color.WHITE);
         if (!inputProcessor.isPaused) {
             setPauseMenuButtonsVisibility(false);
+            buttonsDisplayed = false;
         }
+        /*
         if (settingsScreen) {
             setPauseMenuButtonsVisibility(false);
             font2.draw(batch, "awrkA", 20,20);
         }
+         */
 
         //Halt execution if game is not started by player
         if (!inputProcessor.gameIsStarted) {
@@ -280,7 +292,8 @@ public class Controller extends ApplicationAdapter {
             return;
         }
         if (settingsScreen) {
-            font2.draw(batch, "Press Escape to exit", 570, 60);
+            //font2.draw(batch, "Press Escape to exit", 570, 60);
+            setPauseMenuButtonsVisibility(false);
 
         }
 
@@ -296,11 +309,8 @@ public class Controller extends ApplicationAdapter {
         //Button Input
         if (resume_button.isPressed()) inputProcessor.isPaused = false;
         if (exit_button.isPressed()) Gdx.app.exit();
-        //if (settings_button.isPressed()) settingsScreen = !settingsScreen;
 
 
-        //PC Killer
-        //if (fullscreen_button.isPressed()) toggleFullscreen();
 
         //check if Game is paused
         if (!inputProcessor.isPaused) {
@@ -454,7 +464,6 @@ public class Controller extends ApplicationAdapter {
             if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
                 if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
                     flameAttack.play();
-
                     start_time_bullet = System.currentTimeMillis();
                     gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y + 96, 0, 290, fireball_texture));
                 }
@@ -620,11 +629,12 @@ public class Controller extends ApplicationAdapter {
         player.killsEnemiesOnContact = false;
         player.player_rectangle.x = 640 - 16;
         player.player_rectangle.y = 360;
-        min_enemies = config.getInteger("MinAmountOfEnemies");
-        max_enemies = config.getInteger("MaxAmountOfEnemies");
+        //min_enemies = config.getInteger("MinAmountOfEnemies");
+        //max_enemies = config.getInteger("MaxAmountOfEnemies");
         batch.setColor(Color.WHITE);
         player.setPlayerdirection(Player.direction.BACK);
-        enemySpawnDelay = config.getInteger("EnemyWaveCooldown(in ms)");
+        //enemySpawnDelay = config.getInteger("EnemyWaveCooldown(in ms)");
+        loadFromConfig();
     }
 
     /**
@@ -661,16 +671,20 @@ public class Controller extends ApplicationAdapter {
         config.flush();
     }
 
+    public void loadFromConfig() {
+        enemySpawnDelay = config.getInteger("EnemyWaveCooldown(in ms)");
+        shootcooldown = config.getInteger("shootcooldown");
+        min_enemies = config.getInteger("MinAmountOfEnemies");
+        max_enemies = config.getInteger("MaxAmountOfEnemies");
+        itemspawncooldown = config.getInteger("ItemSpawnCooldown(in ms)");
+    }
+
     @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
     }
 
     public Controller() {
-    }
-
-    public TextButton getResume_button() {
-        return resume_button;
     }
 
     public void toggleFullscreen() {
@@ -688,10 +702,6 @@ public class Controller extends ApplicationAdapter {
         }
     }
 
-    public void setGameIsStarted(boolean gameIsStarted) {
-        this.gameIsStarted = gameIsStarted;
-    }
-
     public void initializeButtons() {
         //Widgets
         default_skin = new FreeTypeSkin(Gdx.files.internal("skin.json"));
@@ -700,30 +710,39 @@ public class Controller extends ApplicationAdapter {
         fullscreen_button = new TextButton("Fullscreen", default_skin);
         settings_button = new TextButton("Settings", default_skin);
         exit_button = new TextButton("Exit", default_skin);
+        back_button = new TextButton("Back",default_skin);
 
         //Settings
         godModeToggle = new CheckBox("Godmode", default_skin);
         textfield_maxamountofenemies = new TextField("Minimum amount of Enemies", default_skin);
+        checkBox_onlyPinkGuys = new CheckBox("Only Pink Enemies", default_skin);
 
-        godModeToggle.setX(1000);
-        godModeToggle.setY(100);
-        godModeToggle.setVisible(false);
-        resume_button.setX(597);
-        resume_button.setY(450);
+       //pause menu
+        resume_button.setPosition(597,450);
         resume_button.setVisible(false);
         resume_button.setSize(85, 25);
-        fullscreen_button.setX(597);
-        fullscreen_button.setY(450 - 35);
+        fullscreen_button.setPosition(597,450-35);
         fullscreen_button.setVisible(false);
         fullscreen_button.setSize(85, 25);
-        settings_button.setX(597);
-        settings_button.setY(450 - 70);
+        settings_button.setPosition(597,450-70);
         settings_button.setVisible(false);
         settings_button.setSize(85, 25);
-        exit_button.setX(597);
-        exit_button.setY(450 - 105);
+        exit_button.setPosition(597,450-105);
         exit_button.setVisible(false);
         exit_button.setSize(85, 25);
+        //settings
+        godModeToggle.setPosition(570,600);
+        godModeToggle.setVisible(false);
+        back_button.setVisible(false);
+        back_button.setSize(86,25);
+        back_button.setPosition(570,60);
+        checkBox_onlyPinkGuys.setVisible(false);
+        checkBox_onlyPinkGuys.setPosition(570,600-23 );
+        //set checkbox default to true because Skin is bugged
+        //all checkbox checked actions have to be inverted
+        checkBox_onlyPinkGuys.setChecked(true);
+        godModeToggle.setChecked(true);
+
 
         fullscreen_button.addListener(new InputListener() {
             @Override
@@ -736,6 +755,17 @@ public class Controller extends ApplicationAdapter {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 settingsScreen = true;
+                setPauseMenuButtonsVisibility(false);
+                setSettingsMenuButtonsVisibility(true);
+                return true;
+            }
+        });
+        back_button.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                settingsScreen = false;
+                setPauseMenuButtonsVisibility(true);
+                setSettingsMenuButtonsVisibility(false);
                 return true;
             }
         });
@@ -745,7 +775,9 @@ public class Controller extends ApplicationAdapter {
         stage.addActor(fullscreen_button);
         stage.addActor(settings_button);
         stage.addActor(exit_button);
-        stage.addActor(textfield_maxamountofenemies);
+        //stage.addActor(textfield_maxamountofenemies);
+        stage.addActor(back_button);
+        stage.addActor(checkBox_onlyPinkGuys);
     }
 
     public void initializeTextures() {
@@ -753,7 +785,7 @@ public class Controller extends ApplicationAdapter {
         healthTexture = new Texture("heart.png");
 
         //background textures
-        background_texture = new Texture("duuh69.png");
+        background_texture = new Texture("desert.png");
 
         //fireball
         fireball_texture = new Texture("myBall.png");
@@ -772,11 +804,7 @@ public class Controller extends ApplicationAdapter {
 
     public void initializeFonts() {
         //Fonts
-        enemySpawnDelay = config.getInteger("EnemyWaveCooldown(in ms)");
-        shootcooldown = config.getInteger("shootcooldown");
-        min_enemies = config.getInteger("MinAmountOfEnemies");
-        max_enemies = config.getInteger("MaxAmountOfEnemies");
-        itemspawncooldown = config.getInteger("ItemSpawnCooldown(in ms)");
+
         if (waveCount >= 20 && !spawnratereduced) {
             itemspawncooldown = config.getInteger("ItemSpawnCooldown(in ms)") - 5000;
             spawnratereduced = true;
@@ -812,6 +840,17 @@ public class Controller extends ApplicationAdapter {
             fullscreen_button.setVisible(false);
             settings_button.setVisible(false);
             exit_button.setVisible(false);
+        }
+    }
+    public void setSettingsMenuButtonsVisibility(boolean visible) {
+        if (visible) {
+            back_button.setVisible(true);
+            checkBox_onlyPinkGuys.setVisible(true);
+            godModeToggle.setVisible(true);
+        } else {
+            back_button.setVisible(false);
+            checkBox_onlyPinkGuys.setVisible(false);
+            godModeToggle.setVisible(false);
         }
     }
 }
