@@ -108,6 +108,7 @@ public class Controller extends ApplicationAdapter {
     TextButton fullscreen_button;
     TextButton settings_button;
     TextButton exit_button;
+    TextButton apply_button;
     //fonts
     FreeTypeFontGenerator generator;
     FreeTypeFontGenerator.FreeTypeFontParameter parameter;
@@ -410,13 +411,8 @@ public class Controller extends ApplicationAdapter {
                 //TODO fix timer
             }
 
-            // if player leaves screen in x direction
-            if (player.player_rectangle.x < 0) player.player_rectangle.x = 0;
-            if (player.player_rectangle.x > 1280 - 96) player.player_rectangle.x = 1280 - 96;
+            playerCollisionScreenBounds();
 
-            // if player leaves screen in y direction
-            if (player.player_rectangle.y < 0) player.player_rectangle.y = 0;
-            if (player.player_rectangle.y + 96 > 720) player.player_rectangle.y = 720 - 96;
 
 //Input
             if (Gdx.input.isKeyPressed(Input.Keys.D)) {
@@ -716,6 +712,7 @@ public class Controller extends ApplicationAdapter {
         godModeToggle = new CheckBox("Godmode", default_skin);
         textfield_maxamountofenemies = new TextField("Minimum amount of Enemies", default_skin);
         checkBox_onlyPinkGuys = new CheckBox("Only Pink Enemies", default_skin);
+        apply_button = new TextButton("Apply", default_skin);
 
        //pause menu
         resume_button.setPosition(597,450);
@@ -738,8 +735,10 @@ public class Controller extends ApplicationAdapter {
         back_button.setPosition(570,60);
         checkBox_onlyPinkGuys.setVisible(false);
         checkBox_onlyPinkGuys.setPosition(570,600-23 );
-        //set checkbox default to true because Skin is bugged
-        //all checkbox checked actions have to be inverted
+        apply_button.setPosition(480,60);
+        apply_button.setSize(86,25);
+        apply_button.setVisible(false);
+        //set checkbox default to true because Skin is bugged | all checkbox checked actions have to be inverted
         checkBox_onlyPinkGuys.setChecked(true);
         godModeToggle.setChecked(true);
 
@@ -769,6 +768,14 @@ public class Controller extends ApplicationAdapter {
                 return true;
             }
         });
+        apply_button.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                config.putBoolean("OnlyPinkEnemies",!checkBox_onlyPinkGuys.isChecked());
+                playerDeath(false);
+                return true;
+            }
+        });
 
         stage.addActor(godModeToggle);
         stage.addActor(resume_button);
@@ -778,8 +785,8 @@ public class Controller extends ApplicationAdapter {
         //stage.addActor(textfield_maxamountofenemies);
         stage.addActor(back_button);
         stage.addActor(checkBox_onlyPinkGuys);
+        stage.addActor(apply_button);
     }
-
     public void initializeTextures() {
         //heart Texture
         healthTexture = new Texture("heart.png");
@@ -847,10 +854,23 @@ public class Controller extends ApplicationAdapter {
             back_button.setVisible(true);
             checkBox_onlyPinkGuys.setVisible(true);
             godModeToggle.setVisible(true);
+            apply_button.setVisible(true);
         } else {
             back_button.setVisible(false);
             checkBox_onlyPinkGuys.setVisible(false);
             godModeToggle.setVisible(false);
+            apply_button.setVisible(false);
         }
+    }
+
+    public void playerCollisionScreenBounds() {
+        // if player leaves screen in x direction
+        if (player.player_rectangle.x < 0) player.player_rectangle.x = 0;
+        if (player.player_rectangle.x > 1280 - 96) player.player_rectangle.x = 1280 - 96;
+
+        // if player leaves screen in y direction
+        if (player.player_rectangle.y < 0) player.player_rectangle.y = 0;
+        if (player.player_rectangle.y + 96 > 720) player.player_rectangle.y = 720 - 96;
+
     }
 }
