@@ -2,7 +2,7 @@
   BitmapFont: {
     default: {
       file: QuintessentialRegular.ttf,
-      size: 16,
+      size: 17,
     }
   },
   com.badlogic.gdx.graphics.Color: {
@@ -10,14 +10,17 @@
     gray: { r: 0.128, g: 0.217, b: 0.241, a: 1 },
     black: { r: 0.128, g: 0.217, b: 0.241, a: 1 },
 
+    //background
     up: { r: 0.128, g: 0.217, b: 0.241, a: 0.9 },
+    //hover effect
     over: { r: 0.128, g: 0.217, b: 0.241, a: 1 },
     down: { r: 0.128, g: 0.217, b: 0.241, a: 0.8 },
     checked: { r: 0.128, g: 0.217, b: 0.241, a: 0.8 },
     checkedOver: { r: 0.128, g: 0.217, b: 0.241, a: 0.8 },
     disabled: {r: 0.128, g: 0.217, b: 0.241, a: 0.8 },
     background: { r: 0.128, g: 0.217, b: 0.241, a: 0.8 },
-    selection: { r: 0.128, g: 0.217, b: 0.241, a: 0.8},
+    //hover over selectbox
+    selection: { r: 0, g: 0, b: 0, a: 1},
     semiTransparent: { r: 0, g: 0, b: 0, a: 0.6 },
 
     font: white
