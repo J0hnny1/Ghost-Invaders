@@ -19,6 +19,7 @@ import com.github.acanthite.gdx.graphics.g2d.FreeTypeSkin;
 import com.mygdx.game.Items.HealthPotion;
 import com.mygdx.game.Items.Poison;
 import com.mygdx.game.Items.fastshoot;
+import com.mygdx.game.Widgets.*;
 
 
 import java.util.ArrayList;
@@ -103,18 +104,17 @@ public class Controller extends ApplicationAdapter {
     TextField textfield_maxamountofenemies;
     CheckBox checkBox_onlyPinkGuys;
     CheckBox godModeToggle;
-    TextButton back_button;
+    TextButtonC back_button;
     Skin default_skin;
-    TextButton resume_button;
-    TextButton fullscreen_button;
-    TextButton settings_button;
-    TextButton exit_button;
-    TextButton apply_button;
-    TextButton reset_button;
+    TextButtonC resume_button;
+    TextButtonC fullscreen_button;
+    TextButtonC settings_button;
+    TextButtonC exit_button;
+    TextButtonC apply_button;
+    TextButtonC reset_button;
     SelectBox<String> background_selectbox;
     Label label_minamountofenemies;
     Label label_maxamountofenemies;
-    //UseFulButton test_button;
     //fonts
     FreeTypeFontGenerator generator;
     FreeTypeFontGenerator.FreeTypeFontParameter parameter;
@@ -156,8 +156,6 @@ public class Controller extends ApplicationAdapter {
         Gdx.input.setInputProcessor(multiplexer);
         //start timer
         star_time_run = System.currentTimeMillis();
-        //test_button = new UseFulButton("Testo",default_skin, ((float) 500),(float)50,(float)90,(float)25,true);
-        //stage.addActor(test_button);
     }
 
     @Override
@@ -305,10 +303,8 @@ public class Controller extends ApplicationAdapter {
 
         }
 
-        //Testing Menu
+        //draw stage
         stage.act(Gdx.graphics.getDeltaTime());
-        //stage.addActor(textField);
-
         stage.draw();
 
 //end of draw process
@@ -317,7 +313,6 @@ public class Controller extends ApplicationAdapter {
         //Button Input
         if (resume_button.isPressed()) inputProcessor.isPaused = false;
         if (exit_button.isPressed()) Gdx.app.exit();
-
 
         //check if Game is paused
         if (!inputProcessor.isPaused) {
@@ -725,88 +720,38 @@ public class Controller extends ApplicationAdapter {
     public void initializeButtons() {
         //skin
         default_skin = new FreeTypeSkin(Gdx.files.internal("skin.json"));
-        //resume button
-        resume_button = new TextButton("Resume", default_skin);
-        resume_button.setPosition(597, 450);
-        resume_button.setVisible(false);
-        resume_button.setSize(85, 25);
+        //Pause Menu
+        resume_button = new TextButtonC("Resume", default_skin, 597, 450, 85, 25, false);
         stage.addActor(resume_button);
-        //fullscreen button
-        fullscreen_button = new TextButton("Fullscreen", default_skin);
-        fullscreen_button.setPosition(597, 450 - 35);
-        fullscreen_button.setVisible(false);
-        fullscreen_button.setSize(85, 25);
+        fullscreen_button = new TextButtonC("Fullscreen", default_skin, 597, 450 - 35, 85, 25, false);
         stage.addActor(fullscreen_button);
-        //settings button
-        settings_button = new TextButton("Settings", default_skin);
-        settings_button.setPosition(597, 450 - 70);
-        settings_button.setVisible(false);
-        settings_button.setSize(85, 25);
+        settings_button = new TextButtonC("Settings", default_skin, 597, 450 - 70, 85, 25, false);
         stage.addActor(settings_button);
-        //exit button
-        exit_button = new TextButton("Exit", default_skin);
-        exit_button.setPosition(597, 450 - 105);
-        exit_button.setVisible(false);
-        exit_button.setSize(85, 25);
+        exit_button = new TextButtonC("Exit", default_skin, 597, 450 - 105, 85, 25, false);
         stage.addActor(exit_button);
-        //godmode toggle
-        godModeToggle = new CheckBox("Godmode", default_skin);
-        godModeToggle.setPosition(570, 600);
-        godModeToggle.setVisible(false);
-        godModeToggle.setChecked(!config.getBoolean("GodMode"));
+        //Settings Menu
+        godModeToggle = new CheckBoxC("Godmode", default_skin, 570, 600, !config.getBoolean("GodMode"), false);
         stage.addActor(godModeToggle);
-        //back button
-        back_button = new TextButton("Back", default_skin);
-        back_button.setVisible(false);
-        back_button.setSize(86, 25);
-        back_button.setPosition(600 - 90, 60);
+        back_button = new TextButtonC("Back", default_skin, 600 - 90, 60, 86, 25, false);
         stage.addActor(back_button);
-        //apply button
-        apply_button = new TextButton("Apply", default_skin);
-        apply_button.setPosition(600, 60);
-        apply_button.setSize(86, 25);
-        apply_button.setVisible(false);
+        apply_button = new TextButtonC("Apply", default_skin,600,60,86,25,false);
         stage.addActor(apply_button);
-        //checkbox ping guys
-        checkBox_onlyPinkGuys = new CheckBox("Only Pink Enemies", default_skin);
-        checkBox_onlyPinkGuys.setVisible(false);
-        checkBox_onlyPinkGuys.setPosition(570, 600 - 23);
-        checkBox_onlyPinkGuys.setChecked(!config.getBoolean("OnlyPinkEnemies"));
+        checkBox_onlyPinkGuys = new CheckBoxC("Only Pink Enemies", default_skin, 570, 600 - 23, !config.getBoolean("OnlyPinkEnemies"), false);
         stage.addActor(checkBox_onlyPinkGuys);
-        //reset button
-        reset_button = new TextButton("Reset", default_skin);
-        reset_button.setSize(86, 25);
-        reset_button.setPosition(600 + 90, 60);
-        reset_button.setVisible(false);
+        reset_button = new TextButtonC("Reset", default_skin, 600 + 90, 60, 86, 25, false);
         stage.addActor(reset_button);
-        //textfield min amount enemies
-        textfield_minamountofenemies = new TextField(" ", default_skin);
-        textfield_minamountofenemies.setPosition(570, 600 - 90);
-        textfield_minamountofenemies.setVisible(false);
-        textfield_minamountofenemies.setSize(86, 25);
+        textfield_minamountofenemies = new TextFieldC(" ", default_skin,570,600-90,86,25,false);
         stage.addActor(textfield_minamountofenemies);
-        //label min amount enemies
-        textfield_minamountofenemies = new TextField(" ", default_skin);
-        label_minamountofenemies = new Label("Minimum Amount of Enemies per Wave: ", default_skin);
-        label_minamountofenemies.setPosition(570, 600 - 60);
-        label_minamountofenemies.setVisible(false);
+        label_minamountofenemies = new LabelC("Minimum Amount of Enemies per Wave: ", default_skin,570,600-60,false);
         stage.addActor(label_minamountofenemies);
-        //textfield max amount enemies
         textfield_maxamountofenemies = new TextField("Minimum amount of Enemies", default_skin);
-        //label max amount enemies
-        label_maxamountofenemies = new Label("Maximum Amount of Enemies per Wave: ", default_skin);
-        label_maxamountofenemies.setPosition(570,600-100);
-        label_maxamountofenemies.setVisible(false);
+        label_maxamountofenemies = new LabelC("Maximum Amount of Enemies per Wave: ", default_skin,570,600-100,false);
         stage.addActor(label_maxamountofenemies);
         //background selectbox
-        background_selectbox = new SelectBox<>(default_skin);
+        background_selectbox = new SelectBoxC(default_skin,570,600-140,100,25,false);
         background_selectbox.setItems("default", "desert", "desertCustom", "grass", "white");
-        background_selectbox.setPosition(570, 600 - 140);
-        background_selectbox.setVisible(false);
         background_selectbox.setSelected(config.getString("BackGroundTexture"));
-        background_selectbox.setSize(100, 25);
         stage.addActor(background_selectbox);
-
 
 
         fullscreen_button.addListener(new InputListener() {
