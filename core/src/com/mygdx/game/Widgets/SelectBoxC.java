@@ -2,11 +2,13 @@ package com.mygdx.game.Widgets;
 
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.utils.ArraySelection;
 
-public class SelectBoxC extends SelectBox {
+public class SelectBoxC<T> extends SelectBox {
     public SelectBoxC(Skin skin) {
         super(skin);
     }
+
 
     public SelectBoxC(Skin skin, String styleName) {
         super(skin, styleName);

@@ -12,7 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.github.acanthite.gdx.graphics.g2d.FreeTypeSkin;
@@ -25,6 +24,7 @@ import com.mygdx.game.Widgets.*;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Pattern;
 
 
 public class Controller extends ApplicationAdapter {
@@ -112,9 +112,17 @@ public class Controller extends ApplicationAdapter {
     TextButtonC exit_button;
     TextButtonC apply_button;
     TextButtonC reset_button;
-    SelectBox<String> background_selectbox;
-    Label label_minamountofenemies;
-    Label label_maxamountofenemies;
+    SelectBoxC<String> background_selectbox;
+    LabelC label_minamountofenemies;
+    LabelC label_maxamountofenemies;
+    LabelC label_waveCooldown;
+    LabelC label_shootCooldown;
+    LabelC label_playerHP;
+    LabelC label_movementSpeed;
+    TextFieldC textField_waveCooldown;
+    TextFieldC textField_shootCooldown;
+    TextFieldC textField_playerHP;
+    TextFieldC textField_movementSpeed;
     //fonts
     FreeTypeFontGenerator generator;
     FreeTypeFontGenerator.FreeTypeFontParameter parameter;
@@ -127,7 +135,7 @@ public class Controller extends ApplicationAdapter {
     boolean deathScreen = false;
     boolean isPaused = false;
     boolean settingsScreen = false;
-    ClickListener clicklestener = new ClickListener();
+    Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
 
     @Override
     public void create() {
@@ -139,7 +147,7 @@ public class Controller extends ApplicationAdapter {
         config = Gdx.app.getPreferences("ghostinvadorsconfig");
         if (!config.getBoolean("ConfigExists")) initConfig();
         //Spieler
-        player = new Player(config.getInteger("PlayerHP"), config.getInteger("MaxHealth"));
+        player = new Player(config.getInteger("PlayerHP"), config.getInteger("PlayerHP") + 6);
         //stage
         stage = new Stage();
         //call initializing methods
@@ -160,7 +168,6 @@ public class Controller extends ApplicationAdapter {
 
     @Override
     public void render() {
-
         //Initialise scene
         ScreenUtils.clear(216, 158, 85, 0);
         camera.update();
@@ -177,7 +184,6 @@ public class Controller extends ApplicationAdapter {
             case "desertCustom" -> batch.draw(background_texture_desertCustom, 0, 0);
             case "grass" -> batch.draw(background_texture_grass, 0, 0);
         }
-
         // draw all items
         for (GameEntity e : gameEntities) {
             if (e.getEntityType() == GameEntity.entityType.ITEM) {
@@ -372,7 +378,9 @@ public class Controller extends ApplicationAdapter {
 //end of arraylist loop
 
             // spawn enemies
-            spawnRandomEnemies(random.nextInt(min_enemies, max_enemies));
+            if (min_enemies < max_enemies) spawnRandomEnemies(random.nextInt(min_enemies, max_enemies));
+            else min_enemies--;
+
 
             //spawn Item
             if (itemsonfield < 5) spawnItems();
@@ -626,7 +634,7 @@ public class Controller extends ApplicationAdapter {
      */
     public void playerDeath(boolean deathSound) {
         if (deathSound) death.play();
-        player.health.setHealth(4);
+        player.health.setHealth(config.getInteger("PlayerHP"));
         gameEntities.clear();
         waveCount = 0;
         player.killsEnemiesOnContact = false;
@@ -636,7 +644,7 @@ public class Controller extends ApplicationAdapter {
         //max_enemies = config.getInteger("MaxAmountOfEnemies");
         batch.setColor(Color.WHITE);
         player.setPlayerdirection(Player.direction.BACK);
-        //enemySpawnDelay = config.getInteger("EnemyWaveCooldown(in ms)");
+        //enemySpawnDelay = config.getInteger("EnemyWaveCooldown");
         loadFromConfig();
     }
 
@@ -665,13 +673,12 @@ public class Controller extends ApplicationAdapter {
         config.putInteger("MaxAmountOfEnemies", 6);
         config.putBoolean("OnlyPinkEnemies", false);
         config.putInteger("PlayerHP", 4);
-        config.putInteger("MaxHealth", 10);
-        config.putInteger("EnemyWaveCooldown(in ms)", 12000);
+        config.putInteger("EnemyWaveCooldown", 12000);
         config.putInteger("ItemSpawnCooldown(in ms)", 15000);
         config.putBoolean("ConfigExists", true);
         config.putInteger("MovementSpeed", 250);
         config.putBoolean("GodMode", false);
-        config.putString("BackGroundTexture", "default.png");
+        config.putString("BackGroundTexture", "default");
         config.flush();
     }
 
@@ -679,7 +686,7 @@ public class Controller extends ApplicationAdapter {
      * load values of config file into variables
      */
     public void loadFromConfig() {
-        enemySpawnDelay = config.getInteger("EnemyWaveCooldown(in ms)");
+        enemySpawnDelay = config.getInteger("EnemyWaveCooldown");
         shootcooldown = config.getInteger("shootcooldown");
         min_enemies = config.getInteger("MinAmountOfEnemies");
         max_enemies = config.getInteger("MaxAmountOfEnemies");
@@ -734,24 +741,38 @@ public class Controller extends ApplicationAdapter {
         stage.addActor(godModeToggle);
         back_button = new TextButtonC("Back", default_skin, 600 - 90, 60, 86, 25, false);
         stage.addActor(back_button);
-        apply_button = new TextButtonC("Apply", default_skin,600,60,86,25,false);
+        apply_button = new TextButtonC("Apply", default_skin, 600, 60, 86, 25, false);
         stage.addActor(apply_button);
         checkBox_onlyPinkGuys = new CheckBoxC("Only Pink Enemies", default_skin, 570, 600 - 23, !config.getBoolean("OnlyPinkEnemies"), false);
         stage.addActor(checkBox_onlyPinkGuys);
         reset_button = new TextButtonC("Reset", default_skin, 600 + 90, 60, 86, 25, false);
         stage.addActor(reset_button);
-        textfield_minamountofenemies = new TextFieldC(" ", default_skin,570,600-90,86,25,false);
+        textfield_minamountofenemies = new TextFieldC("", default_skin, 570, 600 - 90, 86, 25, false);
+        textfield_minamountofenemies.setText(Integer.toString(config.getInteger("MinAmountOfEnemies")));
         stage.addActor(textfield_minamountofenemies);
-        label_minamountofenemies = new LabelC("Minimum Amount of Enemies per Wave: ", default_skin,570,600-60,false);
+        label_minamountofenemies = new LabelC("Minimum Amount of Enemies per Wave: ", default_skin, 570, 600 - 60, false);
         stage.addActor(label_minamountofenemies);
-        textfield_maxamountofenemies = new TextField("Minimum amount of Enemies", default_skin);
-        label_maxamountofenemies = new LabelC("Maximum Amount of Enemies per Wave: ", default_skin,570,600-100,false);
+        textfield_maxamountofenemies = new TextFieldC(Integer.toString(config.getInteger("MaxAmountOfEnemies")), default_skin, 570, 600 - 145, 86, 25, false);
+        label_maxamountofenemies = new LabelC("Maximum Amount of Enemies per Wave: ", default_skin, 570, 600 - 120, false);
         stage.addActor(label_maxamountofenemies);
+        stage.addActor(textfield_maxamountofenemies);
         //background selectbox
-        background_selectbox = new SelectBoxC(default_skin,570,600-140,100,25,false);
+        background_selectbox = new SelectBoxC(default_skin, 570, 600 - 500, 100, 25, false);
         background_selectbox.setItems("default", "desert", "desertCustom", "grass", "white");
         background_selectbox.setSelected(config.getString("BackGroundTexture"));
         stage.addActor(background_selectbox);
+        label_playerHP = new LabelC("Player HP: ", default_skin, 570, 600 - 145 - 30, false);
+        stage.addActor(label_playerHP);
+        textField_playerHP = new TextFieldC(Integer.toString(config.getInteger("PlayerHP")), default_skin, 570, 600 - 200, 86, 25, false);
+        label_movementSpeed = new LabelC("Movementspeed: ", default_skin, 570, 600 - 225, false);
+        stage.addActor(label_movementSpeed);
+        textField_movementSpeed = new TextFieldC(Integer.toString(config.getInteger("MovementSpeed")), default_skin, 570, 600 - 250, 86, 25, false);
+        stage.addActor(textField_movementSpeed);
+        stage.addActor(textField_playerHP);
+        textField_waveCooldown = new TextFieldC(Integer.toString(config.getInteger("EnemyWaveCooldown")), default_skin, 570, 600 - 300, 86, 25, false);
+        stage.addActor(textField_waveCooldown);
+        label_waveCooldown = new LabelC("Wave Cooldown: ", default_skin,570,600-277,false);
+        stage.addActor(label_waveCooldown);
 
 
         fullscreen_button.addListener(new InputListener() {
@@ -777,6 +798,7 @@ public class Controller extends ApplicationAdapter {
                 setPauseMenuButtonsVisibility(true);
                 setSettingsMenuButtonsVisibility(false);
                 stage.setKeyboardFocus(null);
+                System.out.println(textField_playerHP.getText());
                 return true;
             }
         });
@@ -785,10 +807,25 @@ public class Controller extends ApplicationAdapter {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 config.putBoolean("OnlyPinkEnemies", !checkBox_onlyPinkGuys.isChecked());
                 config.putBoolean("GodMode", !godModeToggle.isChecked());
-                config.putString("BackGroundTexture", background_selectbox.getSelected());
-                stage.setKeyboardFocus(null);
+                config.putString("BackGroundTexture", background_selectbox.getSelected().toString());
+
+                if (isNumeric(textfield_minamountofenemies.getText()))
+                    config.putInteger("MinAmountOfEnemies", Integer.parseInt(textfield_minamountofenemies.getText()));
+
+                if (isNumeric(textfield_maxamountofenemies.getText()))
+                    config.putInteger("MaxAmountOfEnemies", Integer.parseInt(textfield_maxamountofenemies.getText()));
+                if (isNumeric(textField_playerHP.getText())) {
+                    config.putInteger("PlayerHP", Integer.parseInt(textField_playerHP.getText()));
+                    if (Integer.parseInt(textField_playerHP.getText()) > player.maxhp)
+                        player.maxhp = Integer.parseInt(textField_playerHP.getText()) + 15;
+                }
+                if (isNumeric(textField_movementSpeed.getText()))
+                    config.putInteger("MovementSpeed", Integer.parseInt(textField_movementSpeed.getText()));
+
+
+                config.flush();
                 playerDeath(false);
-                System.out.println(textfield_minamountofenemies.getText());
+                stage.setKeyboardFocus(null);
                 return true;
             }
         });
@@ -797,7 +834,11 @@ public class Controller extends ApplicationAdapter {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 initConfig();
                 checkBox_onlyPinkGuys.setChecked(!config.getBoolean("OnlyPinkEnemies"));
-                godModeToggle.setChecked(config.getBoolean("GodMode"));
+                godModeToggle.setChecked(!config.getBoolean("GodMode"));
+                textfield_maxamountofenemies.setText(Integer.toString(config.getInteger("MaxAmountOfEnemies")));
+                textfield_minamountofenemies.setText(Integer.toString(config.getInteger("MinAmountOfEnemies")));
+                textField_playerHP.setText(Integer.toString(config.getInteger("PlayerHP")));
+                textField_movementSpeed.setText(Integer.toString(config.getInteger("MovementSpeed")));
                 stage.setKeyboardFocus(null);
                 playerDeath(false);
                 return true;
@@ -903,6 +944,13 @@ public class Controller extends ApplicationAdapter {
             background_selectbox.setVisible(true);
             label_minamountofenemies.setVisible(true);
             label_maxamountofenemies.setVisible(true);
+            textfield_maxamountofenemies.setVisible(true);
+            textField_playerHP.setVisible(true);
+            label_playerHP.setVisible(true);
+            label_movementSpeed.setVisible(true);
+            textField_movementSpeed.setVisible(true);
+            label_waveCooldown.setVisible(true);
+            textField_waveCooldown.setVisible(true);
         } else {
             back_button.setVisible(false);
             checkBox_onlyPinkGuys.setVisible(false);
@@ -913,6 +961,13 @@ public class Controller extends ApplicationAdapter {
             background_selectbox.setVisible(false);
             label_minamountofenemies.setVisible(false);
             label_maxamountofenemies.setVisible(false);
+            textfield_maxamountofenemies.setVisible(false);
+            textField_playerHP.setVisible(false);
+            label_playerHP.setVisible(false);
+            label_movementSpeed.setVisible(false);
+            textField_movementSpeed.setVisible(false);
+            label_waveCooldown.setVisible(false);
+            textField_waveCooldown.setVisible(false);
         }
     }
 
@@ -928,5 +983,12 @@ public class Controller extends ApplicationAdapter {
         if (player.player_rectangle.y < 0) player.player_rectangle.y = 0;
         if (player.player_rectangle.y + 96 > 720) player.player_rectangle.y = 720 - 96;
 
+    }
+
+    public boolean isNumeric(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        return pattern.matcher(strNum).matches();
     }
 }
