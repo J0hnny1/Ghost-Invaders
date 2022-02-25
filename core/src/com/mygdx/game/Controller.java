@@ -119,10 +119,12 @@ public class Controller extends ApplicationAdapter {
     LabelC label_shootCooldown;
     LabelC label_playerHP;
     LabelC label_movementSpeed;
+    LabelC label_ItemSpawnCooldown;
     TextFieldC textField_waveCooldown;
     TextFieldC textField_shootCooldown;
     TextFieldC textField_playerHP;
     TextFieldC textField_movementSpeed;
+    TextFieldC textField_ItemSpawnCooldown;
     //fonts
     FreeTypeFontGenerator generator;
     FreeTypeFontGenerator.FreeTypeFontParameter parameter;
@@ -283,7 +285,6 @@ public class Controller extends ApplicationAdapter {
             buttonsDisplayed = false;
         }
 
-
         //Halt execution if game is not started by player
         if (!inputProcessor.gameIsStarted) {
             batch.setColor(Color.LIGHT_GRAY);
@@ -381,9 +382,12 @@ public class Controller extends ApplicationAdapter {
             if (min_enemies < max_enemies) spawnRandomEnemies(random.nextInt(min_enemies, max_enemies));
             else min_enemies--;
 
-
-            //spawn Item
+            //spawn Items
             if (itemsonfield < 5) spawnItems();
+
+            //update stats
+            updateConfig();
+            playerCollisionScreenBounds();
 
             //Check if poison effect is over
             if (start_time_poison != 0) {
@@ -406,10 +410,6 @@ public class Controller extends ApplicationAdapter {
                 }
             }
 
-            //update stats
-            updateConfig();
-
-
             if (enemieskilled != 0) enemieskilled2 = enemieskilled;
 
             //If player dies
@@ -425,9 +425,6 @@ public class Controller extends ApplicationAdapter {
                 time_run_s_2 = time_run_ms % 60;
                 //TODO fix timer
             }
-
-            playerCollisionScreenBounds();
-
 
 //Input
             if (Gdx.input.isKeyPressed(Input.Keys.D)) {
@@ -512,6 +509,10 @@ public class Controller extends ApplicationAdapter {
         death.dispose();
         sip.dispose();
         font2.dispose();
+        background_texture_desert.dispose();
+        background_texture_default.dispose();
+        background_texture_grass.dispose();
+        background_texture_desertCustom.dispose();
     }
 
     /**
@@ -771,9 +772,16 @@ public class Controller extends ApplicationAdapter {
         stage.addActor(textField_playerHP);
         textField_waveCooldown = new TextFieldC(Integer.toString(config.getInteger("EnemyWaveCooldown")), default_skin, 570, 600 - 300, 86, 25, false);
         stage.addActor(textField_waveCooldown);
-        label_waveCooldown = new LabelC("Wave Cooldown: ", default_skin,570,600-277,false);
+        label_waveCooldown = new LabelC("Wave Cooldown: ", default_skin, 570, 600 - 277, false);
         stage.addActor(label_waveCooldown);
-
+        textField_shootCooldown = new TextFieldC(Integer.toString(config.getInteger("shootcooldown")), default_skin, 570, 600 - 345, 86, 25, false);
+        stage.addActor(textField_shootCooldown);
+        label_shootCooldown = new LabelC("Shootcooldown: ", default_skin, 570, 600 - 325, false);
+        stage.addActor(label_shootCooldown);
+        label_ItemSpawnCooldown = new LabelC("Item Spawn Cooldown: ", default_skin, 570, 600 - 370, false);
+        stage.addActor(label_ItemSpawnCooldown);
+        textField_ItemSpawnCooldown = new TextFieldC(Integer.toString(config.getInteger("ItemSpawnCooldown")), default_skin, 570, 600 - 390, 86, 25, false);
+        stage.addActor(textField_ItemSpawnCooldown);
 
         fullscreen_button.addListener(new InputListener() {
             @Override
@@ -798,7 +806,6 @@ public class Controller extends ApplicationAdapter {
                 setPauseMenuButtonsVisibility(true);
                 setSettingsMenuButtonsVisibility(false);
                 stage.setKeyboardFocus(null);
-                System.out.println(textField_playerHP.getText());
                 return true;
             }
         });
@@ -821,6 +828,10 @@ public class Controller extends ApplicationAdapter {
                 }
                 if (isNumeric(textField_movementSpeed.getText()))
                     config.putInteger("MovementSpeed", Integer.parseInt(textField_movementSpeed.getText()));
+                if (isNumeric(textField_shootCooldown.getText()))
+                    config.putInteger("shootcooldown", Integer.parseInt(textField_shootCooldown.getText()));
+                if (isNumeric(textField_waveCooldown.getText()))
+                    config.putInteger("EnemyWaveCooldown", Integer.parseInt(textField_waveCooldown.getText()));
 
 
                 config.flush();
@@ -951,6 +962,10 @@ public class Controller extends ApplicationAdapter {
             textField_movementSpeed.setVisible(true);
             label_waveCooldown.setVisible(true);
             textField_waveCooldown.setVisible(true);
+            label_shootCooldown.setVisible(true);
+            textField_shootCooldown.setVisible(true);
+            label_ItemSpawnCooldown.setVisible(true);
+            textField_ItemSpawnCooldown.setVisible(true);
         } else {
             back_button.setVisible(false);
             checkBox_onlyPinkGuys.setVisible(false);
@@ -968,6 +983,10 @@ public class Controller extends ApplicationAdapter {
             textField_movementSpeed.setVisible(false);
             label_waveCooldown.setVisible(false);
             textField_waveCooldown.setVisible(false);
+            label_shootCooldown.setVisible(false);
+            textField_shootCooldown.setVisible(false);
+            label_ItemSpawnCooldown.setVisible(false);
+            textField_ItemSpawnCooldown.setVisible(false);
         }
     }
 
