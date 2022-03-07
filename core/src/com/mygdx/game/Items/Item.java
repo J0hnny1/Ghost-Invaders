@@ -112,8 +112,8 @@ public class Item implements GameEntity {
     }
 
     @Override
-    public entityType getEntityType() {
-        return entityType.ITEM;
+    public EntityType getEntityType() {
+        return EntityType.ITEM;
     }
 
     @Override

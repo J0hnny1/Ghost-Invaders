@@ -38,21 +38,15 @@ public class Health {
 
     /** increase health up to maximum health
      *
-     * @param amount
-     * @return current health
      */
-    public int increase(int amount) {
+    public void increase(int amount) {
         health = min(health + amount, max_health);
-        return health;
     }
 
     /** decrease health down to 0
      *
-     * @param amount
-     * @return current health
      */
-    public int decrease(int amount) {
+    public void decrease(int amount) {
         health = max(health - amount, 0);
-        return health;
     }
 }

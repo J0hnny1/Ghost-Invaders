@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.Rectangle;
 import java.util.*;
 
 public class Bullet implements GameEntity {
-    private int id;
+    private final int id;
     private float x, y, xspeed, yspeed;
     Rectangle rectangle;
     Texture texture;
@@ -95,7 +95,7 @@ public class Bullet implements GameEntity {
                 deleteEntities.add(i);
             }
 
-            if (e.getEntityType() == entityType.ENEMY || e.getEntityType() == entityType.PINKENEMY) {
+            if (e.getEntityType() == EntityType.ENEMY || e.getEntityType() == EntityType.PINKENEMY) {
                 if (e.getRectangle().overlaps(rectangle)) {
                     deleteEntities.add(i);
                     enemieskilled2++;
@@ -118,8 +118,8 @@ public class Bullet implements GameEntity {
     }
 
     @Override
-    public entityType getEntityType() {
-        return entityType.BULLET;
+    public EntityType getEntityType() {
+        return EntityType.BULLET;
     }
 
     @Override

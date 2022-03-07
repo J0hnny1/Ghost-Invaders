@@ -9,9 +9,9 @@ import com.badlogic.gdx.math.Rectangle;
 import java.util.ArrayList;
 
 public class Enemy implements GameEntity {
-    private int id;
+    private final int id;
     private float x, y, xspeed, yspeed;
-    private Health health;
+    private final Health health;
     Rectangle rectangle;
     TextureRegion textureRegion;
     Texture texture;
@@ -114,8 +114,8 @@ public class Enemy implements GameEntity {
     }
 
 
-    public entityType getEntityType() {
-        return entityType.ENEMY;
+    public EntityType getEntityType() {
+        return EntityType.ENEMY;
     }
 
     @Override

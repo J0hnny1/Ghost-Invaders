@@ -82,7 +82,7 @@ public interface GameEntity {
     /**
      * @return entityType
      */
-    entityType getEntityType();
+    EntityType getEntityType();
 
     /**
      *
@@ -107,7 +107,7 @@ public interface GameEntity {
     /**
      * type of game entity
      */
-    enum entityType {
+    enum EntityType {
         ENEMY,
         ITEM,
         BULLET,

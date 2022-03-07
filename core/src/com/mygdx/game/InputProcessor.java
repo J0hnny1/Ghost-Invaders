@@ -1,21 +1,14 @@
 package com.mygdx.game;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.Input;
 
 public class InputProcessor implements com.badlogic.gdx.InputProcessor {
-    boolean fullscreen = false;
     Player player;
-    int player_texture_index = 0;
-    boolean gameIsStarted = false;
-    boolean deathScreen = false;
-    boolean isPaused = false;
-    public int mouse_x, mouse_y;
-    Controller controller = new Controller();
+    Controller controller;
 
-    public InputProcessor(Player player) {
+    public InputProcessor(Player player, Controller controller) {
         this.player = player;
+        this.controller = controller;
     }
 
 
@@ -28,11 +21,15 @@ public class InputProcessor implements com.badlogic.gdx.InputProcessor {
         switch (keycode) {
             case Input.Keys.F -> controller.toggleFullscreen();
             case Input.Keys.ESCAPE -> {
-                isPaused = !isPaused;
+                controller.isPaused = !controller.isPaused;
+                //controller.isPaused = !controller.isPaused;
+                //controller.setPaused(true);
+                //controller.settingsScreen = !controller.settingsScreen;
             }
             case Input.Keys.SPACE -> {
-                gameIsStarted = true;
-                deathScreen = false;
+                controller.gameIsStarted = true;
+                if (controller.deathScreen) controller.start_time_run = System.currentTimeMillis();
+                controller.deathScreen = false;
             }
         }
 
@@ -44,10 +41,11 @@ public class InputProcessor implements com.badlogic.gdx.InputProcessor {
     @Override
     public boolean keyUp(int keycode) {
         switch (keycode) {
-            case Input.Keys.W -> player.setPlayerdirection(Player.direction.FRONT);
-            case Input.Keys.A -> player.setPlayerdirection(Player.direction.LEFT);
-            case Input.Keys.S -> player.setPlayerdirection(Player.direction.BACK);
-            case Input.Keys.D -> player.setPlayerdirection(Player.direction.RIGHT);
+            case Input.Keys.W -> player.setPlayerdirection(Player.Direction.FRONT);
+            case Input.Keys.A -> player.setPlayerdirection(Player.Direction.LEFT);
+            case Input.Keys.S -> player.setPlayerdirection(Player.Direction.BACK);
+            case Input.Keys.D -> player.setPlayerdirection(Player.Direction.RIGHT);
+
         }
         return true;
     }
@@ -74,14 +72,16 @@ public class InputProcessor implements com.badlogic.gdx.InputProcessor {
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
-        mouse_x = screenX;
-        mouse_y = screenY;
         return false;
     }
 
     @Override
     public boolean scrolled(float amountX, float amountY) {
         return false;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
     }
 
 

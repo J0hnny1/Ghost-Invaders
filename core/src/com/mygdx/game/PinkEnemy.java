@@ -10,12 +10,8 @@ public class PinkEnemy extends Enemy{
         super(id, health, xspeed, yspeed, x, y, texture);
     }
 
-    //@Override
-    //public void setPosition(float x, float y) {
-   //     super.setPosition(x, y);
-    //}
-    public entityType getEntityType() {
-        return entityType.PINKENEMY;
+    public EntityType getEntityType() {
+        return EntityType.PINKENEMY;
     }
 
     @Override
