@@ -58,8 +58,7 @@ public class Controller extends ApplicationAdapter {
     //fireball texture
     Texture fireball_texture;
     //counters for increased hardness
-    int min_enemies;
-    int max_enemies;
+    int min_enemies, max_enemies;
     int enemySpawnDelay = 1000;
     //boolean if player took damage to control damage effect
     boolean playerTookDamage;
@@ -86,7 +85,7 @@ public class Controller extends ApplicationAdapter {
     Skin default_skin;
     TextButtonC resume_button, fullscreen_button, settings_button, exit_button, apply_button, reset_button;
     SelectBoxC<String> background_selectbox, playerTexture_selectbox;
-    LabelC label_minamountofenemies, label_maxamountofenemies, label_waveCooldown, label_shootCooldown, label_playerHP, label_movementSpeed, label_ItemSpawnCooldown;
+    LabelC label_minamountofenemies, label_maxamountofenemies, label_waveCooldown, label_shootCooldown, label_playerHP, label_movementSpeed, label_ItemSpawnCooldown, label_warning;
     TextFieldC textField_waveCooldown, textField_shootCooldown, textField_playerHP, textField_movementSpeed, textField_ItemSpawnCooldown;
     //fonts
     FreeTypeFontGenerator generator;
@@ -94,11 +93,13 @@ public class Controller extends ApplicationAdapter {
     BitmapFont font2, font3;
     //gameState
     boolean fullscreen = false;
-    public boolean gameIsStarted = false;
-    public boolean deathScreen = false;
-    public boolean isPaused = false;
-    boolean settingsScreen = false;
     final Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
+
+    enum GameState {
+        STARTSCREEN, INGAME, SETTINGSMENU, PAUSEMENU, DEATHSCREEN
+    }
+
+    public GameState gameState = GameState.STARTSCREEN;
 
     @Override
     public void create() {
@@ -132,7 +133,6 @@ public class Controller extends ApplicationAdapter {
 
     @Override
     public void render() {
-        //System.out.println(gameIsStarted);
         //Initialise scene
         ScreenUtils.clear(216, 158, 85, 0);
         camera.update();
@@ -159,7 +159,6 @@ public class Controller extends ApplicationAdapter {
                 batch.draw(currentFrame, e.getx(), e.gety(), r.width, r.height);
             }
         }
-        // draw player
         if (playerTookDamage) batch.setColor(Color.RED);
         //make player red if he takes damage
         if (System.currentTimeMillis() - start_time_damageSplash > 2000) {
@@ -170,7 +169,8 @@ public class Controller extends ApplicationAdapter {
         //default player direction back
         if (player.playerdirection == null) player.playerdirection = Player.Direction.BACK;
 
-        if (!deathScreen && gameIsStarted && !settingsScreen) {
+        //!deathScreen && gameIsStarted && !settingsScreen
+        if (gameState == GameState.INGAME) {
             switch (player.playerdirection) {
                 case WALKINGBACK -> {
                     player.stateTime += Gdx.graphics.getDeltaTime();
@@ -228,11 +228,11 @@ public class Controller extends ApplicationAdapter {
         drawHealthIcons();
 
         batch.setColor(Color.LIGHT_GRAY);
-
-        //pause screen
-        if (isPaused) {
+        //pause screen  isPaused
+        if (gameState != GameState.INGAME) {
             batch.setColor(Color.GRAY);
-            if (!settingsScreen) {
+            //!settingsScreen
+            if (gameState == GameState.PAUSEMENU) {
                 font2.draw(batch, "Highscore: " + config.getString("highscore") + " Waves", 570, 50);
                 font2.draw(batch, "Items Collected: " + config.getString("ItemsCollected"), 570, 50 + 25);
                 setPauseMenuButtonsVisibility(true);
@@ -241,19 +241,22 @@ public class Controller extends ApplicationAdapter {
             batch.setColor(Color.WHITE);
             setPauseMenuButtonsVisibility(false);
             setSettingsMenuButtonsVisibility(false);
-            settingsScreen = false;
+        }
+        if (gameState == GameState.PAUSEMENU) {
+            setPauseMenuButtonsVisibility(true);
+            setSettingsMenuButtonsVisibility(false);
         }
 
-
-        //Halt execution if game is not started by player
-        if (!gameIsStarted) {
+        //Halt execution if game is not started by player !gameIsStarted
+        if (gameState == GameState.STARTSCREEN) {
             batch.setColor(Color.LIGHT_GRAY);
             font3.draw(batch, "Ghost Invaders", 465, 400);
             font2.draw(batch, "Press Space to start", 570, 60);
             batch.end();
             return;
         }
-        if (deathScreen) {
+        //deathScreen
+        if (gameState == GameState.DEATHSCREEN) {
             batch.setColor(Color.GRAY);
             font2.draw(batch, "Press Space to continue", 570, 60);
             font3.draw(batch, "You Died", 530, 400);
@@ -264,7 +267,8 @@ public class Controller extends ApplicationAdapter {
             batch.end();
             return;
         }
-        if (settingsScreen) setPauseMenuButtonsVisibility(false);
+        //settingsScreen
+        if (gameState == GameState.SETTINGSMENU) setPauseMenuButtonsVisibility(false);
 
         //draw stage
         stage.act(Gdx.graphics.getDeltaTime());
@@ -273,11 +277,11 @@ public class Controller extends ApplicationAdapter {
 //end of draw process
         batch.end();
         //Button Input
-        if (resume_button.isPressed()) isPaused = false;
+        if (resume_button.isPressed()) gameState = GameState.INGAME;
         if (exit_button.isPressed()) Gdx.app.exit();
 
-        //check if Game is paused
-        if (!isPaused) {
+        //check if Game is paused !isPaused
+        if (gameState == GameState.INGAME) {
 
 //loop through gameEntities arraylist
             for (int i = 0; i < gameEntities.size(); i++) {
@@ -371,8 +375,7 @@ public class Controller extends ApplicationAdapter {
             if (player.health.getHealth() == 0) {
                 playerDeath(true);
                 enemieskilled = 0;
-                //playerDead = true;
-                deathScreen = true;
+                gameState = GameState.DEATHSCREEN;
                 stop_time_run = System.currentTimeMillis();
                 long time_run_ms = stop_time_run - start_time_run;
                 float time_run_s = ((float) time_run_ms) / 1000;
@@ -618,7 +621,7 @@ public class Controller extends ApplicationAdapter {
     public void initConfig() {
         config.putString("A", """
                 All entries have to be the same data type as the default values.\s
-                Time is set in milli seconds. The minimum and maximum amount of enemies can not be the same.\s
+                Time is set in milli seconds. \s
                 To reset the config press f5 in game, set ConfigExists false, or delete this file.""".indent(1));
         config.putInteger("shootcooldown", 700);
         config.putInteger("MinAmountOfEnemies", 4);
@@ -737,6 +740,9 @@ public class Controller extends ApplicationAdapter {
         playerTexture_selectbox.setItems("Male 17-1", "Male 04-4", "Male 01-1", "Female 25-1", "Female 09-2", "Female 04-3");
         playerTexture_selectbox.setSelected(config.getString("PlayerTexture"));
         stage.addActor(playerTexture_selectbox);
+        label_warning = new LabelC("Cheat Options! Use at own risk!", default_skin, 570, 630, false);
+        label_warning.setColor(Color.RED);
+        stage.addActor(label_warning);
 
         fullscreen_button.addListener(new InputListener() {
             @Override
@@ -748,7 +754,8 @@ public class Controller extends ApplicationAdapter {
         settings_button.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                settingsScreen = true;
+                //settingsScreen = true;
+                gameState = GameState.SETTINGSMENU;
                 setPauseMenuButtonsVisibility(false);
                 setSettingsMenuButtonsVisibility(true);
 
@@ -759,7 +766,8 @@ public class Controller extends ApplicationAdapter {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
-                settingsScreen = false;
+                //settingsScreen = false;
+                gameState = GameState.PAUSEMENU;
                 setPauseMenuButtonsVisibility(true);
                 setSettingsMenuButtonsVisibility(false);
                 stage.setKeyboardFocus(null);
@@ -929,6 +937,7 @@ public class Controller extends ApplicationAdapter {
         textField_shootCooldown.setVisible(visible);
         label_shootCooldown.setVisible(visible);
         playerTexture_selectbox.setVisible(visible);
+        label_warning.setVisible(visible);
     }
 
     /**

@@ -21,15 +21,20 @@ public class InputProcessor implements com.badlogic.gdx.InputProcessor {
         switch (keycode) {
             case Input.Keys.F -> controller.toggleFullscreen();
             case Input.Keys.ESCAPE -> {
-                controller.isPaused = !controller.isPaused;
-                //controller.isPaused = !controller.isPaused;
-                //controller.setPaused(true);
-                //controller.settingsScreen = !controller.settingsScreen;
+                if (controller.gameState == Controller.GameState.INGAME)
+                    controller.gameState = Controller.GameState.PAUSEMENU;
+                else if (controller.gameState == Controller.GameState.PAUSEMENU)
+                    controller.gameState = Controller.GameState.INGAME;
+                if (controller.gameState == Controller.GameState.SETTINGSMENU)
+                    controller.gameState = Controller.GameState.PAUSEMENU;
             }
             case Input.Keys.SPACE -> {
-                controller.gameIsStarted = true;
-                if (controller.deathScreen) controller.start_time_run = System.currentTimeMillis();
-                controller.deathScreen = false;
+                if (controller.gameState == Controller.GameState.STARTSCREEN)
+                    controller.gameState = Controller.GameState.INGAME;
+                if (controller.gameState == Controller.GameState.DEATHSCREEN) {
+                    controller.gameState = Controller.GameState.INGAME;
+                    controller.start_time_run = System.currentTimeMillis();
+                }
             }
         }
 
