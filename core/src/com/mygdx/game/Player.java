@@ -17,6 +17,7 @@ public class Player {
     Texture texture = new Texture(config.getString("PlayerTexture") + ".png");
     public final Rectangle player_rectangle = new Rectangle(592, 360, 32, 32);
     float stateTime = 0f;
+    public boolean imunetoDamage = false;
 
     public enum Direction {
         FRONT, BACK, LEFT, RIGHT, WALKINGFRONT, WALKINGBACK, WALKINGLEFT, WALKINGRIGHT

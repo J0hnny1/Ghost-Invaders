@@ -13,5 +13,6 @@ public class Poison extends Item{
     @Override
     public void onContact() {
         player.killsEnemiesOnContact = true;
+        player.imunetoDamage = true;
     }
 }

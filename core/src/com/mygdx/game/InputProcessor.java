@@ -25,7 +25,7 @@ public class InputProcessor implements com.badlogic.gdx.InputProcessor {
                     controller.gameState = Controller.GameState.PAUSEMENU;
                 else if (controller.gameState == Controller.GameState.PAUSEMENU)
                     controller.gameState = Controller.GameState.INGAME;
-                if (controller.gameState == Controller.GameState.SETTINGSMENU)
+                if (controller.gameState == Controller.GameState.SETTINGSMENU || controller.gameState == Controller.GameState.CHEATMENU)
                     controller.gameState = Controller.GameState.PAUSEMENU;
             }
             case Input.Keys.SPACE -> {
