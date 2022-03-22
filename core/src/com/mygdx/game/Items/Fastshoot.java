@@ -14,5 +14,6 @@ public class Fastshoot extends Item{
     @Override
     public void onContact() {
         player.setShootSpeedIncreased(true);
+        //TODO increase bullet speed
     }
 }

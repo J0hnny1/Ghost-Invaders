@@ -93,10 +93,11 @@ public class Controller extends ApplicationAdapter {
     //fonts
     FreeTypeFontGenerator generator;
     FreeTypeFontGenerator.FreeTypeFontParameter parameter, parameter2;
-    BitmapFont font2, font3;
+    BitmapFont font2, font3, font4;
     //gameState
     boolean fullscreen = false;
     final Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
+    boolean cheatsEnabled;
 
     enum GameState {
         STARTSCREEN, INGAME, SETTINGSMENU, PAUSEMENU, DEATHSCREEN, CHEATMENU
@@ -131,7 +132,7 @@ public class Controller extends ApplicationAdapter {
         Gdx.input.setInputProcessor(multiplexer);
         //start timer
         start_time_run = System.currentTimeMillis();
-
+        cheatsEnabled = config.getBoolean("CheatsEnabled");
     }
 
     @Override
@@ -202,7 +203,6 @@ public class Controller extends ApplicationAdapter {
 
             }
         }
-        System.out.println(itemspawncooldown);
         // draw all enemies
         batch.setColor(Color.WHITE);
         for (GameEntity e : gameEntities) {
@@ -225,7 +225,8 @@ public class Controller extends ApplicationAdapter {
         }
 
         //WaveCounter
-        font2.draw(batch, "" + waveCount, 1265 - 10, 700);
+        if (!cheatsEnabled)font2.draw(batch, "" + waveCount, 1265 - 10, 700);
+        else font4.draw(batch, "" + waveCount, 1265 - 10, 700);
 
         //Draw Hp Bar
         drawHealthIcons();
@@ -290,7 +291,6 @@ public class Controller extends ApplicationAdapter {
             //setSettingsMenuButtonVisibility(false);
             gameState = GameState.CHEATMENU;
         }
-
         //check if Game is paused !isPaused
         if (gameState == GameState.INGAME) {
 //loop through gameEntities arraylist
@@ -615,10 +615,11 @@ public class Controller extends ApplicationAdapter {
      * update values for highscore and items collected in config file
      */
     public void updateHighscore() {
-        if (waveCount > config.getInteger("highscore")) {
+        if (waveCount > config.getInteger("highscore") && !cheatsEnabled) {
             config.putInteger("highscore", waveCount);
         }
         config.putInteger("ItemsCollected", config.getInteger("ItemsCollected") + itemscollected);
+        config.putBoolean("CheatsEnabled", cheatsEnabled);
         itemscollected = 0;
         config.flush();
     }
@@ -643,6 +644,7 @@ public class Controller extends ApplicationAdapter {
         config.putBoolean("GodMode", false);
         config.putString("BackGroundTexture", "default");
         config.putString("PlayerTexture", "Male 17-1");
+        config.putBoolean("CheatsEnabled", false);
         config.flush();
     }
 
@@ -814,6 +816,7 @@ public class Controller extends ApplicationAdapter {
                 config.putString("PlayerTexture", playerTexture_selectbox.getSelected());
                 player = new Player(config.getInteger("PlayerHP"), config.getInteger("PlayerHP") + 6);
                 inputProcessor.setPlayer(player);
+                if (gameState == GameState.CHEATMENU) cheatsEnabled = true;
 
 
                 config.flush();
@@ -825,21 +828,28 @@ public class Controller extends ApplicationAdapter {
         reset_button.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                initConfig();
-                checkBox_onlyPinkGuys.setChecked(!config.getBoolean("OnlyPinkEnemies"));
-                godModeToggle.setChecked(!config.getBoolean("GodMode"));
-                textfield_maxamountofenemies.setText(Integer.toString(config.getInteger("MaxAmountOfEnemies")));
-                textfield_minamountofenemies.setText(Integer.toString(config.getInteger("MinAmountOfEnemies")));
-                textField_playerHP.setText(Integer.toString(config.getInteger("PlayerHP")));
-                textField_movementSpeed.setText(Integer.toString(config.getInteger("MovementSpeed")));
-                textField_shootCooldown.setText(Integer.toString(config.getInteger("shootcooldown")));
-                textField_waveCooldown.setText(Integer.toString(config.getInteger("EnemyWaveCooldown")));
-                textField_ItemSpawnCooldown.setText(Integer.toString(config.getInteger("shootcooldown")));
-                playerTexture_selectbox.setSelected(config.getString("PlayerTexture"));
-                player = new Player(config.getInteger("PlayerHP"), config.getInteger("PlayerHP") + 6);
-                inputProcessor.setPlayer(player);
-                stage.setKeyboardFocus(null);
-                playerDeath(false);
+                if (gameState == GameState.CHEATMENU) {
+                    initConfig();
+                    checkBox_onlyPinkGuys.setChecked(!config.getBoolean("OnlyPinkEnemies"));
+                    godModeToggle.setChecked(!config.getBoolean("GodMode"));
+                    textfield_maxamountofenemies.setText(Integer.toString(config.getInteger("MaxAmountOfEnemies")));
+                    textfield_minamountofenemies.setText(Integer.toString(config.getInteger("MinAmountOfEnemies")));
+                    textField_playerHP.setText(Integer.toString(config.getInteger("PlayerHP")));
+                    textField_movementSpeed.setText(Integer.toString(config.getInteger("MovementSpeed")));
+                    textField_shootCooldown.setText(Integer.toString(config.getInteger("shootcooldown")));
+                    textField_waveCooldown.setText(Integer.toString(config.getInteger("EnemyWaveCooldown")));
+                    textField_ItemSpawnCooldown.setText(Integer.toString(config.getInteger("shootcooldown")));
+                    playerTexture_selectbox.setSelected(config.getString("PlayerTexture"));
+                    player = new Player(config.getInteger("PlayerHP"), config.getInteger("PlayerHP") + 6);
+                    inputProcessor.setPlayer(player);
+                    stage.setKeyboardFocus(null);
+                    playerDeath(false);
+                    cheatsEnabled = false;
+                }else {
+                    config.putString("BackGroundTexture","default");
+                    config.putString("PlayerTexture", "Male 17-1");
+                }
+
                 return true;
             }
         });
@@ -878,9 +888,6 @@ public class Controller extends ApplicationAdapter {
      * creates fonts
      */
     public void initializeFonts() {
-        //Fonts
-
-
         if (waveCount >= 20 && !item_spawnratereduced) {
             itemspawncooldown = config.getInteger("ItemSpawnCooldown") - 5000;
             item_spawnratereduced = true;
@@ -896,6 +903,8 @@ public class Controller extends ApplicationAdapter {
         parameter2.characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!'()>?:";
         font2 = generator.generateFont(parameter);
         font3 = generator.generateFont(parameter2);
+        font4 = generator.generateFont(parameter);
+        font4.setColor(Color.RED);
     }
 
     /**
