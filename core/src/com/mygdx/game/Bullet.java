@@ -97,6 +97,7 @@ public class Bullet implements GameEntity {
 
             if (e.getEntityType() == EntityType.ENEMY || e.getEntityType() == EntityType.PINKENEMY) {
                 if (e.getRectangle().overlaps(rectangle)) {
+
                     deleteEntities.add(i);
                     enemieskilled2++;
                     deleteEntities.add(thisIndex);

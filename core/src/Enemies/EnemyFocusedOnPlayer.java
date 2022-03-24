@@ -1,12 +1,14 @@
-package com.mygdx.game;
+package Enemies;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.mygdx.game.GameEntity;
+import com.mygdx.game.Player;
 
 import java.util.ArrayList;
 
-public class PinkEnemy extends Enemy{
-    public PinkEnemy(int id, int health, int xspeed, int yspeed, int x, int y, Texture texture) {
+public class EnemyFocusedOnPlayer extends Enemy {
+    public EnemyFocusedOnPlayer(int id, int health, int xspeed, int yspeed, int x, int y, Texture texture) {
         super(id, health, xspeed, yspeed, x, y, texture);
     }
 

@@ -1,5 +1,7 @@
 package com.mygdx.game;
 
+import Enemies.Enemy;
+import Enemies.EnemyFocusedOnPlayer;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.*;
@@ -40,7 +42,7 @@ public class Controller extends ApplicationAdapter {
     //heart for hp bar
     Texture healthTexture;
     //enemy textures
-    Texture white_enemy_texture, blue_enemy_texture, pink_enemy_texture;
+    Texture white_enemy_texture, blue_enemy_texture, pink_enemy_texture,miniboss_texture, fastEnemy_texture;
     //timers
     long start_time_damageSplash = System.currentTimeMillis();
     long start_time = System.currentTimeMillis();
@@ -63,10 +65,10 @@ public class Controller extends ApplicationAdapter {
     //counters for increased hardness
     int min_enemies, max_enemies;
     int enemySpawnDelay = 1000;
+    //game config variables
+    int bulletspeed, movementspeed, shootcooldown;
     //boolean if player took damage to control damage effect
     boolean playerTookDamage;
-    //cooldown for shooting
-    int shootcooldown;
     //Sounds
     Sound flameAttack, hit, death, sip;
     //config
@@ -103,6 +105,10 @@ public class Controller extends ApplicationAdapter {
         STARTSCREEN, INGAME, SETTINGSMENU, PAUSEMENU, DEATHSCREEN, CHEATMENU
     }
 
+    enum ConfigInit {
+        ALL, CHEATS, SETTINGS
+    }
+
     public GameState gameState = GameState.STARTSCREEN;
 
     @Override
@@ -113,15 +119,15 @@ public class Controller extends ApplicationAdapter {
         camera.setToOrtho(false, 1280, 720);
         //config
         config = Gdx.app.getPreferences("ghostinvadorsconfig");
-        if (!config.getBoolean("ConfigExists")) initConfig();
+        if (!config.getBoolean("ConfigExists")) initConfig(ConfigInit.ALL);
         //Spieler
         player = new Player(config.getInteger("PlayerHP"), config.getInteger("PlayerHP") + 6);
         //stage
         stage = new Stage();
         //call initializing methods
         initializeSounds();
-        initializeTextures();
-        initializeButtons();
+        initTextures();
+        initButtons();
         initializeFonts();
         loadFromConfig();
         //input processing
@@ -155,7 +161,7 @@ public class Controller extends ApplicationAdapter {
         }
         // draw all items
         for (GameEntity e : gameEntities) {
-            if (e.getEntityType() == GameEntity.EntityType.ITEM) {
+            if (e.getEntityType() == GameEntity.EntityType.ITEM ||e.getEntityType() == GameEntity.EntityType.POISON) {
                 Rectangle r = e.getRectangle();
                 //batch.draw(e.getTextureRegion(), (int) e.getx(), (int) e.gety(), r.width, r.height);
                 e.setStateTime(e.getStateTime() + Gdx.graphics.getDeltaTime());
@@ -216,7 +222,7 @@ public class Controller extends ApplicationAdapter {
             }
         }
 
-        // draw all bullets
+        //draw all bullets
         for (GameEntity e : gameEntities) {
             if (e.getEntityType() == GameEntity.EntityType.BULLET) {
                 Rectangle r = e.getRectangle();
@@ -225,7 +231,7 @@ public class Controller extends ApplicationAdapter {
         }
 
         //WaveCounter
-        if (!cheatsEnabled)font2.draw(batch, "" + waveCount, 1265 - 10, 700);
+        if (!cheatsEnabled) font2.draw(batch, "" + waveCount, 1265 - 10, 700);
         else font4.draw(batch, "" + waveCount, 1265 - 10, 700);
 
         //Draw Hp Bar
@@ -252,7 +258,7 @@ public class Controller extends ApplicationAdapter {
             setSettingsMenuButtonVisibility(false);
         }
 
-        //Halt execution if game is not started by player !gameIsStarted
+        //Halt execution if game is not started by player
         if (gameState == GameState.STARTSCREEN) {
             batch.setColor(Color.LIGHT_GRAY);
             font3.draw(batch, "Ghost Invaders", 465, 400);
@@ -285,7 +291,7 @@ public class Controller extends ApplicationAdapter {
         //Button Input
         if (resume_button.isPressed()) gameState = GameState.INGAME;
         if (exit_button.isPressed()) Gdx.app.exit();
-        if (cheatmenu_button.isPressed()){
+        if (cheatmenu_button.isPressed()) {
             setCheatMenuButtonsVisibility(true);
             setPauseMenuButtonsVisibility(false);
             //setSettingsMenuButtonVisibility(false);
@@ -309,7 +315,6 @@ public class Controller extends ApplicationAdapter {
                             hit.play();
                             playerTookDamage = true;
                         }
-
                     }
                     if (player.killsEnemiesOnContact) {
                         //noinspection SuspiciousListRemoveInLoop
@@ -331,7 +336,7 @@ public class Controller extends ApplicationAdapter {
                     }
                 }
                 //execute onContact of Item when in contact & remove item from screen
-                if (e.getEntityType() == GameEntity.EntityType.ITEM && player.player_rectangle.overlaps(r)) {
+                if (e.getEntityType() == GameEntity.EntityType.ITEM && player.player_rectangle.overlaps(r)|| e.getEntityType() == GameEntity.EntityType.POISON && player.player_rectangle.overlaps(r)){
                     sip.play();
                     e.onContact();
                     //noinspection SuspiciousListRemoveInLoop
@@ -339,6 +344,8 @@ public class Controller extends ApplicationAdapter {
                     itemscollected++;
                     itemscollected_in_run++;
                     itemsonfield--;
+                    if (e.getEntityType() == GameEntity.EntityType.POISON)
+                        start_time_poison = System.currentTimeMillis();
                 }
                 //increase enemieskilled counter
                 if (e.getEntityType() == GameEntity.EntityType.BULLET)
@@ -358,11 +365,11 @@ public class Controller extends ApplicationAdapter {
             updateHighscore();
             playerCollisionScreenBounds();
             //Check if poison effect is over
-                if (System.currentTimeMillis() - start_time_poison > 2000) {
-                    player.killsEnemiesOnContact = false;
-                    player.imunetoDamage = false;
-                    start_time_poison = 0;
-                }
+            if (System.currentTimeMillis() - start_time_poison > 2000) {
+                player.killsEnemiesOnContact = false;
+                player.imunetoDamage = false;
+                start_time_poison = 0;
+            }
             //check if fastshoot is active
             if (player.shootSpeedIncreased && shootcooldown >= 200) {
                 shootcooldown = shootcooldown - 250;
@@ -394,29 +401,32 @@ public class Controller extends ApplicationAdapter {
 //Input
             if (Gdx.input.isKeyPressed(Input.Keys.D)) {
                 player.setPlayerdirection(Player.Direction.WALKINGRIGHT);
-                player.player_rectangle.x += config.getInteger("MovementSpeed") * Gdx.graphics.getDeltaTime();
+                player.player_rectangle.x += movementspeed * Gdx.graphics.getDeltaTime();
             }
             if (Gdx.input.isKeyPressed(Input.Keys.A)) {
                 player.setPlayerdirection(Player.Direction.WALKINGLEFT);
-                player.player_rectangle.x -= config.getInteger("MovementSpeed") * Gdx.graphics.getDeltaTime();
+                player.player_rectangle.x -= movementspeed * Gdx.graphics.getDeltaTime();
             }
             if (Gdx.input.isKeyPressed(Input.Keys.W)) {
                 player.setPlayerdirection(Player.Direction.WALKINGFRONT);
-                player.player_rectangle.y += config.getInteger("MovementSpeed") * Gdx.graphics.getDeltaTime();
+                player.player_rectangle.y += movementspeed * Gdx.graphics.getDeltaTime();
             }
             if (Gdx.input.isKeyPressed(Input.Keys.S)) {
                 player.setPlayerdirection(Player.Direction.WALKINGBACK);
-                player.player_rectangle.y -= config.getInteger("MovementSpeed") * Gdx.graphics.getDeltaTime();
+                player.player_rectangle.y -= movementspeed * Gdx.graphics.getDeltaTime();
             }
             if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
                 if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
+                    gameEntities.add(new EnemyFocusedOnPlayer(gameEntities.size(), 3, 150, 150, 500, 30, fastEnemy_texture));
+                    System.out.println("shotcoold " + shootcooldown);
+                    System.out.println("\nbulletspeed" + bulletspeed);
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
                     switch (player.playerdirection) {
-                        case BACK, WALKINGBACK -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y, 0, -290, fireball_texture));
-                        case FRONT, WALKINGFRONT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y + 96, 0, 290, fireball_texture));
-                        case LEFT, WALKINGLEFT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x, player.player_rectangle.y + 48, -290, 0, fireball_texture));
-                        case RIGHT, WALKINGRIGHT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96, player.player_rectangle.y + 48, 290, 0, fireball_texture));
+                        case BACK, WALKINGBACK -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y, 0, -bulletspeed, fireball_texture));
+                        case FRONT, WALKINGFRONT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y + 96, 0, bulletspeed, fireball_texture));
+                        case LEFT, WALKINGLEFT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x, player.player_rectangle.y + 48, -bulletspeed, 0, fireball_texture));
+                        case RIGHT, WALKINGRIGHT -> gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96, player.player_rectangle.y + 48, bulletspeed, 0, fireball_texture));
                     }
                 }
             }
@@ -425,28 +435,28 @@ public class Controller extends ApplicationAdapter {
                 if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
-                    gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96, player.player_rectangle.y + 48, 290, 0, fireball_texture));
+                    gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 96, player.player_rectangle.y + 48, bulletspeed, 0, fireball_texture));
                 }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
                 if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
-                    gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x, player.player_rectangle.y + 48, -290, 0, fireball_texture));
+                    gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x, player.player_rectangle.y + 48, -bulletspeed, 0, fireball_texture));
                 }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
                 if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
-                    gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y + 96, 0, 290, fireball_texture));
+                    gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y + 96, 0, bulletspeed, fireball_texture));
                 }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
                 if (System.currentTimeMillis() - start_time_bullet > shootcooldown) {
                     flameAttack.play();
                     start_time_bullet = System.currentTimeMillis();
-                    gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y, 0, -290, fireball_texture));
+                    gameEntities.add(new Bullet(gameEntities.size(), player.player_rectangle.x + 48, player.player_rectangle.y, 0, -bulletspeed, fireball_texture));
                 }
             }
             if (Gdx.input.isKeyPressed(Input.Keys.R)) playerDeath(false);
@@ -477,6 +487,8 @@ public class Controller extends ApplicationAdapter {
         background_texture_default.dispose();
         background_texture_grass.dispose();
         background_texture_desertCustom.dispose();
+        miniboss_texture.dispose();
+        fastEnemy_texture.dispose();
     }
 
     /**
@@ -516,6 +528,10 @@ public class Controller extends ApplicationAdapter {
             int enemy_type = random.nextInt(2);
             int direction = random.nextInt(4);
             Texture texture = healthTexture;
+            if (waveCount == 3){
+                gameEntities.add(new EnemyFocusedOnPlayer(gameEntities.size(), 3, 400, 400, 500, 30, miniboss_texture));
+                System.out.println("new oy spawned");
+            }
 
             switch (enemy_type) {
                 case 0 -> texture = white_enemy_texture;
@@ -562,7 +578,7 @@ public class Controller extends ApplicationAdapter {
                     }
                 }
                 if (random.nextBoolean() && waveCount > 14 && !pink_spawned || config.getBoolean("OnlyPinkEnemies")) {
-                    gameEntities.add(new PinkEnemy(gameEntities.size(), 1, 200, 200, x, y, pink_enemy_texture));
+                    gameEntities.add(new EnemyFocusedOnPlayer(gameEntities.size(), 1, 200, 200, x, y, pink_enemy_texture));
                     pink_spawned = true;
 
                 }
@@ -577,19 +593,15 @@ public class Controller extends ApplicationAdapter {
     /**
      * called to spawn random item
      */
-    //TODO fix itemspawncooldown
     public void spawnItems() {
         if (System.currentTimeMillis() - start_time_itemSpawn > itemspawncooldown) {
             start_time_itemSpawn = System.currentTimeMillis();
-
             if (random.nextInt(0, 100) <= 40) {
                 gameEntities.add(new HealthPotion(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, start_time_itemSpawn, redpotion_texture));
             } else if (random.nextInt(0, 100) <= 40) {
                 gameEntities.add(new Poison(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, System.currentTimeMillis(), greenpotion_texture));
-                start_time_poison = System.currentTimeMillis();
             } else if (random.nextInt(0, 100) <= 50) {
-                gameEntities.add(new Fastshoot(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, System.currentTimeMillis(), bluepotion_texture, gameEntities));
-                start_time_fastshoot = System.currentTimeMillis();
+                gameEntities.add(new Fastshoot(ThreadLocalRandom.current().nextInt(0, 1280 - 64), ThreadLocalRandom.current().nextInt(0, 720 - 64), 64, 64, player, System.currentTimeMillis(), bluepotion_texture, gameEntities,this));
             }
             itemsonfield++;
         }
@@ -627,24 +639,48 @@ public class Controller extends ApplicationAdapter {
     /**
      * initialize Configuration File with default values
      */
-    public void initConfig() {
+    public void initConfig(ConfigInit categorie) {
         config.putString("A", """
                 All entries have to be the same data type as the default values.\s
                 Time is set in milli seconds. \s
                 To reset the config press f5 in game, set ConfigExists false, or delete this file.""".indent(1));
-        config.putInteger("shootcooldown", 700);
-        config.putInteger("MinAmountOfEnemies", 4);
-        config.putInteger("MaxAmountOfEnemies", 6);
-        config.putBoolean("OnlyPinkEnemies", false);
-        config.putInteger("PlayerHP", 4);
-        config.putInteger("EnemyWaveCooldown", 12000);
-        config.putInteger("ItemSpawnCooldown", 15000);
-        config.putBoolean("ConfigExists", true);
-        config.putInteger("MovementSpeed", 250);
-        config.putBoolean("GodMode", false);
-        config.putString("BackGroundTexture", "default");
-        config.putString("PlayerTexture", "Male 17-1");
-        config.putBoolean("CheatsEnabled", false);
+
+        switch (categorie) {
+            case ALL -> {
+                config.putInteger("shootcooldown", 700);
+                config.putInteger("BulletSpeed", 400);
+                config.putInteger("MinAmountOfEnemies", 4);
+                config.putInteger("MaxAmountOfEnemies", 6);
+                config.putBoolean("OnlyPinkEnemies", false);
+                config.putInteger("PlayerHP", 4);
+                config.putInteger("EnemyWaveCooldown", 12000);
+                config.putInteger("ItemSpawnCooldown", 15000);
+                config.putBoolean("ConfigExists", true);
+                config.putInteger("MovementSpeed", 250);
+                config.putBoolean("GodMode", false);
+                config.putString("BackGroundTexture", "default");
+                config.putString("PlayerTexture", "Male 17-1");
+                config.putBoolean("CheatsEnabled", false);
+            }
+            case CHEATS -> {
+                config.putInteger("shootcooldown", 700);
+                config.putInteger("BulletSpeed", 290);
+                config.putInteger("MinAmountOfEnemies", 4);
+                config.putInteger("MaxAmountOfEnemies", 6);
+                config.putBoolean("OnlyPinkEnemies", false);
+                config.putInteger("PlayerHP", 4);
+                config.putInteger("EnemyWaveCooldown", 12000);
+                config.putInteger("ItemSpawnCooldown", 15000);
+                config.putBoolean("ConfigExists", true);
+                config.putInteger("MovementSpeed", 250);
+                config.putBoolean("GodMode", false);
+                config.putBoolean("CheatsEnabled", false);
+            }
+            case SETTINGS -> {
+                config.putString("BackGroundTexture", "default");
+                config.putString("PlayerTexture", "Male 17-1");
+            }
+        }
         config.flush();
     }
 
@@ -657,6 +693,8 @@ public class Controller extends ApplicationAdapter {
         min_enemies = config.getInteger("MinAmountOfEnemies");
         max_enemies = config.getInteger("MaxAmountOfEnemies");
         itemspawncooldown = config.getInteger("ItemSpawnCooldown");
+        bulletspeed = config.getInteger("BulletSpeed");
+        movementspeed = config.getInteger("MovementSpeed");
     }
 
     @Override
@@ -685,7 +723,7 @@ public class Controller extends ApplicationAdapter {
      * positions and sizes are set and buttons are set to invisible,
      * if needed a InputListener is added
      */
-    public void initializeButtons() {
+    public void initButtons() {
         //skin
         default_skin = new FreeTypeSkin(Gdx.files.internal("skin.json"));
         //Pause Menu
@@ -695,7 +733,7 @@ public class Controller extends ApplicationAdapter {
         stage.addActor(fullscreen_button);
         settings_button = new TextButtonC("Settings", default_skin, 597, 450 - 70, 85, 25, false);
         stage.addActor(settings_button);
-        cheatmenu_button = new TextButtonC("Cheats", default_skin, 597, 450-105, 86, 25, false);
+        cheatmenu_button = new TextButtonC("Cheats", default_skin, 597, 450 - 105, 86, 25, false);
         stage.addActor(cheatmenu_button);
         exit_button = new TextButtonC("Exit", default_skin, 597, 450 - 140, 85, 25, false);
         stage.addActor(exit_button);
@@ -791,32 +829,34 @@ public class Controller extends ApplicationAdapter {
         apply_button.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                config.putBoolean("OnlyPinkEnemies", !checkBox_onlyPinkGuys.isChecked());
-                config.putBoolean("GodMode", !godModeToggle.isChecked());
-                config.putString("BackGroundTexture", background_selectbox.getSelected());
+                if (gameState == GameState.CHEATMENU) {
+                    config.putBoolean("OnlyPinkEnemies", !checkBox_onlyPinkGuys.isChecked());
+                    config.putBoolean("GodMode", !godModeToggle.isChecked());
+                    if (isNumeric(textfield_minamountofenemies.getText()))
+                        config.putInteger("MinAmountOfEnemies", Integer.parseInt(textfield_minamountofenemies.getText()));
 
-                if (isNumeric(textfield_minamountofenemies.getText()))
-                    config.putInteger("MinAmountOfEnemies", Integer.parseInt(textfield_minamountofenemies.getText()));
-
-                if (isNumeric(textfield_maxamountofenemies.getText()))
-                    config.putInteger("MaxAmountOfEnemies", Integer.parseInt(textfield_maxamountofenemies.getText()));
-                if (isNumeric(textField_playerHP.getText())) {
-                    config.putInteger("PlayerHP", Integer.parseInt(textField_playerHP.getText()));
-                    if (Integer.parseInt(textField_playerHP.getText()) > player.maxhp)
-                        player.maxhp = Integer.parseInt(textField_playerHP.getText()) + 15;
+                    if (isNumeric(textfield_maxamountofenemies.getText()))
+                        config.putInteger("MaxAmountOfEnemies", Integer.parseInt(textfield_maxamountofenemies.getText()));
+                    if (isNumeric(textField_playerHP.getText())) {
+                        config.putInteger("PlayerHP", Integer.parseInt(textField_playerHP.getText()));
+                        if (Integer.parseInt(textField_playerHP.getText()) > player.maxhp)
+                            player.maxhp = Integer.parseInt(textField_playerHP.getText()) + 15;
+                    }
+                    if (isNumeric(textField_movementSpeed.getText()))
+                        config.putInteger("MovementSpeed", Integer.parseInt(textField_movementSpeed.getText()));
+                    if (isNumeric(textField_shootCooldown.getText()))
+                        config.putInteger("shootcooldown", Integer.parseInt(textField_shootCooldown.getText()));
+                    if (isNumeric(textField_waveCooldown.getText()))
+                        config.putInteger("EnemyWaveCooldown", Integer.parseInt(textField_waveCooldown.getText()));
+                    if (isNumeric(textField_ItemSpawnCooldown.getText()))
+                        config.putInteger("ItemSpawnCooldown", Integer.parseInt(textField_ItemSpawnCooldown.getText()));
+                    cheatsEnabled = true;
+                } else {
+                    config.putString("PlayerTexture", playerTexture_selectbox.getSelected());
+                    player = new Player(config.getInteger("PlayerHP"), config.getInteger("PlayerHP") + 6);
+                    inputProcessor.setPlayer(player);
+                    config.putString("BackGroundTexture", background_selectbox.getSelected());
                 }
-                if (isNumeric(textField_movementSpeed.getText()))
-                    config.putInteger("MovementSpeed", Integer.parseInt(textField_movementSpeed.getText()));
-                if (isNumeric(textField_shootCooldown.getText()))
-                    config.putInteger("shootcooldown", Integer.parseInt(textField_shootCooldown.getText()));
-                if (isNumeric(textField_waveCooldown.getText()))
-                    config.putInteger("EnemyWaveCooldown", Integer.parseInt(textField_waveCooldown.getText()));
-                if (isNumeric(textField_ItemSpawnCooldown.getText()))
-                    config.putInteger("ItemSpawnCooldown", Integer.parseInt(textField_ItemSpawnCooldown.getText()));
-                config.putString("PlayerTexture", playerTexture_selectbox.getSelected());
-                player = new Player(config.getInteger("PlayerHP"), config.getInteger("PlayerHP") + 6);
-                inputProcessor.setPlayer(player);
-                if (gameState == GameState.CHEATMENU) cheatsEnabled = true;
 
 
                 config.flush();
@@ -829,7 +869,7 @@ public class Controller extends ApplicationAdapter {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 if (gameState == GameState.CHEATMENU) {
-                    initConfig();
+                    initConfig(ConfigInit.CHEATS);
                     checkBox_onlyPinkGuys.setChecked(!config.getBoolean("OnlyPinkEnemies"));
                     godModeToggle.setChecked(!config.getBoolean("GodMode"));
                     textfield_maxamountofenemies.setText(Integer.toString(config.getInteger("MaxAmountOfEnemies")));
@@ -839,15 +879,17 @@ public class Controller extends ApplicationAdapter {
                     textField_shootCooldown.setText(Integer.toString(config.getInteger("shootcooldown")));
                     textField_waveCooldown.setText(Integer.toString(config.getInteger("EnemyWaveCooldown")));
                     textField_ItemSpawnCooldown.setText(Integer.toString(config.getInteger("shootcooldown")));
-                    playerTexture_selectbox.setSelected(config.getString("PlayerTexture"));
                     player = new Player(config.getInteger("PlayerHP"), config.getInteger("PlayerHP") + 6);
-                    inputProcessor.setPlayer(player);
                     stage.setKeyboardFocus(null);
                     playerDeath(false);
+                    inputProcessor.setPlayer(player);
                     cheatsEnabled = false;
-                }else {
-                    config.putString("BackGroundTexture","default");
-                    config.putString("PlayerTexture", "Male 17-1");
+                } else {
+                    initConfig(ConfigInit.SETTINGS);
+                    playerDeath(false);
+                    inputProcessor.setPlayer(player);
+                    background_selectbox.setSelected(config.getString("BackGroundTexture"));
+                    playerTexture_selectbox.setSelected(config.getString("PlayerTexture"));
                 }
 
                 return true;
@@ -859,7 +901,7 @@ public class Controller extends ApplicationAdapter {
     /**
      * load all needed textures
      */
-    public void initializeTextures() {
+    public void initTextures() {
         //heart Texture
         healthTexture = new Texture("heart.png");
 
@@ -882,6 +924,8 @@ public class Controller extends ApplicationAdapter {
         white_enemy_texture = new Texture("Enemy 09-1.png");
         blue_enemy_texture = new Texture("Enemy 11-1.png");
         pink_enemy_texture = new Texture("Enemy 12-1.png");
+        miniboss_texture = new Texture("Enemy 15-6.png");
+        fastEnemy_texture = new Texture("Enemy 16-5.png");
     }
 
     /**
@@ -986,5 +1030,29 @@ public class Controller extends ApplicationAdapter {
             return false;
         }
         return pattern.matcher(strNum).matches();
+    }
+
+    public int getBulletspeed() {
+        return bulletspeed;
+    }
+
+    public void setBulletspeed(int bulletspeed) {
+        this.bulletspeed = bulletspeed;
+    }
+
+    public int getShootcooldown() {
+        return shootcooldown;
+    }
+
+    public void setShootcooldown(int shootcooldown) {
+        this.shootcooldown = shootcooldown;
+    }
+
+    public int getMovementspeed() {
+        return movementspeed;
+    }
+
+    public void setMovementspeed(int movementspeed) {
+        this.movementspeed = movementspeed;
     }
 }

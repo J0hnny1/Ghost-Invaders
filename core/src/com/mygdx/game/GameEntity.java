@@ -111,7 +111,8 @@ public interface GameEntity {
         ENEMY,
         ITEM,
         BULLET,
-        PINKENEMY
+        PINKENEMY,
+        POISON
     }
 
     int setEnemiesKilled();

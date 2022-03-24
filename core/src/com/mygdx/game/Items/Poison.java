@@ -15,4 +15,9 @@ public class Poison extends Item{
         player.killsEnemiesOnContact = true;
         player.imunetoDamage = true;
     }
+
+    @Override
+    public EntityType getEntityType() {
+        return EntityType.POISON;
+    }
 }
