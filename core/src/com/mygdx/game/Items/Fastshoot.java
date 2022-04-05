@@ -22,6 +22,5 @@ public class Fastshoot extends Item{
         controller.setBulletspeed(controller.getBulletspeed() + 10);
         controller.setShootcooldown(controller.getShootcooldown() - 5);
         controller.setMovementspeed(controller.getMovementspeed() + 10);
-        //TODO increase bullet speed
     }
 }
