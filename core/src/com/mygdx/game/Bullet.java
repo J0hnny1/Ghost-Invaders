@@ -1,5 +1,6 @@
 package com.mygdx.game;
 
+import com.mygdx.game.Enemies.Enemy;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -14,8 +15,11 @@ public class Bullet implements GameEntity {
     Rectangle rectangle;
     Texture texture;
     public int enemieskilled2;
+    boolean playerBullet;
+    boolean bouncy;
+    boolean bouncyCheat;
 
-    public Bullet(int id, float x, float y, float xspeed, float yspeed, Texture texture) {
+    public Bullet(int id, float x, float y, float xspeed, float yspeed, Texture texture, boolean playerBullet, Controller controller) {
         this.id = id;
         this.x = x;
         this.y = y;
@@ -23,6 +27,20 @@ public class Bullet implements GameEntity {
         this.yspeed = yspeed;
         this.texture = texture;
         this.rectangle = new Rectangle(x, y, 32, 32);
+        this.playerBullet = playerBullet;
+        this.bouncy = controller.getBouncyBullets();
+        this.bouncyCheat = controller.getBouncyBulletsCheat();
+    }
+
+    public Bullet(int id, float x, float y, float xspeed, float yspeed, Texture texture, boolean playerBullet) {
+        this.id = id;
+        this.x = x;
+        this.y = y;
+        this.xspeed = xspeed;
+        this.yspeed = yspeed;
+        this.texture = texture;
+        this.rectangle = new Rectangle(x, y, 32, 32);
+        this.playerBullet = playerBullet;
     }
 
     @Override
@@ -91,17 +109,34 @@ public class Bullet implements GameEntity {
             boolean isThis = e == this;
 
             // delete bullet when it leaves the screen
+
             if (isThis && (y + 32 > 732 || y < -32 || x + 32 > 1280 + 32 || x < -32)) {
-                deleteEntities.add(i);
+                if (!bouncy && !bouncyCheat) deleteEntities.add(i);
+                else {
+                    xspeed *= -1;
+                    yspeed *= -1;
+                }
             }
 
-            if (e.getEntityType() == EntityType.ENEMY || e.getEntityType() == EntityType.PINKENEMY) {
-                if (e.getRectangle().overlaps(rectangle)) {
 
-                    deleteEntities.add(i);
-                    enemieskilled2++;
+            //check collision with enemies
+            if (e.getEntityType() == EntityType.ENEMY || e.getEntityType() == EntityType.PINKENEMY) {
+                if (e.getRectangle().overlaps(rectangle) && playerBullet) {
+                    Enemy enemy = (Enemy) e;
+                    //enemy.getHealth().decrease(1);
+                    enemy.getHealth().decrease(1);
+                    //enemy.getHealth().getHealth()
+                    if (enemy.getHealth().getHealth() <= 0) {
+                        deleteEntities.add(i);
+                        enemieskilled2++;
+                    }
                     deleteEntities.add(thisIndex);
                 }
+            }
+
+            if (!playerBullet && player.player_rectangle.overlaps(rectangle)) {
+                player.damage(1);
+                deleteEntities.add(thisIndex);
             }
         }
 
@@ -138,10 +173,6 @@ public class Bullet implements GameEntity {
 
     }
 
-    @Override
-    public float getSpawnTime() {
-        return 0;
-    }
 
     @Override
     public int setEnemiesKilled() {
@@ -152,7 +183,6 @@ public class Bullet implements GameEntity {
     public int getEnemiesKilled() {
         return enemieskilled2;
     }
-
 
 
 }

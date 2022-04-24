@@ -37,8 +37,6 @@ public class InputProcessor implements com.badlogic.gdx.InputProcessor {
                 }
             }
         }
-
-
         return true;
     }
 

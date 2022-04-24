@@ -11,7 +11,7 @@ public class DesktopLauncher {
 
         config.setTitle("Ghost Invaders");
         config.setWindowedMode(1280, 720);
-        config.setResizable(true);
+        config.setResizable(false);
         config.setWindowIcon("ghostIcon.png");
         new Lwjgl3Application(new Controller(), config);
     }

@@ -5,11 +5,13 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
+import com.mygdx.game.Bullet;
 import com.mygdx.game.GameEntity;
 import com.mygdx.game.Health;
 import com.mygdx.game.Player;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Enemy implements GameEntity {
     private final int id;
@@ -24,6 +26,10 @@ public class Enemy implements GameEntity {
     float stateTime = 0f;
     TextureRegion[] walkFront;
     Animation<TextureRegion> walkFrontAnimation;
+    boolean shoots;
+    Texture fireball2_texture = new Texture("myBall2.png");
+    long start_time_bullet = System.currentTimeMillis();
+    Random random = new Random();
 
     @Override
 
@@ -99,7 +105,7 @@ public class Enemy implements GameEntity {
 
     }
 
-    public Enemy(int id, int health, int xspeed, int yspeed, int x, int y, Texture texture) {
+    public Enemy(int id, int health, int xspeed, int yspeed, int x, int y, Texture texture, boolean shoots) {
         this.id = id;
         this.health = new Health(health);
         this.xspeed = xspeed;
@@ -114,6 +120,7 @@ public class Enemy implements GameEntity {
         front3 = new TextureRegion(texture, 64, 0, 32, 32);
         walkFront = new TextureRegion[]{front1, front2, front3};
         walkFrontAnimation = new Animation<>(0.25f, walkFront);
+        this.shoots = shoots;
     }
 
 
@@ -136,10 +143,6 @@ public class Enemy implements GameEntity {
         this.stateTime = stateTime;
     }
 
-    @Override
-    public float getSpawnTime() {
-        return 0;
-    }
 
     @Override
     public int setEnemiesKilled() {
@@ -171,5 +174,22 @@ public class Enemy implements GameEntity {
             xspeed *= -1;
             this.setPosition(0, this.y);
         }
+
+
+        if (shoots && System.currentTimeMillis() - start_time_bullet > 1000) {
+            //gameEntities.add(new Bullet(gameEntities.size(), rectangle.x + 48, rectangle.y, 0, -100, fireball2_texture, false));
+            start_time_bullet = System.currentTimeMillis();
+            if (x > y) {
+                if (random.nextBoolean())gameEntities.add(new Bullet(gameEntities.size(), rectangle.x + 96, rectangle.y + 48, 160, 0, fireball2_texture, false));
+                else gameEntities.add(new Bullet(gameEntities.size(), rectangle.x, rectangle.y + 48, -160, 0, fireball2_texture, false));
+            }else if (random.nextBoolean()) gameEntities.add(new Bullet(gameEntities.size(), rectangle.x + 48, rectangle.y, 0, -160, fireball2_texture, false));
+            else gameEntities.add(new Bullet(gameEntities.size(), rectangle.x + 48, rectangle.y + 96, 0, 160, fireball2_texture, false));
+        }
+
+
+    }
+
+    public Health getHealth() {
+        return health;
     }
 }

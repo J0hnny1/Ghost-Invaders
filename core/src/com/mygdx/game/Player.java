@@ -2,6 +2,7 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -17,7 +18,10 @@ public class Player {
     Texture texture = new Texture(config.getString("PlayerTexture") + ".png");
     public final Rectangle player_rectangle = new Rectangle(592, 360, 32, 32);
     float stateTime = 0f;
-    public boolean imunetoDamage = false;
+    public boolean immunetoDamage = false;
+    long start_time = System.currentTimeMillis();
+    boolean playerTookDamage;
+    Sound damageSound = Gdx.audio.newSound(Gdx.files.internal("Male Player Hit (Nr. 1 _ Terraria Sound) - Sound Effect for editing.mp3"));
 
     public enum Direction {
         FRONT, BACK, LEFT, RIGHT, WALKINGFRONT, WALKINGBACK, WALKINGLEFT, WALKINGRIGHT
@@ -72,5 +76,16 @@ public class Player {
 
     public void setPlayerdirection(Direction playerdirection) {
         this.playerdirection = playerdirection;
+    }
+
+    public void damage(int amount) {
+        if (System.currentTimeMillis() - start_time > 2000) {
+            start_time = System.currentTimeMillis();
+            if (!config.getBoolean("GodMode") && !immunetoDamage) {
+                health.decrease(amount);
+                damageSound.play();
+                playerTookDamage = true;
+            }
+        }
     }
 }

@@ -102,8 +102,6 @@ public interface GameEntity {
      */
     void setStateTime(float stateTime);
 
-    float getSpawnTime();
-
     /**
      * type of game entity
      */
@@ -112,7 +110,8 @@ public interface GameEntity {
         ITEM,
         BULLET,
         PINKENEMY,
-        POISON
+        POISON,
+        BOUNCYBULLET
     }
 
     int setEnemiesKilled();

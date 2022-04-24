@@ -8,8 +8,10 @@ import com.mygdx.game.Player;
 import java.util.ArrayList;
 
 public class EnemyFocusedOnPlayer extends Enemy {
-    public EnemyFocusedOnPlayer(int id, int health, int xspeed, int yspeed, int x, int y, Texture texture) {
-        super(id, health, xspeed, yspeed, x, y, texture);
+
+
+    public EnemyFocusedOnPlayer(int id, int health, int xspeed, int yspeed, int x, int y, Texture texture, boolean shoots) {
+        super(id, health, xspeed, yspeed, x, y, texture, shoots);
     }
 
     public EntityType getEntityType() {

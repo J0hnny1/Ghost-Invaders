@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>/home/jonathan/IdeaProjects/Ghost-Invadors/core/src</OriginalElement>
+  <nodes>
+    <node x="968.5416666666667" y="398.0">com.mygdx.game.Widgets.LabelC</node>
+    <node x="459.54166666666674" y="398.0">com.mygdx.game.Widgets.TextButtonC</node>
+    <node x="182.54166666666674" y="188.0">com.mygdx.game.GameEntity</node>
+    <node x="1380.066454475309" y="0.0">com.mygdx.game.Health</node>
+    <node x="297.33053626543233" y="586.0">com.mygdx.game.Items.Fastshoot</node>
+    <node x="1257.5416666666667" y="398.0">com.mygdx.game.Items.Poison</node>
+    <node x="1094.5416666666667" y="398.0">com.mygdx.game.Widgets.CheckBoxC</node>
+    <node x="266.54166666666674" y="398.0">com.mygdx.game.Widgets.SelectBoxC</node>
+    <node x="1187.8295717592598" y="293.0">com.mygdx.game.Items.Item</node>
+    <node x="290.33053626543244" y="503.0">com.mygdx.game.Controller</node>
+    <node x="1512.9622878086423" y="293.0">Enemies.Enemy</node>
+    <node x="53.91666666666674" y="398.0">com.mygdx.game.InputProcessor</node>
+    <node x="632.5416666666667" y="398.0">com.mygdx.game.Widgets.TextFieldC</node>
+    <node x="788.5416666666667" y="398.0">com.mygdx.game.Items.HealthPotion</node>
+    <node x="1406.2055362654323" y="398.0">Enemies.EnemyFocusedOnPlayer</node>
+    <node x="1346.2055362654323" y="293.0">com.mygdx.game.Bullet</node>
+    <node x="1208.4622878086425" y="93.0">com.mygdx.game.Player</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="com.mygdx.game.Controller" target="com.mygdx.game.Widgets.TextFieldC" relationship="TO_ONE">
+      <point x="0.0" y="-15.5" />
+      <point x="357.33053626543244" y="481.0" />
+      <point x="332.751157407408" y="481.0" />
+      <point x="332.751157407408" y="461.0" />
+      <point x="666.5416666666667" y="461.0" />
+      <point x="-34.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Controller" target="com.mygdx.game.Widgets.LabelC" relationship="CREATE">
+      <point x="44.666666666666686" y="-15.5" />
+      <point x="401.9972029320992" y="481.0" />
+      <point x="1094.8305362654323" y="481.0" />
+      <point x="1094.8305362654323" y="451.0" />
+      <point x="1048.0416666666667" y="451.0" />
+      <point x="26.5" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Controller" target="com.mygdx.game.Widgets.SelectBoxC" relationship="CREATE">
+      <point x="44.666666666666686" y="-15.5" />
+      <point x="401.9972029320992" y="481.0" />
+      <point x="1094.8305362654323" y="481.0" />
+      <point x="1094.8305362654323" y="451.0" />
+      <point x="396.29166666666674" y="451.0" />
+      <point x="43.25" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Items.Fastshoot" target="com.mygdx.game.Items.Item" relationship="GENERALIZATION">
+      <point x="48.75" y="-15.5" />
+      <point x="411.08053626543233" y="565.0" />
+      <point x="1704.5805362654323" y="565.0" />
+      <point x="1704.5805362654323" y="366.0" />
+      <point x="1232.3295717592598" y="366.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Controller" target="com.mygdx.game.InputProcessor" relationship="TO_ONE">
+      <point x="0.0" y="-15.5" />
+      <point x="357.33053626543244" y="481.0" />
+      <point x="332.751157407408" y="481.0" />
+      <point x="332.751157407408" y="461.0" />
+      <point x="142.41666666666674" y="461.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.InputProcessor" target="com.mygdx.game.Controller" relationship="TO_ONE">
+      <point x="0.0" y="15.5" />
+      <point x="142.41666666666674" y="461.0" />
+      <point x="332.751157407408" y="461.0" />
+      <point x="332.751157407408" y="481.0" />
+      <point x="357.33053626543244" y="481.0" />
+      <point x="0.0" y="-15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Bullet" target="com.mygdx.game.Player" relationship="DEPENDENCY">
+      <point x="24.75" y="-15.5" />
+      <point x="1420.4555362654323" y="251.0" />
+      <point x="1400.9555362654323" y="251.0" />
+      <point x="1400.9555362654323" y="156.0" />
+      <point x="1259.4622878086425" y="156.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Items.Item" target="com.mygdx.game.GameEntity" relationship="REALIZATION">
+      <point x="29.666666666666742" y="-15.5" />
+      <point x="1261.9962384259265" y="261.0" />
+      <point x="1390.4555362654323" y="261.0" />
+      <point x="1390.4555362654323" y="241.0" />
+      <point x="305.04166666666663" y="241.0" />
+      <point x="49.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Player" target="com.mygdx.game.Health" relationship="CREATE">
+      <point x="-25.5" y="-15.5" />
+      <point x="1233.9622878086425" y="72.0" />
+      <point x="1432.566454475309" y="72.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Controller" target="com.mygdx.game.Player" relationship="CREATE">
+      <point x="44.666666666666686" y="-15.5" />
+      <point x="401.9972029320992" y="481.0" />
+      <point x="1094.8305362654323" y="481.0" />
+      <point x="1094.8305362654323" y="451.0" />
+      <point x="1693.5805362654323" y="451.0" />
+      <point x="1693.5805362654323" y="146.0" />
+      <point x="1293.4622878086425" y="146.0" />
+      <point x="34.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Controller" target="com.mygdx.game.Bullet" relationship="CREATE">
+      <point x="44.666666666666686" y="-15.5" />
+      <point x="401.9972029320992" y="481.0" />
+      <point x="1094.8305362654323" y="481.0" />
+      <point x="1094.8305362654323" y="451.0" />
+      <point x="1395.7055362654323" y="451.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Items.HealthPotion" target="com.mygdx.game.Items.Item" relationship="GENERALIZATION">
+      <point x="40.0" y="-15.5" />
+      <point x="908.5416666666667" y="366.0" />
+      <point x="1232.3295717592598" y="366.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Controller" target="com.mygdx.game.Widgets.TextButtonC" relationship="CREATE">
+      <point x="44.666666666666686" y="-15.5" />
+      <point x="401.9972029320992" y="481.0" />
+      <point x="1094.8305362654323" y="481.0" />
+      <point x="1094.8305362654323" y="451.0" />
+      <point x="574.2916666666667" y="451.0" />
+      <point x="38.25" y="15.5" />
+    </edge>
+    <edge source="Enemies.EnemyFocusedOnPlayer" target="Enemies.Enemy" relationship="GENERALIZATION">
+      <point x="63.25" y="-15.5" />
+      <point x="1595.9555362654323" y="356.0" />
+      <point x="1539.7122878086423" y="356.0" />
+      <point x="-26.75" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Controller" target="Enemies.Enemy" relationship="CREATE">
+      <point x="44.666666666666686" y="-15.5" />
+      <point x="401.9972029320992" y="481.0" />
+      <point x="1094.8305362654323" y="481.0" />
+      <point x="1094.8305362654323" y="451.0" />
+      <point x="1669.7055362654323" y="451.0" />
+      <point x="1669.7055362654323" y="346.0" />
+      <point x="1593.2122878086423" y="346.0" />
+      <point x="26.75" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Controller" target="com.mygdx.game.Widgets.TextFieldC" relationship="CREATE">
+      <point x="44.666666666666686" y="-15.5" />
+      <point x="401.9972029320992" y="481.0" />
+      <point x="1094.8305362654323" y="481.0" />
+      <point x="1094.8305362654323" y="451.0" />
+      <point x="734.5416666666667" y="451.0" />
+      <point x="34.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Items.Item" target="com.mygdx.game.Player" relationship="DEPENDENCY">
+      <point x="0.0" y="-15.5" />
+      <point x="1232.3295717592598" y="261.0" />
+      <point x="1242.162905092593" y="261.0" />
+      <point x="1242.162905092593" y="156.0" />
+      <point x="1259.4622878086425" y="156.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Items.Fastshoot" target="com.mygdx.game.Controller" relationship="TO_ONE">
+      <point x="16.25" y="-15.5" />
+      <point x="378.58053626543233" y="565.0" />
+      <point x="401.99720293209907" y="565.0" />
+      <point x="44.66666666666663" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Items.Fastshoot" target="com.mygdx.game.Player" relationship="DEPENDENCY">
+      <point x="-48.75" y="-15.5" />
+      <point x="313.58053626543233" y="565.0" />
+      <point x="49.796585648148266" y="565.0" />
+      <point x="49.796585648148266" y="555.0" />
+      <point x="0.0" y="555.0" />
+      <point x="0.0" y="156.0" />
+      <point x="1259.4622878086425" y="156.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Controller" target="com.mygdx.game.Health" relationship="DEPENDENCY">
+      <point x="-44.66666666666663" y="-15.5" />
+      <point x="312.6638695987658" y="481.0" />
+      <point x="27.166666666666742" y="481.0" />
+      <point x="27.166666666666742" y="471.0" />
+      <point x="21.916666666666742" y="471.0" />
+      <point x="21.916666666666742" y="72.0" />
+      <point x="452.251157407408" y="72.0" />
+      <point x="452.251157407408" y="52.0" />
+      <point x="1397.566454475309" y="52.0" />
+      <point x="-35.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Controller" target="com.mygdx.game.Items.Poison" relationship="CREATE">
+      <point x="44.666666666666686" y="-15.5" />
+      <point x="401.9972029320992" y="481.0" />
+      <point x="1094.8305362654323" y="481.0" />
+      <point x="1094.8305362654323" y="451.0" />
+      <point x="1311.0416666666667" y="451.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Controller" target="com.mygdx.game.Widgets.SelectBoxC" relationship="TO_ONE">
+      <point x="0.0" y="-15.5" />
+      <point x="357.33053626543244" y="481.0" />
+      <point x="332.751157407408" y="481.0" />
+      <point x="332.751157407408" y="461.0" />
+      <point x="309.79166666666674" y="461.0" />
+      <point x="-43.25" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.InputProcessor" target="com.mygdx.game.Player" relationship="DEPENDENCY">
+      <point x="44.25" y="-15.5" />
+      <point x="186.66666666666674" y="376.0" />
+      <point x="147.91666666666674" y="376.0" />
+      <point x="147.91666666666674" y="156.0" />
+      <point x="1259.4622878086423" y="156.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="Enemies.Enemy" target="com.mygdx.game.Health" relationship="CREATE">
+      <point x="13.375" y="-15.5" />
+      <point x="1579.8372878086423" y="271.0" />
+      <point x="1577.0011574074078" y="271.0" />
+      <point x="1577.0011574074078" y="72.0" />
+      <point x="1432.566454475309" y="72.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Controller" target="com.mygdx.game.GameEntity" relationship="DEPENDENCY">
+      <point x="-44.66666666666663" y="-15.5" />
+      <point x="312.6638695987658" y="481.0" />
+      <point x="27.166666666666742" y="481.0" />
+      <point x="27.166666666666742" y="471.0" />
+      <point x="32.41666666666674" y="471.0" />
+      <point x="32.41666666666674" y="261.0" />
+      <point x="207.04166666666674" y="261.0" />
+      <point x="-49.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Controller" target="Enemies.EnemyFocusedOnPlayer" relationship="CREATE">
+      <point x="44.666666666666686" y="-15.5" />
+      <point x="401.9972029320992" y="481.0" />
+      <point x="1094.8305362654323" y="481.0" />
+      <point x="1094.8305362654323" y="451.0" />
+      <point x="1532.7055362654323" y="451.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Controller" target="com.mygdx.game.Widgets.TextButtonC" relationship="TO_ONE">
+      <point x="0.0" y="-15.5" />
+      <point x="357.33053626543244" y="481.0" />
+      <point x="332.751157407408" y="481.0" />
+      <point x="332.751157407408" y="461.0" />
+      <point x="497.79166666666674" y="461.0" />
+      <point x="-38.25" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Controller" target="com.mygdx.game.GameEntity" relationship="TO_MANY">
+      <point x="0.0" y="-15.5" />
+      <point x="357.33053626543244" y="481.0" />
+      <point x="332.751157407408" y="481.0" />
+      <point x="332.751157407408" y="461.0" />
+      <point x="256.04166666666674" y="461.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Controller" target="com.mygdx.game.Widgets.CheckBoxC" relationship="CREATE">
+      <point x="44.666666666666686" y="-15.5" />
+      <point x="401.9972029320992" y="481.0" />
+      <point x="1094.8305362654323" y="481.0" />
+      <point x="1094.8305362654323" y="451.0" />
+      <point x="1166.0416666666667" y="451.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Items.Poison" target="com.mygdx.game.Player" relationship="DEPENDENCY">
+      <point x="26.75" y="-15.5" />
+      <point x="1337.7916666666667" y="356.0" />
+      <point x="1325.3305362654323" y="356.0" />
+      <point x="1325.3305362654323" y="156.0" />
+      <point x="1259.4622878086425" y="156.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Items.HealthPotion" target="com.mygdx.game.Health" relationship="DEPENDENCY">
+      <point x="-40.0" y="-15.5" />
+      <point x="828.5416666666667" y="376.0" />
+      <point x="863.5416666666667" y="376.0" />
+      <point x="863.5416666666667" y="72.0" />
+      <point x="452.251157407408" y="72.0" />
+      <point x="452.251157407408" y="52.0" />
+      <point x="1397.566454475309" y="52.0" />
+      <point x="-35.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Controller" target="com.mygdx.game.Items.HealthPotion" relationship="CREATE">
+      <point x="44.666666666666686" y="-15.5" />
+      <point x="401.9972029320992" y="481.0" />
+      <point x="1094.8305362654323" y="481.0" />
+      <point x="1094.8305362654323" y="451.0" />
+      <point x="868.5416666666667" y="451.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.GameEntity" target="com.mygdx.game.Player" relationship="DEPENDENCY">
+      <point x="0.0" y="-15.5" />
+      <point x="256.04166666666674" y="156.0" />
+      <point x="1259.4622878086425" y="156.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="Enemies.Enemy" target="com.mygdx.game.Health" relationship="TO_ONE">
+      <point x="40.125" y="-15.5" />
+      <point x="1606.5872878086423" y="271.0" />
+      <point x="1588.0011574074078" y="271.0" />
+      <point x="1588.0011574074078" y="62.0" />
+      <point x="1443.066454475309" y="62.0" />
+      <point x="1443.066454475309" y="52.0" />
+      <point x="1467.566454475309" y="52.0" />
+      <point x="35.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Controller" target="com.mygdx.game.Items.Fastshoot" relationship="CREATE">
+      <point x="0.0" y="15.5" />
+      <point x="357.33053626543244" y="565.0" />
+      <point x="346.08053626543233" y="565.0" />
+      <point x="-16.25" y="-15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Items.HealthPotion" target="com.mygdx.game.Player" relationship="DEPENDENCY">
+      <point x="-40.0" y="-15.5" />
+      <point x="828.5416666666667" y="376.0" />
+      <point x="863.5416666666667" y="376.0" />
+      <point x="863.5416666666667" y="156.0" />
+      <point x="1259.4622878086425" y="156.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Items.Fastshoot" target="com.mygdx.game.GameEntity" relationship="DEPENDENCY">
+      <point x="-48.75" y="-15.5" />
+      <point x="313.58053626543233" y="565.0" />
+      <point x="49.796585648148266" y="565.0" />
+      <point x="49.796585648148266" y="555.0" />
+      <point x="0.0" y="555.0" />
+      <point x="0.0" y="271.0" />
+      <point x="32.41666666666674" y="271.0" />
+      <point x="32.41666666666674" y="261.0" />
+      <point x="207.04166666666674" y="261.0" />
+      <point x="-49.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.InputProcessor" target="com.mygdx.game.Controller" relationship="DEPENDENCY">
+      <point x="-59.0" y="15.5" />
+      <point x="83.41666666666674" y="471.0" />
+      <point x="27.166666666666742" y="471.0" />
+      <point x="27.166666666666742" y="481.0" />
+      <point x="312.6638695987658" y="481.0" />
+      <point x="-44.66666666666663" y="-15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Bullet" target="com.mygdx.game.GameEntity" relationship="REALIZATION">
+      <point x="-24.75" y="-15.5" />
+      <point x="1370.9555362654323" y="261.0" />
+      <point x="1390.4555362654323" y="261.0" />
+      <point x="1390.4555362654323" y="241.0" />
+      <point x="305.04166666666663" y="241.0" />
+      <point x="49.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.InputProcessor" target="com.mygdx.game.Player" relationship="TO_ONE">
+      <point x="-44.25" y="-15.5" />
+      <point x="98.16666666666674" y="376.0" />
+      <point x="136.91666666666674" y="376.0" />
+      <point x="136.91666666666674" y="166.0" />
+      <point x="118.83053626543244" y="166.0" />
+      <point x="118.83053626543244" y="146.0" />
+      <point x="1225.4622878086425" y="146.0" />
+      <point x="-34.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Items.Fastshoot" target="com.mygdx.game.Controller" relationship="DEPENDENCY">
+      <point x="-48.75" y="-15.5" />
+      <point x="313.58053626543233" y="565.0" />
+      <point x="49.796585648148266" y="565.0" />
+      <point x="49.796585648148266" y="555.0" />
+      <point x="312.66386959876576" y="555.0" />
+      <point x="-44.666666666666686" y="15.5" />
+    </edge>
+    <edge source="Enemies.EnemyFocusedOnPlayer" target="com.mygdx.game.Player" relationship="DEPENDENCY">
+      <point x="-63.25" y="-15.5" />
+      <point x="1469.4555362654323" y="376.0" />
+      <point x="1502.4622878086423" y="376.0" />
+      <point x="1502.4622878086423" y="156.0" />
+      <point x="1259.4622878086425" y="156.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="Enemies.Enemy" target="com.mygdx.game.GameEntity" relationship="REALIZATION">
+      <point x="-40.125" y="-15.5" />
+      <point x="1526.3372878086423" y="261.0" />
+      <point x="1390.4555362654323" y="261.0" />
+      <point x="1390.4555362654323" y="241.0" />
+      <point x="305.04166666666663" y="241.0" />
+      <point x="49.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Items.Poison" target="com.mygdx.game.Items.Item" relationship="GENERALIZATION">
+      <point x="-26.75" y="-15.5" />
+      <point x="1284.2916666666667" y="366.0" />
+      <point x="1232.3295717592598" y="366.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Items.Item" target="com.mygdx.game.Player" relationship="TO_ONE">
+      <point x="-29.666666666666742" y="-15.5" />
+      <point x="1202.662905092593" y="251.0" />
+      <point x="1231.162905092593" y="251.0" />
+      <point x="1231.162905092593" y="166.0" />
+      <point x="118.83053626543244" y="166.0" />
+      <point x="118.83053626543244" y="146.0" />
+      <point x="1225.4622878086425" y="146.0" />
+      <point x="-34.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Player" target="com.mygdx.game.Health" relationship="TO_ONE">
+      <point x="25.5" y="-15.5" />
+      <point x="1284.9622878086425" y="62.0" />
+      <point x="1443.066454475309" y="62.0" />
+      <point x="1443.066454475309" y="52.0" />
+      <point x="1467.566454475309" y="52.0" />
+      <point x="35.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Controller" target="com.mygdx.game.InputProcessor" relationship="CREATE">
+      <point x="44.666666666666686" y="-15.5" />
+      <point x="401.9972029320992" y="481.0" />
+      <point x="1094.8305362654323" y="481.0" />
+      <point x="1094.8305362654323" y="451.0" />
+      <point x="201.41666666666674" y="451.0" />
+      <point x="59.0" y="15.5" />
+    </edge>
+    <edge source="Enemies.EnemyFocusedOnPlayer" target="com.mygdx.game.GameEntity" relationship="DEPENDENCY">
+      <point x="-63.25" y="-15.5" />
+      <point x="1469.4555362654323" y="376.0" />
+      <point x="1502.4622878086423" y="376.0" />
+      <point x="1502.4622878086423" y="271.0" />
+      <point x="32.41666666666674" y="271.0" />
+      <point x="32.41666666666674" y="261.0" />
+      <point x="207.04166666666674" y="261.0" />
+      <point x="-49.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Controller" target="com.mygdx.game.Player" relationship="TO_ONE">
+      <point x="0.0" y="-15.5" />
+      <point x="357.33053626543244" y="481.0" />
+      <point x="332.751157407408" y="481.0" />
+      <point x="332.751157407408" y="461.0" />
+      <point x="43.41666666666674" y="461.0" />
+      <point x="43.41666666666674" y="166.0" />
+      <point x="118.83053626543244" y="166.0" />
+      <point x="118.83053626543244" y="146.0" />
+      <point x="1225.4622878086425" y="146.0" />
+      <point x="-34.0" y="15.5" />
+    </edge>
+    <edge source="Enemies.Enemy" target="com.mygdx.game.Player" relationship="DEPENDENCY">
+      <point x="-13.375" y="-15.5" />
+      <point x="1553.0872878086423" y="271.0" />
+      <point x="1557.4555362654323" y="271.0" />
+      <point x="1557.4555362654323" y="156.0" />
+      <point x="1259.4622878086425" y="156.0" />
+      <point x="0.0" y="15.5" />
+    </edge>
+    <edge source="com.mygdx.game.Controller" target="com.mygdx.game.Widgets.LabelC" relationship="TO_ONE">
+      <point x="0.0" y="-15.5" />
+      <point x="357.33053626543244" y="481.0" />
+      <point x="332.751157407408" y="481.0" />
+      <point x="332.751157407408" y="461.0" />
+      <point x="995.0416666666667" y="461.0" />
+      <point x="-26.5" y="15.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic" zoom="1.0" showDependencies="true" x="852.5" y="308.5" />
+  <SelectedNodes />
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
