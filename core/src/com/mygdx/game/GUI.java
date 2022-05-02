@@ -57,11 +57,11 @@ public class GUI {
         stage.addActor(back_button);
         apply_button = new TextButtonC("Apply", default_skin, 600, 60, 86, 25, false);
         stage.addActor(apply_button);
-        checkBox_onlyPinkGuys = new CheckBoxC("Only Pink Enemies", default_skin, 600, y -= 23, !controller.config.getBoolean("OnlyPinkEnemies"), false);
-        stage.addActor(checkBox_onlyPinkGuys);
+        //heckBox_onlyPinkGuys = new CheckBoxC("Only Pink Enemies", default_skin, 600, y -= 23, !controller.config.getBoolean("OnlyPinkEnemies"), false);
+        //stage.addActor(checkBox_onlyPinkGuys);
         reset_button = new TextButtonC("Reset", default_skin, 600 + 90, 60, 86, 25, false);
         stage.addActor(reset_button);
-        textfield_minamountofenemies = new TextFieldC("", default_skin, 600, y  -= 23, 86, 25, false);
+        textfield_minamountofenemies = new TextFieldC("", default_skin, 600, 600  -23, 86, 25, false);
         textfield_minamountofenemies.setText(Integer.toString(controller.config.getInteger("MinAmountOfEnemies")));
         stage.addActor(textfield_minamountofenemies);
         label_minamountofenemies = new LabelC("Minimum Amount of Enemies per Wave: ", default_skin, 600, y -= 23, false);
@@ -77,7 +77,7 @@ public class GUI {
         stage.addActor(background_selectbox);
         label_playerHP = new LabelC("Player HP: ", default_skin, x, 600 - 145 - 30, false);
         stage.addActor(label_playerHP);
-        textField_playerHP = new TextFieldC(Integer.toString(controller.config.getInteger("PlayerHP")), default_skin, 600, 600 - 200, 86, 25, false);
+        textField_playerHP = new TextFieldC(Integer.toString(controller.config.getInteger("PlayerHP")), default_skin, 600, 400, 86, 25, false);
         label_movementSpeed = new LabelC("Movementspeed: ", default_skin, x, 600 - 225, false);
         stage.addActor(label_movementSpeed);
         textField_movementSpeed = new TextFieldC(Integer.toString(controller.config.getInteger("MovementSpeed")), default_skin, 600, 600 - 250, 86, 25, false);
@@ -106,7 +106,7 @@ public class GUI {
         label_warning = new LabelC("Cheat Options! Use at own risk!", default_skin, x, 630, false);
         label_warning.setColor(Color.RED);
         stage.addActor(label_warning);
-        bouncyToggle = new CheckBoxC("Bouncy Bullets", default_skin, 600, 20, !controller.config.getBoolean("bouncyBullets"), false);
+        bouncyToggle = new CheckBoxC("Bouncy Bullets", default_skin, 600, y-=23, !controller.config.getBoolean("bouncyBullets"), false);
         stage.addActor(bouncyToggle);
 
         fullscreen_button.addListener(new InputListener() {
@@ -145,7 +145,7 @@ public class GUI {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 if (controller.gameState == Controller.GameState.CHEATMENU) {
-                    controller.config.putBoolean("OnlyPinkEnemies", !checkBox_onlyPinkGuys.isChecked());
+                    //controller.config.putBoolean("OnlyPinkEnemies", !checkBox_onlyPinkGuys.isChecked());
                     controller.config.putBoolean("GodMode", !godModeToggle.isChecked());
                     controller.config.putBoolean("bouncyBullets", !bouncyToggle.isChecked());
                     if (isNumeric(textfield_minamountofenemies.getText()))
@@ -169,7 +169,7 @@ public class GUI {
                     controller.cheatsEnabled = true;
                 } else {
                     controller.config.putString("PlayerTexture", playerTexture_selectbox.getSelected());
-                    controller.player = new Player(controller.config.getInteger("PlayerHP"), controller.config.getInteger("PlayerHP") + 6);
+                    controller.createPlayer();
                     controller.inputProcessor.setPlayer(controller.player);
                     controller.config.putString("BackGroundTexture", background_selectbox.getSelected());
                 }
@@ -186,7 +186,7 @@ public class GUI {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 if (controller.gameState == Controller.GameState.CHEATMENU) {
                     controller.initConfig(Controller.ConfigInit.CHEATS);
-                    checkBox_onlyPinkGuys.setChecked(!controller.config.getBoolean("OnlyPinkEnemies"));
+                    //checkBox_onlyPinkGuys.setChecked(!controller.config.getBoolean("OnlyPinkEnemies"));
                     godModeToggle.setChecked(!controller.config.getBoolean("GodMode"));
                     textfield_maxamountofenemies.setText(Integer.toString(controller.config.getInteger("MaxAmountOfEnemies")));
                     textfield_minamountofenemies.setText(Integer.toString(controller.config.getInteger("MinAmountOfEnemies")));
@@ -195,7 +195,7 @@ public class GUI {
                     textField_shootCooldown.setText(Integer.toString(controller.config.getInteger("shootcooldown")));
                     textField_waveCooldown.setText(Integer.toString(controller.config.getInteger("EnemyWaveCooldown")));
                     textField_ItemSpawnCooldown.setText(Integer.toString(controller.config.getInteger("ItemSpawnCooldown")));
-                    controller.player = new Player(controller.config.getInteger("PlayerHP"), controller.config.getInteger("PlayerHP") + 6);
+                    controller.createPlayer();
                     stage.setKeyboardFocus(null);
                     controller.playerDeath(false);
                     controller.inputProcessor.setPlayer(controller.player);
@@ -240,7 +240,7 @@ public class GUI {
     }
     public void setCheatMenuButtonsVisibility(boolean visible) {
         back_button.setVisible(visible);
-        checkBox_onlyPinkGuys.setVisible(visible);
+        //checkBox_onlyPinkGuys.setVisible(visible);
         godModeToggle.setVisible(visible);
         apply_button.setVisible(visible);
         reset_button.setVisible(visible);

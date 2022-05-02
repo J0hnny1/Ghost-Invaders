@@ -18,39 +18,38 @@ public class Bullet implements GameEntity {
     boolean playerBullet;
     boolean bouncy;
     boolean bouncyCheat;
+    Texture playerBullet_texture = new Texture("myBall.png");
+    Texture enemyBullet_texture = new Texture("myBall2.png");
 
-    public Bullet(int id, float x, float y, float xspeed, float yspeed, Texture texture, boolean playerBullet, Controller controller) {
+    public Bullet(int id, float x, float y, float xspeed, float yspeed, boolean playerBullet, Controller controller) {
         this.id = id;
         this.x = x;
         this.y = y;
         this.xspeed = xspeed;
         this.yspeed = yspeed;
-        this.texture = texture;
         this.rectangle = new Rectangle(x, y, 32, 32);
         this.playerBullet = playerBullet;
         this.bouncy = controller.getBouncyBullets();
         this.bouncyCheat = controller.getBouncyBulletsCheat();
+        if (playerBullet) this.texture = playerBullet_texture;
+        else this.texture = enemyBullet_texture;
     }
 
-    public Bullet(int id, float x, float y, float xspeed, float yspeed, Texture texture, boolean playerBullet) {
+    public Bullet(int id, float x, float y, float xspeed, float yspeed, boolean playerBullet) {
         this.id = id;
         this.x = x;
         this.y = y;
         this.xspeed = xspeed;
         this.yspeed = yspeed;
-        this.texture = texture;
         this.rectangle = new Rectangle(x, y, 32, 32);
         this.playerBullet = playerBullet;
+        if (playerBullet) this.texture = playerBullet_texture;
+        else this.texture = enemyBullet_texture;
     }
 
     @Override
     public Rectangle getRectangle() {
         return rectangle;
-    }
-
-    @Override
-    public TextureRegion getTextureRegion() {
-        return null;
     }
 
     @Override
@@ -75,16 +74,6 @@ public class Bullet implements GameEntity {
     @Override
     public float getySpeed() {
         return yspeed;
-    }
-
-    @Override
-    public void setXspeed(float xspeed) {
-        this.xspeed = xspeed;
-    }
-
-    @Override
-    public void setYspeed(float yspeed) {
-        this.yspeed = yspeed;
     }
 
     @Override
@@ -134,6 +123,7 @@ public class Bullet implements GameEntity {
                 }
             }
 
+            //check collision between enemy bullets and player -> damage the player, remove bullte
             if (!playerBullet && player.player_rectangle.overlaps(rectangle)) {
                 player.damage(1);
                 deleteEntities.add(thisIndex);
@@ -141,11 +131,6 @@ public class Bullet implements GameEntity {
         }
 
         deleteEntities.descendingSet().forEach(i -> gameEntities.remove(i.intValue()));
-    }
-
-    @Override
-    public int getId() {
-        return id;
     }
 
     @Override
@@ -173,14 +158,18 @@ public class Bullet implements GameEntity {
 
     }
 
-
     @Override
-    public int setEnemiesKilled() {
-        return 0;
+    public Class getCKlass() {
+        return this.getClass();
     }
 
     @Override
     public int getEnemiesKilled() {
+        return 0;
+    }
+
+    //@Override
+    public int getEnemieskilled2() {
         return enemieskilled2;
     }
 

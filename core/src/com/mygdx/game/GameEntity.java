@@ -14,11 +14,6 @@ public interface GameEntity {
      Rectangle getRectangle();
 
     /**
-     * @return TextureRegion
-     */
-     TextureRegion getTextureRegion();
-
-    /**
      * sets x and y coordinates of Gameentity
      *
      * @param x coordinate
@@ -39,20 +34,6 @@ public interface GameEntity {
 
 
     /**
-     * sets speed in x direction
-     *
-     * @param xspeed speed in x direction
-     */
-    void setXspeed(float xspeed);
-
-    /**
-     * sets speed in y direction
-     *
-     * @param yspeed speed in y direction
-     */
-    void setYspeed(float yspeed);
-
-    /**
      * @return x position
      */
      float getx();
@@ -68,11 +49,6 @@ public interface GameEntity {
      * @param deltaTime    deltaTime
      */
     void move(Player player, ArrayList<GameEntity> gameEntities, float deltaTime);
-
-    /**
-     * @return GamEntity id
-     */
-    int getId();
 
     /**
      * what happens if GameEntity overlaps other Rectangle
@@ -114,7 +90,7 @@ public interface GameEntity {
         BOUNCYBULLET
     }
 
-    int setEnemiesKilled();
+    Class getCKlass();
 
     int getEnemiesKilled();
 }

@@ -14,7 +14,7 @@ public class BouncyBullets extends Item {
 
     @Override
     public void onContact() {
-        controller.setBouncyBullets(true);
+        controller.bouncyBullets = true;
     }
 
     @Override

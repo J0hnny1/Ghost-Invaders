@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 
+import java.util.ArrayList;
+
 public class Player {
     public Health health;
     int hp;
@@ -22,19 +24,24 @@ public class Player {
     long start_time = System.currentTimeMillis();
     boolean playerTookDamage;
     Sound damageSound = Gdx.audio.newSound(Gdx.files.internal("Male Player Hit (Nr. 1 _ Terraria Sound) - Sound Effect for editing.mp3"));
-
+    Controller controller;
+    Sound flameAttack = Gdx.audio.newSound(Gdx.files.internal("Flame Attack (Terraria Sound) - Sound Effect for editing.mp3"));
+    private long start_time_bullet = System.currentTimeMillis();
+    ArrayList<GameEntity> gameEntities;
     public enum Direction {
         FRONT, BACK, LEFT, RIGHT, WALKINGFRONT, WALKINGBACK, WALKINGLEFT, WALKINGRIGHT
     }
 
     Direction playerdirection;
 
-    public Player(int hp, int maxhp) {
+    public Player(int hp, int maxhp, Controller controller, ArrayList<GameEntity> gameEntities) {
         this.hp = hp;
         this.maxhp = maxhp;
         health = new Health(hp, maxhp);
         texture = new Texture(config.getString("PlayerTexture") + ".png");
         playerdirection = Direction.BACK;
+        this.controller = controller;
+        this.gameEntities = gameEntities;
     }
 
 
@@ -86,6 +93,37 @@ public class Player {
                 damageSound.play();
                 playerTookDamage = true;
             }
+        }
+    }
+
+    public void shoot(Direction shootDirection) {
+        int bulSpeedX, bulsPeedY;
+        float xPos, yPos;
+        if (shootDirection ==  Direction.RIGHT|| shootDirection == Direction.LEFT) {
+            bulsPeedY = 0;
+            yPos = player_rectangle.y + 48;
+            if (shootDirection == Direction.RIGHT) {
+                bulSpeedX = controller.bulletspeed;
+                xPos = player_rectangle.x + 96;
+            } else {
+                bulSpeedX = -controller.bulletspeed;
+                xPos = player_rectangle.x;
+            }
+        } else {
+            bulSpeedX = 0;
+            xPos = player_rectangle.x + 48;
+            if (shootDirection == Direction.BACK) {
+                bulsPeedY = controller.bulletspeed;
+                yPos = player_rectangle.y + 96;
+            } else {
+                bulsPeedY = -controller.bulletspeed;
+                yPos = player_rectangle.y;
+            }
+        }
+        if (System.currentTimeMillis() - start_time_bullet > controller.shootcooldown) {
+            flameAttack.play();
+            start_time_bullet = System.currentTimeMillis();
+            gameEntities.add(new Bullet(gameEntities.size(), xPos, yPos, bulSpeedX, bulsPeedY,  true));
         }
     }
 }

@@ -38,11 +38,6 @@ public class Enemy implements GameEntity {
     }
 
     @Override
-    public TextureRegion getTextureRegion() {
-        return textureRegion;
-    }
-
-    @Override
     public Texture getTexture() {
         return null;
     }
@@ -65,15 +60,6 @@ public class Enemy implements GameEntity {
         return yspeed;
     }
 
-    @Override
-    public void setXspeed(float xspeed) {
-        this.xspeed = xspeed;
-    }
-
-    @Override
-    public void setYspeed(float yspeed) {
-        this.yspeed = yspeed;
-    }
 
     @Override
     public float getx() {
@@ -93,11 +79,6 @@ public class Enemy implements GameEntity {
     @Override
     public float gety() {
         return y;
-    }
-
-    @Override
-    public int getId() {
-        return id;
     }
 
     @Override
@@ -143,11 +124,11 @@ public class Enemy implements GameEntity {
         this.stateTime = stateTime;
     }
 
-
     @Override
-    public int setEnemiesKilled() {
-        return 0;
+    public Class getCKlass() {
+        return this.getClass();
     }
+
 
     @Override
     public int getEnemiesKilled() {
@@ -180,10 +161,10 @@ public class Enemy implements GameEntity {
             //gameEntities.add(new Bullet(gameEntities.size(), rectangle.x + 48, rectangle.y, 0, -100, fireball2_texture, false));
             start_time_bullet = System.currentTimeMillis();
             if (x > y) {
-                if (random.nextBoolean())gameEntities.add(new Bullet(gameEntities.size(), rectangle.x + 96, rectangle.y + 48, 160, 0, fireball2_texture, false));
-                else gameEntities.add(new Bullet(gameEntities.size(), rectangle.x, rectangle.y + 48, -160, 0, fireball2_texture, false));
-            }else if (random.nextBoolean()) gameEntities.add(new Bullet(gameEntities.size(), rectangle.x + 48, rectangle.y, 0, -160, fireball2_texture, false));
-            else gameEntities.add(new Bullet(gameEntities.size(), rectangle.x + 48, rectangle.y + 96, 0, 160, fireball2_texture, false));
+                if (random.nextBoolean())gameEntities.add(new Bullet(gameEntities.size(), rectangle.x + 96, rectangle.y + 48, 160, 0,  false));
+                else gameEntities.add(new Bullet(gameEntities.size(), rectangle.x, rectangle.y + 48, -160, 0,  false));
+            }else if (random.nextBoolean()) gameEntities.add(new Bullet(gameEntities.size(), rectangle.x + 48, rectangle.y, 0, -160,  false));
+            else gameEntities.add(new Bullet(gameEntities.size(), rectangle.x + 48, rectangle.y + 96, 0, 160,  false));
         }
 
 

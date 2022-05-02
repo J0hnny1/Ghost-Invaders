@@ -16,12 +16,7 @@ public class Item implements GameEntity {
     Texture texture;
     TextureRegion textureRegion;
     Player player;
-    TextureRegion one;
-    TextureRegion two;
-    TextureRegion three;
-    TextureRegion four;
-    TextureRegion five;
-    TextureRegion six;
+    TextureRegion one, two, three, four, five, six;
     float stateTime = 0f;
     TextureRegion[] idle;
     Animation<TextureRegion> itemIdle;
@@ -52,11 +47,6 @@ public class Item implements GameEntity {
     }
 
     @Override
-    public TextureRegion getTextureRegion() {
-        return this.textureRegion;
-    }
-
-    @Override
     public Texture getTexture() {
         return null;
     }
@@ -77,15 +67,6 @@ public class Item implements GameEntity {
     }
 
     @Override
-    public void setXspeed(float xspeed) {
-    }
-
-    @Override
-    public void setYspeed(float yspeed) {
-
-    }
-
-    @Override
     public float getx() {
         return x;
     }
@@ -98,11 +79,6 @@ public class Item implements GameEntity {
     @Override
     public void move(Player player, ArrayList<GameEntity> gameEntities, float deltaTime) {
         // does nothing intentionally
-    }
-
-    @Override
-    public int getId() {
-        return 0;
     }
 
     @Override
@@ -131,8 +107,8 @@ public class Item implements GameEntity {
     }
 
     @Override
-    public int setEnemiesKilled() {
-        return 0;
+    public Class getCKlass() {
+        return this.getClass();
     }
 
     @Override
