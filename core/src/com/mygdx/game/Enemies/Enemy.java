@@ -27,7 +27,6 @@ public class Enemy implements GameEntity {
     TextureRegion[] walkFront;
     Animation<TextureRegion> walkFrontAnimation;
     boolean shoots;
-    Texture fireball2_texture = new Texture("myBall2.png");
     long start_time_bullet = System.currentTimeMillis();
     Random random = new Random();
 
@@ -157,7 +156,7 @@ public class Enemy implements GameEntity {
         }
 
 
-        if (shoots && System.currentTimeMillis() - start_time_bullet > 1000) {
+        if (shoots && System.currentTimeMillis() - start_time_bullet > 1500) {
             //gameEntities.add(new Bullet(gameEntities.size(), rectangle.x + 48, rectangle.y, 0, -100, fireball2_texture, false));
             start_time_bullet = System.currentTimeMillis();
             if (x > y) {

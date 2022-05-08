@@ -176,6 +176,7 @@ public class Controller extends ApplicationAdapter {
                 playerDeath(true);
                 enemieskilled = 0;
                 gameState = GameState.DEATHSCREEN;
+                //handle run timer
                 stop_time_run = System.currentTimeMillis();
                 long time_run_ms = stop_time_run - start_time_run;
                 float time_run_s = ((float) time_run_ms) / 1000;
@@ -340,7 +341,7 @@ public class Controller extends ApplicationAdapter {
     }
 
     /**
-     * callled when the player dies, resets the game state
+     * called when the player dies, resets the game state
      */
     public void playerDeath(boolean deathSound) {
         if (deathSound) death.play();
@@ -392,6 +393,7 @@ public class Controller extends ApplicationAdapter {
             config.putBoolean("CheatsEnabled", false);
             config.putInteger("version", version);
             config.putBoolean("bouncyBullets", false);
+            config.putBoolean("shotGun", false);
         }
         if (category == ConfigInit.ALL || category == ConfigInit.SETTINGS) {
             config.putString("BackGroundTexture", "default");
@@ -486,9 +488,9 @@ public class Controller extends ApplicationAdapter {
      * loads game sounds
      */
     public void initSounds() {
-        hit = Gdx.audio.newSound(Gdx.files.internal("Male Player Hit (Nr. 1 _ Terraria Sound) - Sound Effect for editing.mp3"));
-        death = Gdx.audio.newSound(Gdx.files.internal("Player Killed (Terraria Sound) - Sound Effect for editing.mp3"));
-        sip = Gdx.audio.newSound(Gdx.files.internal("Potion Use_Drink (Terraria Sound) - Sound Effect for editing.mp3"));
+        hit = Gdx.audio.newSound(Gdx.files.internal("damage.wav"));
+        death = Gdx.audio.newSound(Gdx.files.internal("death.wav"));
+        sip = Gdx.audio.newSound(Gdx.files.internal("potiondrink.wav"));
     }
 
     /**
@@ -718,10 +720,10 @@ public class Controller extends ApplicationAdapter {
         }
 
         //shoot with arrow keys
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) player.shoot(Player.Direction.RIGHT);
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) player.shoot(Player.Direction.LEFT);
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) player.shoot(Player.Direction.BACK);
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) player.shoot(Player.Direction.FRONT);
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) player.shoot(Player.Direction.RIGHT, false);
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) player.shoot(Player.Direction.LEFT, false);
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)) player.shoot(Player.Direction.BACK, false);
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) player.shoot(Player.Direction.FRONT, false);
         //restart game if r is pressed
         if (Gdx.input.isKeyPressed(Input.Keys.R)) playerDeath(false);
     }

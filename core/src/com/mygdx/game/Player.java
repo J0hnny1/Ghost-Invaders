@@ -23,11 +23,12 @@ public class Player {
     public boolean immunetoDamage = false;
     long start_time = System.currentTimeMillis();
     boolean playerTookDamage;
-    Sound damageSound = Gdx.audio.newSound(Gdx.files.internal("Male Player Hit (Nr. 1 _ Terraria Sound) - Sound Effect for editing.mp3"));
+    Sound damageSound = Gdx.audio.newSound(Gdx.files.internal("damage.wav"));
     Controller controller;
-    Sound flameAttack = Gdx.audio.newSound(Gdx.files.internal("Flame Attack (Terraria Sound) - Sound Effect for editing.mp3"));
+    Sound flameAttack = Gdx.audio.newSound(Gdx.files.internal("fireball-explosion.wav"));
     private long start_time_bullet = System.currentTimeMillis();
     ArrayList<GameEntity> gameEntities;
+
     public enum Direction {
         FRONT, BACK, LEFT, RIGHT, WALKINGFRONT, WALKINGBACK, WALKINGLEFT, WALKINGRIGHT
     }
@@ -96,11 +97,11 @@ public class Player {
         }
     }
 
-    public void shoot(Direction shootDirection) {
-        int bulSpeedX, bulsPeedY;
+    public void shoot(Direction shootDirection, boolean shotGun) {
+        int bulSpeedX, bulSpeedY;
         float xPos, yPos;
-        if (shootDirection ==  Direction.RIGHT|| shootDirection == Direction.LEFT) {
-            bulsPeedY = 0;
+        if (shootDirection == Direction.RIGHT || shootDirection == Direction.LEFT) {
+            bulSpeedY = 0;
             yPos = player_rectangle.y + 48;
             if (shootDirection == Direction.RIGHT) {
                 bulSpeedX = controller.bulletspeed;
@@ -113,17 +114,27 @@ public class Player {
             bulSpeedX = 0;
             xPos = player_rectangle.x + 48;
             if (shootDirection == Direction.BACK) {
-                bulsPeedY = controller.bulletspeed;
+                bulSpeedY = controller.bulletspeed;
                 yPos = player_rectangle.y + 96;
             } else {
-                bulsPeedY = -controller.bulletspeed;
+                bulSpeedY = -controller.bulletspeed;
                 yPos = player_rectangle.y;
             }
         }
+
         if (System.currentTimeMillis() - start_time_bullet > controller.shootcooldown) {
+            if (shotGun) {
+                yPos -= shootDirection == Direction.LEFT || shootDirection == Direction.RIGHT ? 80 : 0;
+                xPos -= shootDirection == Direction.FRONT || shootDirection == Direction.BACK ? 80 : 0;
+                int yPosD = shootDirection == Direction.LEFT || shootDirection == Direction.RIGHT ? 25 : 0;
+                int xPosD = shootDirection == Direction.FRONT || shootDirection == Direction.BACK ? 25 : 0;
+                for (int i = 0; i < 4; i++) {
+                    gameEntities.add(new Bullet(gameEntities.size(), xPos += xPosD, yPos += yPosD, bulSpeedX, bulSpeedY, true, controller));
+                }
+            } else gameEntities.add(new Bullet(gameEntities.size(), xPos, yPos, bulSpeedX, bulSpeedY, true, controller));
+
             flameAttack.play();
             start_time_bullet = System.currentTimeMillis();
-            gameEntities.add(new Bullet(gameEntities.size(), xPos, yPos, bulSpeedX, bulsPeedY,  true));
         }
     }
 }

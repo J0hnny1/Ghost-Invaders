@@ -45,6 +45,7 @@ public class Bullet implements GameEntity {
         this.playerBullet = playerBullet;
         if (playerBullet) this.texture = playerBullet_texture;
         else this.texture = enemyBullet_texture;
+
     }
 
     @Override
@@ -88,6 +89,7 @@ public class Bullet implements GameEntity {
 
     @Override
     public void move(Player player, ArrayList<GameEntity> gameEntities, float deltaTime) {
+        System.out.println(bouncy);
         setPosition(x + xspeed * Gdx.graphics.getDeltaTime(), y + yspeed * Gdx.graphics.getDeltaTime());
 
         TreeSet<Integer> deleteEntities = new TreeSet<>();

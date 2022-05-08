@@ -2,7 +2,6 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -20,10 +19,11 @@ public class GUI {
     public GUI(Controller controller) {
         this.controller = controller;
     }
+
     final Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
 
     TextField textfield_minamountofenemies, textfield_maxamountofenemies;
-    CheckBox checkBox_onlyPinkGuys, godModeToggle, bouncyToggle;
+    CheckBox godModeToggle, bouncyToggle;
     TextButtonC back_button;
     Skin default_skin;
     TextButtonC resume_button, fullscreen_button, settings_button, exit_button, apply_button, reset_button, cheatmenu_button;
@@ -36,78 +36,92 @@ public class GUI {
         stage = new Stage();
 
         int x = 600;
-        int y = 600;
+        int y = 650;
+        //space between widgets
+        int yDiff = 25;
         //skin
         default_skin = new FreeTypeSkin(Gdx.files.internal("skin.json"));
         //Pause Menu
         resume_button = new TextButtonC("Resume", default_skin, 597, 450, 85, 25, false);
         stage.addActor(resume_button);
+
         fullscreen_button = new TextButtonC("Fullscreen", default_skin, 597, 450 - 35, 85, 25, false);
         stage.addActor(fullscreen_button);
+
         settings_button = new TextButtonC("Settings", default_skin, 597, 450 - 70, 85, 25, false);
         stage.addActor(settings_button);
+
         cheatmenu_button = new TextButtonC("Cheats", default_skin, 597, 450 - 105, 86, 25, false);
         stage.addActor(cheatmenu_button);
+
         exit_button = new TextButtonC("Exit", default_skin, 597, 450 - 140, 85, 25, false);
         stage.addActor(exit_button);
         //Settings Menu
-        godModeToggle = new CheckBoxC("Godmode", default_skin, 600, y, !controller.config.getBoolean("GodMode"), false);
-        stage.addActor(godModeToggle);
-        back_button = new TextButtonC("Back", default_skin, 600 - 90, 60, 86, 25, false);
-        stage.addActor(back_button);
-        apply_button = new TextButtonC("Apply", default_skin, 600, 60, 86, 25, false);
-        stage.addActor(apply_button);
-        //heckBox_onlyPinkGuys = new CheckBoxC("Only Pink Enemies", default_skin, 600, y -= 23, !controller.config.getBoolean("OnlyPinkEnemies"), false);
-        //stage.addActor(checkBox_onlyPinkGuys);
-        reset_button = new TextButtonC("Reset", default_skin, 600 + 90, 60, 86, 25, false);
-        stage.addActor(reset_button);
-        textfield_minamountofenemies = new TextFieldC("", default_skin, 600, 600  -23, 86, 25, false);
-        textfield_minamountofenemies.setText(Integer.toString(controller.config.getInteger("MinAmountOfEnemies")));
-        stage.addActor(textfield_minamountofenemies);
-        label_minamountofenemies = new LabelC("Minimum Amount of Enemies per Wave: ", default_skin, 600, y -= 23, false);
-        stage.addActor(label_minamountofenemies);
-        textfield_maxamountofenemies = new TextFieldC(Integer.toString(controller.config.getInteger("MaxAmountOfEnemies")), default_skin, 600, 600 - 145, 86, 25, false);
-        label_maxamountofenemies = new LabelC("Maximum Amount of Enemies per Wave: ", default_skin, 600, 600 - 120, false);
-        stage.addActor(label_maxamountofenemies);
-        stage.addActor(textfield_maxamountofenemies);
-        //background selectbox
         background_selectbox = new SelectBoxC<>(default_skin, x, 450 - 30, 100, 25, false);
         background_selectbox.setItems("default", "desert", "desertCustom", "grass", "white");
         background_selectbox.setSelected(controller.config.getString("BackGroundTexture"));
         stage.addActor(background_selectbox);
-        label_playerHP = new LabelC("Player HP: ", default_skin, x, 600 - 145 - 30, false);
-        stage.addActor(label_playerHP);
-        textField_playerHP = new TextFieldC(Integer.toString(controller.config.getInteger("PlayerHP")), default_skin, 600, 400, 86, 25, false);
-        label_movementSpeed = new LabelC("Movementspeed: ", default_skin, x, 600 - 225, false);
-        stage.addActor(label_movementSpeed);
-        textField_movementSpeed = new TextFieldC(Integer.toString(controller.config.getInteger("MovementSpeed")), default_skin, 600, 600 - 250, 86, 25, false);
-        stage.addActor(textField_movementSpeed);
-        stage.addActor(textField_playerHP);
-        textField_waveCooldown = new TextFieldC(Integer.toString(controller.config.getInteger("EnemyWaveCooldown")), default_skin, 600, 600 - 300, 86, 25, false);
-        stage.addActor(textField_waveCooldown);
-        label_waveCooldown = new LabelC("Wave Cooldown: ", default_skin, x, 600 - 277, false);
-        stage.addActor(label_waveCooldown);
-        textField_shootCooldown = new TextFieldC(Integer.toString(controller.config.getInteger("shootcooldown")), default_skin, 600, 600 - 345, 86, 25, false);
-        stage.addActor(textField_shootCooldown);
-        label_shootCooldown = new LabelC("Shootcooldown: ", default_skin, x, 600 - 325, false);
-        stage.addActor(label_shootCooldown);
-        label_ItemSpawnCooldown = new LabelC("Item Spawn Cooldown: ", default_skin, x, 600 - 370, false);
-        stage.addActor(label_ItemSpawnCooldown);
-        textField_ItemSpawnCooldown = new TextFieldC(Integer.toString(controller.config.getInteger("ItemSpawnCooldown")), default_skin, 600, 600 - 390, 86, 25, false);
-        stage.addActor(textField_ItemSpawnCooldown);
-        label_shootCooldown = new LabelC("Shoot Cooldown: ", default_skin, x, 600 - 325, false);
-        stage.addActor(label_shootCooldown);
-        textField_shootCooldown = new TextFieldC(Integer.toString(controller.config.getInteger("shootcooldown")), default_skin, 600, 600 - 348, 86, 25, false);
-        stage.addActor(textField_shootCooldown);
+
         playerTexture_selectbox = new SelectBoxC<>(default_skin, x, 450, 100, 25, false);
         playerTexture_selectbox.setItems("Male 17-1", "Male 04-4", "Male 01-1", "Female 25-1", "Female 09-2", "Female 04-3");
         playerTexture_selectbox.setSelected(controller.config.getString("PlayerTexture"));
         stage.addActor(playerTexture_selectbox);
-        label_warning = new LabelC("Cheat Options! Use at own risk!", default_skin, x, 630, false);
+
+        //navigation buttons
+        back_button = new TextButtonC("Back", default_skin, 600 - 90, 60, 86, 25, false);
+        stage.addActor(back_button);
+
+        apply_button = new TextButtonC("Apply", default_skin, 600, 60, 86, 25, false);
+        stage.addActor(apply_button);
+
+        reset_button = new TextButtonC("Reset", default_skin, 600 + 90, 60, 86, 25, false);
+        stage.addActor(reset_button);
+        //cheat menu
+        label_warning = new LabelC("Cheat Options! Use at own risk!", default_skin, x, y, false);
         label_warning.setColor(Color.RED);
         stage.addActor(label_warning);
-        bouncyToggle = new CheckBoxC("Bouncy Bullets", default_skin, 600, y-=23, !controller.config.getBoolean("bouncyBullets"), false);
+
+        godModeToggle = new CheckBoxC("Godmode", default_skin, 600, y -= yDiff, !controller.config.getBoolean("GodMode"), false);
+        stage.addActor(godModeToggle);
+        bouncyToggle = new CheckBoxC("Bouncy Bullets", default_skin, 600, y -= yDiff, !controller.config.getBoolean("bouncyBullets"), false);
         stage.addActor(bouncyToggle);
+
+        label_minamountofenemies = new LabelC("Minimum Amount of Enemies per Wave: ", default_skin, 600, y -= yDiff, false);
+        stage.addActor(label_minamountofenemies);
+        textfield_minamountofenemies = new TextFieldC("", default_skin, 600, y -= yDiff, 86, 25, false);
+        textfield_minamountofenemies.setText(Integer.toString(controller.config.getInteger("MinAmountOfEnemies")));
+        stage.addActor(textfield_minamountofenemies);
+
+        label_maxamountofenemies = new LabelC("Maximum Amount of Enemies per Wave: ", default_skin, 600, y -= yDiff, false);
+        stage.addActor(label_maxamountofenemies);
+        textfield_maxamountofenemies = new TextFieldC(Integer.toString(controller.config.getInteger("MaxAmountOfEnemies")), default_skin, 600, y -= yDiff, 86, 25, false);
+        stage.addActor(textfield_maxamountofenemies);
+
+        label_playerHP = new LabelC("Player HP: ", default_skin, x, y -= yDiff, false);
+        stage.addActor(label_playerHP);
+        textField_playerHP = new TextFieldC(Integer.toString(controller.config.getInteger("PlayerHP")), default_skin, 600, y -= yDiff, 86, 25, false);
+        stage.addActor(textField_playerHP);
+
+        label_movementSpeed = new LabelC("Movementspeed: ", default_skin, x, y -= yDiff, false);
+        stage.addActor(label_movementSpeed);
+        textField_movementSpeed = new TextFieldC(Integer.toString(controller.config.getInteger("MovementSpeed")), default_skin, 600, y -= yDiff, 86, 25, false);
+        stage.addActor(textField_movementSpeed);
+
+        label_waveCooldown = new LabelC("Wave Cooldown: ", default_skin, x, y -= yDiff, false);
+        stage.addActor(label_waveCooldown);
+        textField_waveCooldown = new TextFieldC(Integer.toString(controller.config.getInteger("EnemyWaveCooldown")), default_skin, 600, y -= yDiff, 86, 25, false);
+        stage.addActor(textField_waveCooldown);
+
+        label_shootCooldown = new LabelC("Shoot Cooldown: ", default_skin, x, y -= yDiff, false);
+        stage.addActor(label_shootCooldown);
+        System.out.println("y: " + y + "ydiff: " + yDiff);
+        textField_shootCooldown = new TextFieldC(Integer.toString(controller.config.getInteger("shootcooldown")), default_skin, 600, y -= yDiff, 86, 25, false);
+        stage.addActor(textField_shootCooldown);
+
+        label_ItemSpawnCooldown = new LabelC("Item Spawn Cooldown: ", default_skin, x, y -= yDiff, false);
+        stage.addActor(label_ItemSpawnCooldown);
+        textField_ItemSpawnCooldown = new TextFieldC(Integer.toString(controller.config.getInteger("ItemSpawnCooldown")), default_skin, 600, y - yDiff, 86, 25, false);
+        stage.addActor(textField_ItemSpawnCooldown);
 
         fullscreen_button.addListener(new InputListener() {
             @Override
@@ -212,21 +226,21 @@ public class GUI {
             }
         });
 
-        resume_button.addListener(new InputListener(){
+        resume_button.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 controller.gameState = Controller.GameState.INGAME;
                 return true;
             }
         });
-        exit_button.addListener(new InputListener(){
+        exit_button.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 Gdx.app.exit();
                 return true;
             }
         });
-        cheatmenu_button.addListener(new InputListener(){
+        cheatmenu_button.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 setPauseMenuButtonsVisibility(false);
@@ -238,6 +252,7 @@ public class GUI {
         });
 
     }
+
     public void setCheatMenuButtonsVisibility(boolean visible) {
         back_button.setVisible(visible);
         //checkBox_onlyPinkGuys.setVisible(visible);
