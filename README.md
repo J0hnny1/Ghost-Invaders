@@ -1,5 +1,5 @@
 # Ghost-Invaders
-A top-down pixel art shooter inspired by the mini game Journey of the Prairie King in Stardew Valley. This started as a school project, I am not sure if I update the game.
+A top-down pixel art shooter inspired by the mini game Journey of the Prairie King in Stardew Valley. This started as a [school project](https://www.youtube.com/watch?v=CnTheOHwhQw), I am not sure if I update the game.
 
 
 ## Game Features
